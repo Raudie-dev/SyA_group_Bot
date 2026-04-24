@@ -1,0 +1,71 @@
+{% extends "base_admin.html" %}
+{% block title %}{% if user %}Editar usuario{% else %}Crear usuario{% endif %} — EasyBot{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="eyebrow">Usuarios</div>
+    <h1>{% if user %}Editar Usuario{% else %}Crear Usuario{% endif %}</h1>
+    <p>{% if user %}Modifica los datos del usuario.{% else %}Completa los datos para crear un nuevo usuario.{% endif %}</p>
+</div>
+
+{% if messages %}
+<div class="alerts">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" class="card form-card">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" id="nombre" name="nombre" class="form-control" value="{{ user.nombre|default_if_none:'' }}" required>
+    </div>
+
+    <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" id="password" name="password" class="form-control" {% if not user %}required{% endif %}>
+        <div class="form-hint">{% if user %}Dejar vacío para conservar la contraseña actual.{% else %}Es obligatorio al crear un usuario.{% endif %}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="email" class="form-control" value="{{ user.email|default_if_none:'' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" id="telefono" name="telefono" class="form-control" value="{{ user.telefono|default_if_none:'' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="plan" class="form-label">Plan</label>
+        <select id="plan" name="plan" class="form-control" required>
+            {% for value, label in plans %}
+            <option value="{{ value }}" {% if user and user.plan == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-gold">{% if user %}Guardar usuario{% else %}Crear usuario{% endif %}</button>
+        <a href="{% url 'usuarios_control' %}" class="btn btn-secondary">Volver a lista</a>
+    </div>
+</form>
+
+<style>
+    .form-card { background: var(--navy-mid); padding: 28px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); max-width: 680px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); }
+    .form-control { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--navy); color: var(--text); }
+    .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+    .form-hint { margin-top: 6px; font-size: 0.83rem; color: var(--text-muted); }
+    .form-actions { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .btn-gold { background: var(--gold); color: var(--navy); border: none; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.12); }
+    .alerts { margin-bottom: 20px; }
+    .alert { border-radius: 12px; padding: 14px 18px; }
+</style>
+{% endblock %}

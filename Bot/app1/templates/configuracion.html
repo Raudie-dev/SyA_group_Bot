@@ -1,0 +1,44 @@
+{% extends 'base_control.html' %}
+{% block title %}Configuración — EasyBot{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="eyebrow">Ajustes</div>
+    <h1>Mis Bots</h1>
+    <p>Gestiona tus agentes de WhatsApp.</p>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-title">Bots configurados</div>
+    <a href="{% url 'create_bot' %}" class="btn btn-gold" style="margin-bottom: 16px;">
+        <i class="fas fa-plus"></i> Crear nuevo bot
+    </a>
+    {% if bots %}
+    <table class="table align-middle" style="background: var(--navy-mid); color: var(--text); border-radius:12px; overflow:hidden;">
+        <thead style="background: var(--navy-mid); color: var(--text);">
+            <tr>
+                <th style="background: var(--navy-mid); color: var(--text);">Nombre</th>
+                <th style="background: var(--navy-mid); color: var(--text);">Mensaje de bienvenida</th>
+                <th style="background: var(--navy-mid); color: var(--text);">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bot in bots %}
+            <tr style="background: var(--navy-mid); color: var(--text);">
+                <td style="background: var(--navy-mid); color: var(--text);">{{ bot.nombre }}</td>
+                <td style="background: var(--navy-mid); color: var(--text);">{{ bot.mensaje_bienvenida|truncatechars:50 }}</td>
+                <td style="background: var(--navy-mid); color: var(--text);">
+                    <a href="{% url 'edit_bot' bot.id %}" class="btn btn-sm btn-primary">Editar</a>
+                    <a href="{% url 'delete_bot' bot.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este bot?')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes bots configurados. <a href="{% url 'create_bot' %}">Crear el primero</a>.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

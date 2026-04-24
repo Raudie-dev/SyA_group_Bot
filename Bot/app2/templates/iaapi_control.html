@@ -1,0 +1,147 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Control de APIs de IA</h2>
+  <div class="row">
+    <div class="col-md-6">
+      <h4>APIs disponibles</h4>
+      <table class="table table-dark table-bordered">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>URL</th>
+            <th>Activo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for api in apis %}
+          <tr>
+            <td>{{ api.get_nombre_display }}</td>
+            <td>{{ api.descripcion }}</td>
+            <td>
+              {% if api.nombre == 'easybot' %}
+                <form class="easybot-url-form d-flex" method="post" style="gap:4px;">
+                  <input type="hidden" name="action" value="set_easybot_api">
+                  <input type="text" name="url" value="{{ api.url }}" class="form-control form-control-sm" placeholder="URL EasyBot">
+                  <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                </form>
+              {% else %}
+                {{ api.url }}
+              {% endif %}
+            </td>
+            <td>
+              {% if api.activo %}
+                <span class="badge bg-success">Sí</span>
+              {% else %}
+                <span class="badge bg-secondary">No</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if api.activo %}
+                <button class="btn btn-sm btn-danger toggle-api" data-api-id="{{ api.id }}">Desactivar</button>
+              {% else %}
+                <button class="btn btn-sm btn-success toggle-api" data-api-id="{{ api.id }}">Activar</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6">
+      <h4>Acceso de usuarios a APIs</h4>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            {% for api in apis %}
+            <th>{{ api.get_nombre_display }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for user_access in user_access_list %}
+          <tr>
+            <td>{{ user_access.user.nombre }}</td>
+            {% for api_access in user_access.apis %}
+            <td>
+              <input type="checkbox" class="form-check-input set-access" data-user-id="{{ user_access.user.id }}" data-api-id="{{ api_access.api.id }}" {% if api_access.enabled %}checked{% endif %} {% if not api_access.api.activo %}disabled{% endif %}>
+              {% if api_access.user_api_key %}
+                <span class="badge bg-info">Key</span>
+              {% endif %}
+              {% if api_access.api.nombre != 'easybot' %}
+                <button class="btn btn-sm btn-outline-secondary set-user-key" data-user-id="{{ user_access.user.id }}" data-api-id="{{ api_access.api.id }}">Key</button>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para asignar API Key personalizada -->
+<div class="modal fade" id="userKeyModal" tabindex="-1" aria-labelledby="userKeyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="userKeyModalLabel">Asignar API Key personalizada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="userKeyForm">
+          <input type="hidden" name="user_id" id="modalUserId">
+          <input type="hidden" name="api_id" id="modalApiId">
+          <div class="mb-3">
+            <label for="modalUserApiKey" class="form-label">API Key</label>
+            <input type="text" class="form-control" name="user_api_key" id="modalUserApiKey" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Toggle API activa
+$('.toggle-api').click(function() {
+  var api_id = $(this).data('api-id');
+  $.post('', {action: 'toggle_api', api_id: api_id, csrfmiddlewaretoken: '{{ csrf_token }}'}, function(resp) {
+    if(resp.success) location.reload();
+  });
+});
+// Set acceso usuario a API
+$('.set-access').change(function() {
+  var user_id = $(this).data('user-id');
+  var api_id = $(this).data('api-id');
+  var enabled = $(this).is(':checked');
+  $.post('', {action: 'set_user_access', user_id: user_id, api_id: api_id, enabled: enabled, csrfmiddlewaretoken: '{{ csrf_token }}'}, function(resp) {
+    if(!resp.success) alert('Error al cambiar acceso');
+  });
+});
+// Modal para asignar API Key personalizada
+$('.set-user-key').click(function() {
+  $('#modalUserId').val($(this).data('user-id'));
+  $('#modalApiId').val($(this).data('api-id'));
+  $('#userKeyModal').modal('show');
+});
+$('#userKeyForm').submit(function(e) {
+  e.preventDefault();
+  $.post('', $(this).serialize() + '&action=set_user_api_key&csrfmiddlewaretoken={{ csrf_token }}', function(resp) {
+    if(resp.success) location.reload();
+  });
+});
+// Guardar URL EasyBot
+$('.easybot-url-form').submit(function(e) {
+  e.preventDefault();
+  $.post('', $(this).serialize() + '&csrfmiddlewaretoken={{ csrf_token }}', function(resp) {
+    if(resp.success) location.reload();
+  });
+});
+</script>
+{% endblock %}

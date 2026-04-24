@@ -1,0 +1,85 @@
+{% extends "base_admin.html" %}
+{% block title %}Usuarios — EasyBot{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="eyebrow">Panel de usuarios</div>
+    <h1>Gestión de Usuarios</h1>
+    <a href="{% url 'usuarios_create' %}" class="btn btn-gold">Crear nuevo usuario</a>
+</div>
+
+{% if messages %}
+<div class="alerts">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card card-table">
+    <div class="card-title">Usuarios registrados</div>
+    <div class="table-responsive">
+        <table class="table align-middle" style="background: var(--navy-mid); color: var(--text); border-radius:12px; overflow:hidden;">
+            <thead style="background: var(--navy-mid); color: var(--text);">
+                <tr>
+                    <th style="background: var(--navy-mid); color: var(--text);">Nombre</th>
+                    <th style="background: var(--navy-mid); color: var(--text);">Email</th>
+                    <th style="background: var(--navy-mid); color: var(--text);">Teléfono</th>
+                    <th style="background: var(--navy-mid); color: var(--text);">Plan</th>
+                    <th style="background: var(--navy-mid); color: var(--text);">Estado</th>
+                    <th style="background: var(--navy-mid); color: var(--text);" class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in usuarios %}
+                <tr style="background: var(--navy-mid); color: var(--text);">
+                    <td style="background: var(--navy-mid); color: var(--text);">{{ user.nombre }}</td>
+                    <td style="background: var(--navy-mid); color: var(--text);">{{ user.email }}</td>
+                    <td style="background: var(--navy-mid); color: var(--text);">{{ user.telefono }}</td>
+                    <td style="background: var(--navy-mid); color: var(--text);">{{ user.get_plan_display }}</td>
+                    <td style="background: var(--navy-mid); color: var(--text);">
+                        {% if user.bloqueado %}
+                        <span class="badge badge-danger">Bloqueado</span>
+                        {% else %}
+                        <span class="badge badge-success">Activo</span>
+                        {% endif %}
+                    </td>
+                    <td style="background: var(--navy-mid); color: var(--text);" class="text-end actions-cell">
+                        <a href="{% url 'usuarios_edit' user.id %}" class="btn btn-outline">Editar</a>
+                        <form method="post" class="d-inline-block ms-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="bloquear">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-danger-soft">{% if user.bloqueado %}Desbloquear{% else %}Bloquear{% endif %}</button>
+                        </form>
+                        <form method="post" class="d-inline-block ms-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="eliminar">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-danger-soft">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr style="background: var(--navy-mid); color: var(--text);">
+                    <td colspan="6" style="background: var(--navy-mid); color: var(--text);" class="text-center text-muted">No hay usuarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .card-table { background: var(--navy-mid); border: 1px solid rgba(255,255,255,0.08); padding: 24px; border-radius: 20px; }
+    .card-table .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; }
+    .badge { padding: 0.45rem 0.75rem; border-radius: 999px; font-size: 0.78rem; }
+    .badge-success { background: rgba(74,222,128,0.12); color: #4ADE80; }
+    .badge-danger { background: rgba(248,113,113,0.12); color: #F87171; }
+    .alert { margin-bottom: 20px; border-radius: 12px; }
+    .actions-cell { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+    .btn-danger-soft { color: var(--text); background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.2); }
+    .btn-outline { border: 1px solid var(--gold); color: var(--gold); background: transparent; }
+    .btn-outline:hover { background: var(--gold); color: var(--navy); }
+</style>
+{% endblock %}

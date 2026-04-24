@@ -1,0 +1,176 @@
+{% extends 'base_control.html' %}
+
+{% block title %}Configuración WhatsApp{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Configuración WhatsApp</h1>
+        <p class="page-description">Aquí se genera el QR y se administra la conexión del bot con WhatsApp.</p>
+    </div>
+    <div>
+        <a href="{% url 'configuracion' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Volver a configuración general
+        </a>
+    </div>
+</div>
+
+<div class="card card-full">
+    <div class="card-title">Conexión WhatsApp</div>
+
+    {% if bot %}
+    <div class="status-row" style="margin-bottom: 16px;">
+        {% if bot_status == 'connected' %}
+        <div class="status-badge status-connected">
+            <span class="status-dot"></span>
+            <i class="fas fa-check-circle"></i>
+            Conectado
+        </div>
+        {% elif bot_status == 'initializing' %}
+        <div class="status-badge status-initializing">
+            <span class="status-dot"></span>
+            <i class="fas fa-spinner fa-spin"></i>
+            Inicializando
+        </div>
+        {% elif bot_status == 'unlinked' %}
+        <div class="status-badge status-unlinked">
+            <span class="status-dot"></span>
+            <i class="fas fa-link-slash"></i>
+            Desvinculado
+        </div>
+        {% else %}
+        <div class="status-badge status-unknown">
+            <span class="status-dot"></span>
+            <i class="fas fa-circle-question"></i>
+            {{ bot_status }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="actions-row" style="margin-bottom: 24px;">
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="generate_qr" value="1">
+            <button class="btn btn-gold btn-sm" type="submit">
+                <i class="fas fa-qrcode"></i>
+                Generar QR
+            </button>
+        </form>
+
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="unlink" value="1">
+            <button class="btn btn-danger-soft btn-sm" type="submit">
+                <i class="fas fa-link-slash"></i>
+                Desvincular
+            </button>
+        </form>
+    </div>
+
+    {% if qr %}
+    <div class="qr-area-compact">
+        <div class="qr-wrap-compact">
+            <img
+                id="qr-img"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data={{ qr|urlencode }}"
+                alt="QR WhatsApp"
+            >
+        </div>
+        <div class="qr-hint-compact">
+            <i class="fab fa-whatsapp"></i>
+            Escanea para conectar
+        </div>
+    </div>
+    {% else %}
+    <div class="qr-empty-compact" id="qr-area">
+        <div class="qr-empty-icon"><i class="fas fa-qrcode"></i></div>
+        <p id="qr-status">Pulsa "Generar QR" para iniciar la conexión.</p>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="qr-placeholder">
+        <div class="qr-placeholder-icon">
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+        <h4>Guarda primero la configuración general del bot</h4>
+        <p>Regresa a la pantalla de configuración general para crear tu bot y luego podrás conectar WhatsApp desde esta pantalla.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .qr-area-compact {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    .qr-wrap-compact {
+        padding: 12px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+    }
+    .qr-wrap-compact img {
+        display: block;
+        border-radius: 8px;
+        width: 260px;
+        height: 260px;
+    }
+    .qr-hint-compact {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .qr-empty-compact {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 28px 14px;
+        text-align: center;
+    }
+    .qr-empty-icon {
+        font-size: 2.4rem;
+        color: var(--navy-light);
+    }
+    .qr-empty-compact p {
+        color: var(--text-muted);
+        margin: 0;
+        max-width: 420px;
+    }
+    .qr-placeholder {
+        text-align: center;
+        padding: 32px 16px;
+        border: 1px dashed rgba(55, 65, 81, 0.2);
+        border-radius: 16px;
+        background: rgba(248, 250, 252, 0.8);
+    }
+    .qr-placeholder-icon {
+        font-size: 3rem;
+        color: var(--navy-light);
+        margin-bottom: 18px;
+    }
+    .qr-placeholder h4 {
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+    .qr-placeholder p {
+        color: var(--text-muted);
+        max-width: 520px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
