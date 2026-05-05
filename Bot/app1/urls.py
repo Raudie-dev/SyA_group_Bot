@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -15,4 +17,14 @@ urlpatterns = [
     path('configuracion/crear/', views.create_edit_bot, name='create_bot'),
     path('configuracion/editar/<int:bot_id>/', views.create_edit_bot, name='edit_bot'),
     path('configuracion/eliminar/<int:bot_id>/', views.delete_bot, name='delete_bot'),
+    path('agentes/', views.agentes, name='agentes'),
+    path('agentes/crear/', views.agente_crear, name='agente_crear'),
+    path('agentes/editar/<int:agente_id>/', views.agente_editar, name='agente_editar'),
+    path('agentes/eliminar/<int:agente_id>/', views.agente_eliminar, name='agente_eliminar'),
+    path('departamentos/', views.departamentos, name='departamentos'),
+    path('departamentos/crear/', views.departamento_crear, name='departamento_crear'),
+    path('departamentos/editar/<int:dpto_id>/', views.departamento_editar, name='departamento_editar'),
+    path('departamentos/eliminar/<int:dpto_id>/', views.departamento_eliminar, name='departamento_eliminar'),
+    path('reset-chat/', views.reset_chat, name='reset_chat'),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

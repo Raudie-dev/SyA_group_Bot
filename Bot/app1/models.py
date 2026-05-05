@@ -1,27 +1,11 @@
 from django.db import models
-
-class Prueba(models.Model):
-    nombre = models.CharField(max_length=200)
-    fecha = models.DateField()
-    socio = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.nombre
-    
 class User(models.Model):
-
-    PLAN_CHOICES = [
-        ('base', 'Base (1 bot)'),
-        ('especial', 'Especial (3 bots)'),
-        ('premium', 'Premium (ilimitado)')
-    ]
     nombre = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=128)
     bloqueado = models.BooleanField(default=False)
     email = models.EmailField(max_length=150, unique=True, null=True, blank=True)
     telefono = models.CharField(max_length=20, null=True, blank=True)
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='base')
-
+    
     def __str__(self):
         return self.nombre
     
@@ -67,6 +51,25 @@ class WhatsAppMessage(models.Model):
     replied = models.BooleanField(default=False)
     reply_text = models.TextField(blank=True, null=True)
     replied_at = models.DateTimeField(blank=True, null=True)
+    transferido = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Msg from {self.remote_jid} at {self.received_at}"
+    
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True)
+    owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='departamentos', null=True)
+
+    def __str__(self):
+        return self.nombre
+
+class Agente(models.Model):
+    nombre = models.CharField(max_length=100)
+    numero_whatsapp = models.CharField(max_length=20)
+    departamentos = models.ManyToManyField(Departamento, related_name='agentes', blank=True)
+    activo = models.BooleanField(default=True)
+    owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='agentes', null=True)
+
+    def __str__(self):
+        return self.nombre

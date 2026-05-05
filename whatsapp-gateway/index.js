@@ -24,7 +24,7 @@ const backoffMap = new Map();
 function sessionId(user, slot) {
   const s = slot === undefined || slot === null ? '0' : String(slot);
   const u = user === undefined || user === null ? 'default' : String(user);
-  return `${u}:${s}`;
+  return `${u}_${s}`;
 }
 
 // Extrae texto del mensaje en los distintos tipos soportados
@@ -119,11 +119,14 @@ async function startSocketFor(sid = 'default:0') {
     });
 
     // Escucha mensajes entrantes, los reenvía al webhook de Django y responde al usuario
+    /* 
     sock.ev.on('messages.upsert', async (m) => {
       try {
         const messages = m.messages || [];
         for (const msg of messages) {
           if (!msg.message || msg.key?.fromMe) continue;
+          if (msg.key.remoteJid.endsWith('@g.us')) continue;
+          if (msg.key.remoteJid === 'status@broadcast') continue;
 
           const remoteJid = msg.key.remoteJid || '';
           const pushName = msg.pushName || msg.contact?.name || '';
@@ -131,16 +134,17 @@ async function startSocketFor(sid = 'default:0') {
 
           // Enviar al webhook de Django y reenviar la respuesta al usuario
           try {
-            const owner = String(sid).split(':')[0];
+            const owner = String(sid).split('_')[0];
             const resp = await axios.post(
-              DJANGO_WEBHOOK,
-              { remoteJid, pushName, messageText, session: sid, owner },
-              { headers: { 'Content-Type': 'application/json' } }
+                DJANGO_WEBHOOK,
+                { remoteJid, pushName, messageText, session: sid, owner },
+                { headers: {
+                    'Content-Type': 'application/json',
+                    'X-Webhook-Secret': process.env.WEBHOOK_SECRET || 'pon-aqui-un-token-largo-y-aleatorio-32chars'
+                }}
             );
-            if (resp && resp.data && resp.data.reply) {
+            if (resp && resp.data && resp.data.reply && resp.data.reply.trim() !== '') {
               await sock.sendMessage(remoteJid, { text: resp.data.reply });
-            } else {
-              console.warn('Respuesta inesperada del webhook:', resp && resp.data);
             }
           } catch (err) {
             console.error('Error enviando webhook a Django o reenviando mensaje:', err.message || err);
@@ -150,7 +154,8 @@ async function startSocketFor(sid = 'default:0') {
         console.error('Error procesando messages.upsert:', err);
       }
     });
-
+    */
+   
     console.log(`Socket inicializado para session=${sid}`);
     return sock;
   } catch (err) {
@@ -181,6 +186,10 @@ function startServer() {
     const slot = req.query.slot || '0';
     const sid = sessionId(user, slot);
     try {
+      // Si ya esta conectado, no hacer nada
+      if (statuses.get(sid) === 'connected') {
+        return res.json({ ok: true, message: 'Ya conectado', qr: null });
+      }
       const dir = path.resolve(`./auth_info/${sid}`);
       if (fs.existsSync(dir)) {
         fs.rmSync(dir, { recursive: true, force: true });
@@ -265,7 +274,40 @@ function startServer() {
     return res.json({ status });
   });
 
-  app.listen(PORT, () => console.log(`WhatsApp gateway escuchando en http://localhost:${PORT}`));}
+  app.post('/send-doc', async (req, res) => {
+    const { number, message, filename, filedata } = req.body || {};
+    const user = req.query.user || req.body.user || 'default';
+    const slot = req.query.slot || req.body.slot || '0';
+    const sid = sessionId(user, slot);
+
+    if (!number || !filedata) return res.status(400).json({ error: 'Faltan campos: number y filedata' });
+
+    const sock = sockets.get(sid);
+    if (!sock) return res.status(503).json({ error: `Socket no inicializado para session=${sid}` });
+
+    try {
+      const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`;
+      const buffer = Buffer.from(filedata, 'base64');
+
+      if (message) {
+        await sock.sendMessage(jid, { text: message });
+      }
+
+      await sock.sendMessage(jid, {
+        document: buffer,
+        mimetype: 'application/pdf',
+        fileName: filename || 'consulta.pdf'
+      });
+
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error('Error enviando documento:', err?.message || err);
+      return res.status(500).json({ error: 'Error enviando documento', details: err?.message || String(err) });
+    }
+  });
+
+  app.listen(PORT, () => console.log(`WhatsApp gateway escuchando en http://localhost:${PORT}`));
+}
 
 
 (async () => {

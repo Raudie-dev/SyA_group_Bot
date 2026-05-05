@@ -1,0 +1,126 @@
+{% extends 'base_control.html' %}
+{% block title %}{% if agente %}Editar Agente{% else %}Nuevo Agente{% endif %} — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+    <div>
+        <div class="page-eyebrow">Equipo</div>
+        <h1 class="page-title">{% if agente %}Editar Agente{% else %}Nuevo Agente{% endif %}</h1>
+        <p class="page-subtitle">{% if agente %}Modifica los datos del agente.{% else %}Agrega un agente humano para recibir transferencias del bot.{% endif %}</p>
+    </div>
+    <a href="{% url 'agentes' %}" class="btn btn-secondary" style="margin-top:6px;">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+    </a>
+</div>
+
+<div class="panel" style="max-width:520px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+            <label class="field-label" for="nombre">Nombre del agente</label>
+            <input
+                class="field-input"
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{ agente.nombre }}"
+                placeholder="Ej: Maria Lopez"
+                required
+                autofocus
+            >
+        </div>
+
+        <div class="field">
+            <label class="field-label" for="numero_whatsapp">Numero de WhatsApp</label>
+            <div style="position:relative;">
+                <input
+                    class="field-input"
+                    type="text"
+                    id="numero_whatsapp"
+                    name="numero_whatsapp"
+                    value="{{ agente.numero_whatsapp }}"
+                    placeholder="Ej: 573001234567"
+                    required
+                    style="padding-left:38px;"
+                >
+                <i class="fab fa-whatsapp" style="position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--color-brand-green); font-size:.85rem; pointer-events:none;"></i>
+            </div>
+            <p class="field-hint">Solo digitos, sin espacios ni simbolos. Incluye codigo de pais.</p>
+        </div>
+
+        <div class="field">
+            <label class="field-label" for="departamento">Departamento</label>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                {% for dpto in departamentos %}
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; transition:border-color 0.2s;"
+                    onmouseover="this.style.borderColor='var(--color-brand-blue)'"
+                    onmouseout="this.style.borderColor='var(--color-border)'">
+                    <input type="checkbox" name="departamentos" value="{{ dpto.id }}"
+                        {% if agente and dpto in agente.departamentos.all %}checked{% endif %}
+                        style="width:16px; height:16px; accent-color:var(--color-brand-blue); cursor:pointer;">
+                    <span style="font-size:.875rem; font-weight:500; color:var(--color-text);">{{ dpto.nombre }}</span>
+                    {% if dpto.descripcion %}
+                    <span style="font-size:.75rem; color:var(--color-text-muted); margin-left:auto;">{{ dpto.descripcion }}</span>
+                    {% endif %}
+                </label>
+                {% endfor %}
+                {% if not departamentos %}
+                <p class="field-hint" style="color:var(--color-brand-orange);">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    No hay departamentos. <a href="{% url 'departamento_crear' %}" style="color:var(--color-brand-blue-light); text-decoration:none;">Crea uno primero.</a>
+                </p>
+                {% endif %}
+            </div>
+            {% if not departamentos %}
+            <p class="field-hint" style="color:var(--color-brand-orange);">
+                <i class="fas fa-triangle-exclamation"></i>
+                No hay departamentos. <a href="{% url 'departamento_crear' %}" style="color:var(--color-brand-blue-light); text-decoration:none;">Crea uno primero.</a>
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="field" style="margin-bottom:28px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <div style="position:relative; width:42px; height:24px; flex-shrink:0;">
+                    <input
+                        type="checkbox"
+                        id="activo"
+                        name="activo"
+                        {% if not agente or agente.activo %}checked{% endif %}
+                        style="opacity:0; width:0; height:0; position:absolute;"
+                        onchange="
+                            const track = document.getElementById('toggle-track');
+                            const thumb = document.getElementById('toggle-thumb');
+                            if(this.checked) {
+                                track.style.background = 'var(--color-brand-blue)';
+                                thumb.style.transform = 'translateX(18px)';
+                            } else {
+                                track.style.background = 'var(--color-surface-light)';
+                                thumb.style.transform = 'translateX(2px)';
+                            }
+                        "
+                    >
+                    <div id="toggle-track" style="position:absolute; inset:0; border-radius:99px; background:{% if not agente or agente.activo %}var(--color-brand-blue){% else %}var(--color-surface-light){% endif %}; transition:background 0.2s ease;"></div>
+                    <div id="toggle-thumb" style="position:absolute; top:2px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.2); transition:transform 0.2s ease; transform:{% if not agente or agente.activo %}translateX(18px){% else %}translateX(2px){% endif %};"></div>
+                </div>
+                <div>
+                    <span class="field-label" style="margin:0; display:block;">Agente activo</span>
+                    <span class="field-hint" style="margin:0;">El bot solo transfiere a agentes activos.</span>
+                </div>
+            </label>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary" {% if not departamentos %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                <i class="fas fa-floppy-disk"></i>
+                {% if agente %}Guardar cambios{% else %}Crear agente{% endif %}
+            </button>
+            <a href="{% url 'agentes' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

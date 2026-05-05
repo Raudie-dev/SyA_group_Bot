@@ -1,0 +1,59 @@
+{% extends 'base_control.html' %}
+{% block title %}{% if dpto %}Editar Departamento{% else %}Nuevo Departamento{% endif %} — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+    <div>
+        <div class="page-eyebrow">Equipo</div>
+        <h1 class="page-title">{% if dpto %}Editar Departamento{% else %}Nuevo Departamento{% endif %}</h1>
+        <p class="page-subtitle">{% if dpto %}Modifica los datos del departamento.{% else %}Crea un nuevo departamento para organizar tus agentes.{% endif %}</p>
+    </div>
+    <a href="{% url 'departamentos' %}" class="btn btn-secondary" style="margin-top:6px;">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+    </a>
+</div>
+
+<div class="panel" style="max-width:520px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+            <label class="field-label" for="nombre">Nombre del departamento</label>
+            <input
+                class="field-input"
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{ dpto.nombre }}"
+                placeholder="Ej: Ventas, Soporte, Facturacion"
+                required
+                autofocus
+            >
+            <p class="field-hint">Este nombre se usa para enrutar las conversaciones del bot.</p>
+        </div>
+
+        <div class="field" style="margin-bottom:28px;">
+            <label class="field-label" for="descripcion">Descripcion</label>
+            <textarea
+                class="field-input"
+                id="descripcion"
+                name="descripcion"
+                rows="3"
+                placeholder="Describe brevemente las funciones de este departamento..."
+            >{{ dpto.descripcion }}</textarea>
+            <p class="field-hint">Opcional. Ayuda a identificar el proposito del departamento.</p>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-floppy-disk"></i>
+                {% if dpto %}Guardar cambios{% else %}Crear departamento{% endif %}
+            </button>
+            <a href="{% url 'departamentos' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

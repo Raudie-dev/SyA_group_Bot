@@ -1,33 +1,70 @@
-{% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SyA Group · Sangüesa y Asociados</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700&display=swap" rel="stylesheet"/>
+
+    {% tailwind_css %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* Topographic radial pattern */
-        .topo-pattern {
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Figtree', sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .topo {
             background-image:
                 repeating-radial-gradient(ellipse at 65% 50%, transparent 0, transparent 52px, rgba(255,255,255,0.03) 52px, rgba(255,255,255,0.03) 53px),
                 repeating-radial-gradient(ellipse at 65% 50%, transparent 0, transparent 90px, rgba(255,255,255,0.02) 90px, rgba(255,255,255,0.02) 91px);
         }
 
-        /* Diagonal clip */
         .clip-hero { clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%); }
         .clip-inv  { clip-path: polygon(0 4%, 100% 0, 100% 100%, 0 100%); }
 
-        /* Animations */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
+            from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes floatY {
             0%, 100% { transform: translateY(0); }
             50%       { transform: translateY(-10px); }
+        }
+        @keyframes pulseFab {
+            0%   { box-shadow: 0 0 0 0 rgba(255,140,66,0.55); }
+            70%  { box-shadow: 0 0 0 14px rgba(255,140,66,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,140,66,0); }
+        }
+        @keyframes typingDot {
+            0%, 60%, 100% { transform: translateY(0); opacity: .35; }
+            30%            { transform: translateY(-4px); opacity: 1; }
+        }
+        @keyframes chatSlideUp {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes ctaSlide {
+            from { opacity: 0; transform: translateX(12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes transferIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
         }
 
         .anim-1 { animation: fadeUp .7s .00s cubic-bezier(.22,1,.36,1) both; }
@@ -36,726 +73,476 @@
         .anim-4 { animation: fadeUp .7s .36s cubic-bezier(.22,1,.36,1) both; }
         .float  { animation: floatY 5s ease-in-out infinite; }
 
-        /* Navbar scroll */
-        .nav-solid {
-            background: rgba(2, 82, 131, 0.97) !important;
-            backdrop-filter: blur(12px);
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 50;
+            transition: all .3s ease;
+            background: linear-gradient(to bottom, rgba(2,82,131,0.6) 0%, transparent 100%);
+        }
+        #navbar.scrolled {
+            background: rgba(2,82,131,0.97);
+            backdrop-filter: blur(14px);
             box-shadow: 0 2px 20px rgba(0,0,0,0.2);
         }
+        .nav-link {
+            font-size: .875rem; font-weight: 500;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            transition: color .2s ease;
+        }
+        .nav-link:hover { color: #fff; }
 
-        /* Card hover */
         .service-card {
+            background: #fff; border-radius: 16px; padding: 28px;
+            border: 1px solid #f3f4f6; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
             transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+            cursor: default;
         }
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(3,103,166,0.10);
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(3,103,166,0.10); }
+        .service-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; transition: transform .3s ease; }
+        .service-card:hover .service-icon { transform: scale(1.1); }
+        .service-tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; padding: 3px 9px; border-radius: 6px; }
+        .service-title { font-size: .95rem; font-weight: 700; color: #025283; margin-bottom: 10px; }
+        .service-desc { font-size: .82rem; font-weight: 300; line-height: 1.65; color: #6b7280; }
+        .stat-card { padding: 28px; border-radius: 16px; background: #fff; border: 1px solid #f3f4f6; box-shadow: 0 1px 4px rgba(0,0,0,0.04); text-align: center; }
+        .stat-num { font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; }
+        .stat-label { font-size: .82rem; font-weight: 300; color: #6b7280; line-height: 1.5; }
+
+        /* ── Chat Widget ─────────────────────── */
+        #chat-widget {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            z-index: 9999; display: flex; flex-direction: column;
+            align-items: flex-end; gap: 10px;
+            font-family: 'Figtree', sans-serif;
         }
 
-        /* Underline grow on hover */
-        .underline-grow::after {
-            content: '';
-            display: block;
-            height: 2px;
-            width: 0;
-            background: #ff8c42;
-            border-radius: 99px;
-            transition: width .4s ease;
-            margin-top: 10px;
+        #chat-cta {
+            display: flex; align-items: center; gap: 10px;
+            background: #fff; border-radius: 14px; padding: 11px 15px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.06);
+            border: 1px solid #f0f0f0; cursor: pointer; max-width: 255px;
+            animation: ctaSlide .5s .8s cubic-bezier(.22,1,.36,1) both;
+            transition: transform .2s ease, box-shadow .2s ease;
         }
-        .service-card:hover .underline-grow::after { width: 100%; }
+        #chat-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.14); }
+        #chat-cta.hidden { display: none !important; }
 
-        /* Assuming Tailwind classes are defined elsewhere, but for standalone, define basic ones */
-        .bg-blue-dark { background-color: #025283; }
-        .bg-orange { background-color: #ff8c42; }
-        .bg-orange-dark { background-color: #e67e22; }
-        .bg-blue { background-color: #0367a6; }
-        .bg-green { background-color: #10b981; }
-        .bg-blue-light { background-color: #3b82f6; }
-        .bg-red { background-color: #ef4444; }
-        .text-blue-dark { color: #025283; }
-        .text-orange { color: #ff8c42; }
-        .text-green { color: #10b981; }
-        .text-blue { color: #0367a6; }
-        .text-blue-light { color: #3b82f6; }
-        .text-red { color: #ef4444; }
-        .text-white { color: #ffffff; }
-        .text-gray-50 { color: #f9fafb; }
-        .text-gray-800 { color: #1f2937; }
-        .text-gray-500 { color: #6b7280; }
-        .text-gray-400 { color: #9ca3af; }
-        .text-gray-900 { color: #111827; }
-        .bg-gray-50 { background-color: #f9fafb; }
-        .bg-gray-900 { background-color: #111827; }
-        .bg-white { background-color: #ffffff; }
-        .border-gray-100 { border-color: #f3f4f6; }
-        .border-gray-800 { border-color: #1f2937; }
-        .border-gray-200 { border-color: #e5e7eb; }
-        .border-gray-300 { border-color: #d1d5db; }
-        .border-t-4 { border-top-width: 4px; }
-        .border-blue-dark { border-color: #025283; }
-        .border-orange { border-color: #ff8c42; }
-        .border-green { border-color: #10b981; }
-        .border-blue { border-color: #0367a6; }
-        .font-sans { font-family: Figtree, sans-serif; }
-        .font-light { font-weight: 300; }
-        .font-medium { font-weight: 500; }
-        .font-semibold { font-weight: 600; }
-        .font-bold { font-weight: 700; }
-        .text-xs { font-size: 0.75rem; }
-        .text-sm { font-size: 0.875rem; }
-        .text-base { font-size: 1rem; }
-        .text-lg { font-size: 1.125rem; }
-        .text-2xl { font-size: 1.5rem; }
-        .text-3xl { font-size: 1.875rem; }
-        .text-4xl { font-size: 2.25rem; }
-        .text-5xl { font-size: 3rem; }
-        .text-6xl { font-size: 3.75rem; }
-        .leading-tight { line-height: 1.25; }
-        .leading-relaxed { line-height: 1.625; }
-        .leading-snug { line-height: 1.375; }
-        .tracking-widest { letter-spacing: 0.25em; }
-        .tracking-wide { letter-spacing: 0.025em; }
-        .uppercase { text-transform: uppercase; }
-        .italic { font-style: italic; }
-        .opacity-70 { opacity: 0.7; }
-        .opacity-60 { opacity: 0.6; }
-        .opacity-45 { opacity: 0.45; }
-        .opacity-10 { opacity: 0.1; }
-        .opacity-15 { opacity: 0.15; }
-        .pointer-events-none { pointer-events: none; }
-        .overflow-x-hidden { overflow-x: hidden; }
-        .overflow-hidden { overflow: hidden; }
-        .overflow-y-auto { overflow-y: auto; }
-        .fixed { position: fixed; }
-        .absolute { position: absolute; }
-        .relative { position: relative; }
-        .inset-x-0 { left: 0; right: 0; }
-        .top-0 { top: 0; }
-        .top-1/3 { top: 33.333%; }
-        .bottom-0 { bottom: 0; }
-        .bottom-4 { bottom: 1rem; }
-        .bottom-16 { bottom: 4rem; }
-        .left-0 { left: 0; }
-        .right-0 { right: 0; }
-        .right-4 { right: 1rem; }
-        .z-50 { z-index: 50; }
-        .z-10 { z-index: 10; }
-        .flex { display: flex; }
-        .inline-flex { display: inline-flex; }
-        .hidden { display: none; }
-        .block { display: block; }
-        .grid { display: grid; }
-        .items-center { align-items: center; }
-        .items-start { align-items: flex-start; }
-        .justify-center { justify-content: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-1 { gap: 0.25rem; }
-        .gap-1.5 { gap: 0.375rem; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-2.5 { gap: 0.625rem; }
-        .gap-3 { gap: 0.75rem; }
-        .gap-4 { gap: 1rem; }
-        .gap-5 { gap: 1.25rem; }
-        .gap-8 { gap: 2rem; }
-        .gap-10 { gap: 2.5rem; }
-        .gap-14 { gap: 3.5rem; }
-        .gap-16 { gap: 4rem; }
-        .flex-1 { flex: 1 1 0%; }
-        .flex-shrink-0 { flex-shrink: 0; }
-        .self-end { align-self: flex-end; }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .col-span-2 { grid-column: span 2 / span 2; }
-        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .md\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .lg\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .lg\\:flex-row { flex-direction: row; }
-        .lg\\:flex-col { flex-direction: column; }
-        .md\\:col-span-2 { grid-column: span 2 / span 2; }
-        .md\\:text-3xl { font-size: 1.875rem; }
-        .md\\:text-4xl { font-size: 2.25rem; }
-        .md\\:text-5xl { font-size: 3rem; }
-        .md\\:text-6xl { font-size: 3.75rem; }
-        .md\\:py-36 { padding-top: 9rem; padding-bottom: 9rem; }
-        .md\\:p-16 { padding: 4rem; }
-        .md\\:flex-row { flex-direction: row; }
-        .sm\\:flex-row { flex-direction: row; }
-        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-        .py-1.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
-        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-        .py-3.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
-        .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
-        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
-        .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-        .py-16 { padding-top: 4rem; padding-bottom: 4rem; }
-        .py-24 { padding-top: 6rem; padding-bottom: 6rem; }
-        .py-28 { padding-top: 7rem; padding-bottom: 7rem; }
-        .py-32 { padding-top: 8rem; padding-bottom: 8rem; }
-        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
-        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-        .px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
-        .px-8 { padding-left: 2rem; padding-right: 2rem; }
-        .px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }
-        .p-4 { padding: 1rem; }
-        .p-5 { padding: 1.25rem; }
-        .p-6 { padding: 1.5rem; }
-        .p-7 { padding: 1.75rem; }
-        .p-10 { padding: 2.5rem; }
-        .p-16 { padding: 4rem; }
-        .pb-10 { padding-bottom: 2.5rem; }
-        .pb-16 { padding-bottom: 4rem; }
-        .pb-32 { padding-bottom: 8rem; }
-        .pt-6 { padding-top: 1.5rem; }
-        .pt-10 { padding-top: 2.5rem; }
-        .pt-28 { padding-top: 7rem; }
-        .pt-36 { padding-top: 9rem; }
-        .pl-4 { padding-left: 1rem; }
-        .pr-4 { padding-right: 1rem; }
-        .mb-1 { margin-bottom: 0.25rem; }
-        .mb-1.5 { margin-bottom: 0.375rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-2.5 { margin-bottom: 0.625rem; }
-        .mb-3 { margin-bottom: 0.75rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-5 { margin-bottom: 1.25rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        .mb-10 { margin-bottom: 2.5rem; }
-        .mb-14 { margin-bottom: 3.5rem; }
-        .mb-16 { margin-bottom: 4rem; }
-        .mb-20 { margin-bottom: 5rem; }
-        .mt-1 { margin-top: 0.25rem; }
-        .mt-5 { margin-top: 1.25rem; }
-        .mt-8 { margin-top: 2rem; }
-        .ml-4 { margin-left: 1rem; }
-        .mr-4 { margin-right: 1rem; }
-        .m-4 { margin: 1rem; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
-        .w-1.5 { width: 0.375rem; }
-        .w-4 { width: 1rem; }
-        .w-5 { width: 1.25rem; }
-        .w-6 { width: 1.5rem; }
-        .w-8 { width: 2rem; }
-        .w-9 { width: 2.25rem; }
-        .w-10 { width: 2.5rem; }
-        .w-11 { width: 2.75rem; }
-        .w-14 { width: 3.5rem; }
-        .w-16 { width: 4rem; }
-        .w-24 { width: 6rem; }
-        .w-32 { width: 8rem; }
-        .w-52 { width: 13rem; }
-        .w-64 { width: 16rem; }
-        .w-72 { width: 18rem; }
-        .w-80 { width: 20rem; }
-        .w-96 { width: 24rem; }
-        .h-1.5 { height: 0.375rem; }
-        .h-4 { height: 1rem; }
-        .h-5 { height: 1.25rem; }
-        .h-6 { height: 1.5rem; }
-        .h-8 { height: 2rem; }
-        .h-9 { height: 2.25rem; }
-        .h-10 { height: 2.5rem; }
-        .h-11 { height: 2.75rem; }
-        .h-14 { height: 3.5rem; }
-        .h-16 { height: 4rem; }
-        .h-24 { height: 6rem; }
-        .h-32 { height: 8rem; }
-        .h-36 { height: 9rem; }
-        .h-px { height: 1px; }
-        .min-h-screen { min-height: 100vh; }
-        .max-w-xs { max-width: 20rem; }
-        .max-w-lg { max-width: 32rem; }
-        .max-w-[520px] { max-width: 520px; }
-        .max-w-7xl { max-width: 80rem; }
-        .rounded { border-radius: 0.25rem; }
-        .rounded-full { border-radius: 9999px; }
-        .rounded-xl { border-radius: 0.75rem; }
-        .rounded-2xl { border-radius: 1rem; }
-        .rounded-3xl { border-radius: 1.5rem; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .border { border-width: 1px; }
-        .border-t { border-top-width: 1px; }
-        .border-b { border-bottom-width: 1px; }
-        .border-l { border-left-width: 1px; }
-        .border-r { border-right-width: 1px; }
-        .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
-        .border-white/15 { border-color: rgba(255, 255, 255, 0.15); }
-        .border-white/20 { border-color: rgba(255, 255, 255, 0.2); }
-        .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-        .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-        .duration-300 { transition-duration: 300ms; }
-        .ease { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-        .cubic-bezier\\(.22\\,1\\,.36\\,1\\) { transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
-        .cursor-pointer { cursor: pointer; }
-        .hover\\:scale-105:hover { transform: scale(1.05); }
-        .hover\\:scale-110:hover { transform: scale(1.1); }
-        .hover\\:bg-orange-dark:hover { background-color: #e67e22; }
-        .hover\\:text-white:hover { color: #ffffff; }
-        .hover\\:text-orange:hover { color: #ff8c42; }
-        .hover\\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .hover\\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .focus\\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
-        .focus\\:ring-2:focus { box-shadow: 0 0 0 2px; }
-        .focus\\:ring-blue:focus { --tw-ring-color: #0367a6; }
-        .focus\\:border-transparent:focus { border-color: transparent; }
-        .divide-x { border-right-width: 1px; border-left-width: 1px; }
-        .divide-white/10 > * + * { border-color: rgba(255, 255, 255, 0.1); }
-        .space-y-2 > * + * { margin-top: 0.5rem; }
-        .space-y-2.5 > * + * { margin-top: 0.625rem; }
-        .space-y-3 > * + * { margin-top: 0.75rem; }
-        .space-y-4 > * + * { margin-top: 1rem; }
-        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        #chat-window {
+            width: 360px; border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.08);
+            overflow: hidden; border: 1px solid rgba(0,0,0,.06);
+            display: flex; flex-direction: column;
+            animation: chatSlideUp .3s cubic-bezier(.22,1,.36,1);
+        }
+        #chat-window.hidden { display: none !important; }
+
+        .chat-header {
+            background: linear-gradient(135deg, #013d62 0%, #025283 50%, #0367a6 100%);
+            padding: 14px 16px; display: flex; align-items: center;
+            justify-content: space-between; gap: 8px;
+        }
+        .chat-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; position: relative;
+        }
+        .chat-avatar-dot {
+            position: absolute; bottom: 0; right: 0;
+            width: 9px; height: 9px; background: #86bf30;
+            border-radius: 50%; border: 2px solid #025283;
+        }
+        .chat-header-btn {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+            width: 28px; height: 28px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; color: rgba(255,255,255,0.8);
+            font-size: .7rem; transition: background .15s ease, color .15s ease;
+        }
+        .chat-header-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        #chat-messages {
+            flex: 1; overflow-y: auto; padding: 14px 14px 6px;
+            background: #f4f7fb; min-height: 240px; max-height: 320px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        #chat-messages::-webkit-scrollbar { width: 3px; }
+        #chat-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+        .msg-row { animation: msgIn .25s ease both; }
+        .msg-bot {
+            background: #fff; border: 1px solid #e8ecf0;
+            border-radius: 4px 14px 14px 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.05);
+            padding: 9px 13px; max-width: 84%;
+            font-size: .82rem; color: #1f2937; line-height: 1.55;
+        }
+        .msg-user {
+            background: linear-gradient(135deg, #024f7d 0%, #0367a6 100%);
+            border-radius: 14px 14px 4px 14px;
+            padding: 9px 13px; max-width: 84%;
+            font-size: .82rem; color: #fff; line-height: 1.55;
+            box-shadow: 0 2px 8px rgba(2,82,131,.22);
+        }
+        .msg-time { font-size: .6rem; color: #b0bec5; margin-top: 3px; }
+
+        .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: #94a3b8; display: inline-block; }
+        .typing-dot:nth-child(1) { animation: typingDot 1.2s .0s infinite; }
+        .typing-dot:nth-child(2) { animation: typingDot 1.2s .18s infinite; }
+        .typing-dot:nth-child(3) { animation: typingDot 1.2s .36s infinite; }
+
+        .qr-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: .74rem; font-weight: 500; padding: 5px 12px;
+            border-radius: 99px; border: 1px solid #dbe4ee;
+            background: #fff; color: #025283; cursor: pointer;
+            transition: all .15s ease; white-space: nowrap;
+            font-family: 'Figtree', sans-serif;
+        }
+        .qr-chip:hover { background: #025283; border-color: #025283; color: #fff; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(2,82,131,.2); }
+
+        .transfer-card {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+            border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 16px;
+            animation: transferIn .4s cubic-bezier(.22,1,.36,1);
+        }
+        .transfer-card-title {
+            font-size: .78rem; font-weight: 700; color: #025283;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+        }
+        .transfer-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 8px; font-size: .78rem;
+            font-weight: 600; cursor: pointer; border: none;
+            font-family: 'Figtree', sans-serif; transition: all .15s ease;
+        }
+        .transfer-btn-primary { background: #025283; color: #fff; }
+        .transfer-btn-primary:hover { background: #0367a6; transform: translateY(-1px); }
+        .transfer-btn-secondary { background: transparent; color: #6b7280; border: 1px solid #e5e7eb; }
+        .transfer-btn-secondary:hover { background: #f9fafb; }
+
+        .chat-input-area { padding: 10px 12px 12px; background: #fff; border-top: 1px solid #eef0f3; }
+        .chat-input-row { display: flex; align-items: center; gap: 8px; }
+        #chat-input {
+            flex: 1; padding: 9px 13px; border: 1.5px solid #e5e7eb;
+            border-radius: 10px; font-size: .8rem; font-family: 'Figtree', sans-serif;
+            color: #1f2937; background: #f8fafc; outline: none;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        #chat-input:focus { border-color: #0367a6; box-shadow: 0 0 0 3px rgba(3,103,166,.1); background: #fff; }
+        #chat-send {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #ff8c42, #e67a31);
+            border: none; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        #chat-send:hover { transform: scale(1.07); box-shadow: 0 4px 12px rgba(255,140,66,.4); }
+        #chat-send:active { transform: scale(.97); }
+        .chat-powered { font-size: .6rem; color: #d1d5db; text-align: center; margin-top: 6px; }
+
+        #chat-button {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #ff8c42, #e67a31);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255,140,66,.45);
+            animation: pulseFab 2.5s ease-out infinite;
+            transition: transform .2s ease;
+        }
+        #chat-button:hover { transform: scale(1.1); animation: none; box-shadow: 0 8px 26px rgba(255,140,66,.5); }
     </style>
 </head>
-<body class="font-sans antialiased bg-gray-50 text-gray-800 overflow-x-hidden">
+<body>
 
-<!-- ════════════════════════════
-     NAVBAR
-════════════════════════════ -->
-<nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-5 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-
-            <a href="#" class="flex items-center gap-2.5 group">
-                <div class="w-9 h-9 rounded-xl bg-orange flex items-center justify-center shadow-md transition-transform group-hover:scale-105">
-                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 5-8 5H14C8 8 6 12.5 6 12.5A5.5 5.5 0 0117 8z"/>
-                    </svg>
+<!-- Navbar -->
+<nav id="navbar">
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 0;">
+            <a href="#" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <div style="width:36px; height:36px; border-radius:10px; background:#ff8c42; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(255,140,66,.4);">
+                    <i class="fas fa-leaf" style="color:#fff; font-size:.85rem;"></i>
                 </div>
-                <span class="text-white font-semibold text-lg tracking-wide">SyA <span class="font-light opacity-70">Group</span></span>
+                <span style="font-weight:700; font-size:1.05rem; color:#fff; letter-spacing:-.01em;">SyA <span style="font-weight:400; opacity:.7;">Group</span></span>
             </a>
-
-            <div class="hidden md:flex items-center gap-8">
-                <a href="#servicios" class="text-white/75 hover:text-white text-sm font-medium transition-colors">Servicios</a>
-                <a href="#nosotros"  class="text-white/75 hover:text-white text-sm font-medium transition-colors">Nosotros</a>
-                <a href="#impacto"   class="text-white/75 hover:text-white text-sm font-medium transition-colors">Impacto</a>
-                <a href="#contacto"  class="text-white/75 hover:text-white text-sm font-medium transition-colors">Contacto</a>
+            <div style="display:none;" id="nav-links-desktop">
+                <a href="#servicios" class="nav-link" style="margin-left:2rem;">Servicios</a>
+                <a href="#nosotros"  class="nav-link" style="margin-left:2rem;">Nosotros</a>
+                <a href="#impacto"   class="nav-link" style="margin-left:2rem;">Impacto</a>
+                <a href="#contacto"  class="nav-link" style="margin-left:2rem;">Contacto</a>
             </div>
-
-            <div class="flex items-center gap-3">
-                <a href="{% url 'login' %}"
-                   class="text-sm font-semibold px-4 py-2 rounded-xl bg-orange hover:bg-orange-dark text-white shadow-md transition-all hover:shadow-lg">
-                    Iniciar Sesión
-                </a>
-            </div>
+            <a href="{% url 'login' %}" style="display:inline-flex; align-items:center; gap:7px; padding:8px 18px; border-radius:10px; background:#ff8c42; color:#fff; font-size:.85rem; font-weight:600; text-decoration:none; transition:all .2s ease; box-shadow:0 4px 14px rgba(255,140,66,.35);"
+               onmouseover="this.style.background='#e67a31'; this.style.transform='translateY(-1px)'"
+               onmouseout="this.style.background='#ff8c42'; this.style.transform='translateY(0)'">
+                <i class="fas fa-arrow-right-to-bracket"></i>Iniciar sesion
+            </a>
         </div>
     </div>
 </nav>
 
-<!-- ════════════════════════════
-     HERO
-════════════════════════════ -->
-<section class="relative bg-blue-dark topo-pattern clip-hero overflow-hidden" style="min-height: 100vh; padding-top: 5rem;">
-
-    <!-- Glows decorativos -->
-    <div class="absolute top-1/3 right-0 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none"
-         style="background: radial-gradient(circle, #0480cc 0%, transparent 65%);"></div>
-    <div class="absolute bottom-0 left-0 w-72 h-72 rounded-full opacity-10 pointer-events-none"
-         style="background: radial-gradient(circle, #ff8c42 0%, transparent 70%);"></div>
-
-    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8 flex flex-col lg:flex-row items-center gap-14 py-28 md:py-36">
-
-        <!-- Copy principal -->
-        <div class="flex-1">
-            <div class="anim-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium tracking-widest uppercase mb-6
-                        border border-white/15 text-white/65"
-                 style="background: rgba(255,255,255,0.08);">
-                <span class="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span>
-                Fundada en 2003 · México
+<!-- Hero -->
+<section style="background:#025283; min-height:100vh; padding-top:5rem; position:relative; overflow:hidden;" class="topo clip-hero">
+    <div style="position:absolute; top:33%; right:0; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(4,128,204,0.15) 0%, transparent 65%); pointer-events:none;"></div>
+    <div style="position:absolute; bottom:0; left:0; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle, rgba(255,140,66,0.1) 0%, transparent 70%); pointer-events:none;"></div>
+    <div style="max-width:80rem; margin:0 auto; padding:7rem 1.5rem 8rem; display:flex; flex-wrap:wrap; align-items:center; gap:3.5rem;">
+        <div style="flex:1; min-width:280px;">
+            <div class="anim-1" style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:99px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,0.65); margin-bottom:24px;">
+                <span style="width:6px; height:6px; border-radius:50%; background:#86bf30; animation:pulse 2s infinite; display:inline-block;"></span>
+                Fundada en 2003 · Mexico
             </div>
-
-            <h1 class="anim-2 text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-                Asesoría ambiental<br>
-                <span class="text-orange font-light italic">con propósito.</span>
+            <h1 class="anim-2" style="font-size:clamp(2.2rem,5vw,3.5rem); font-weight:800; color:#fff; line-height:1.1; letter-spacing:-.02em; margin-bottom:20px;">
+                Asesoria ambiental<br><span style="color:#ff8c42; font-weight:400; font-style:italic;">con proposito.</span>
             </h1>
-
-            <p class="anim-3 text-lg font-light leading-relaxed text-white/60 max-w-[520px] mb-10">
-                Más de 20 años acompañando a empresas e instituciones en el cumplimiento normativo, gestión ambiental y desarrollo sostenible en México y Latinoamérica.
+            <p class="anim-3" style="font-size:1rem; font-weight:300; line-height:1.7; color:rgba(255,255,255,0.6); max-width:480px; margin-bottom:36px;">
+                Mas de 20 anos acompanando a empresas e instituciones en el cumplimiento normativo, gestion ambiental y desarrollo sostenible en Mexico y Latinoamerica.
             </p>
-
-            <div class="anim-4 flex flex-wrap gap-4">
-                <a href="#servicios"
-                   class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-orange hover:bg-orange-dark shadow-lg transition-all hover:scale-105 hover:shadow-xl">
-                    Nuestros servicios
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
+            <div class="anim-4" style="display:flex; flex-wrap:wrap; gap:12px;">
+                <a href="#servicios" style="display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:11px; background:#ff8c42; color:#fff; font-size:.875rem; font-weight:700; text-decoration:none; transition:all .2s ease; box-shadow:0 6px 20px rgba(255,140,66,.4);"
+                   onmouseover="this.style.background='#e67a31'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#ff8c42'; this.style.transform='translateY(0)'">
+                    Nuestros servicios <i class="fas fa-arrow-right" style="font-size:.75rem;"></i>
                 </a>
-                <a href="#nosotros"
-                   class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:scale-105"
-                   style="background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20);">
+                <a href="#nosotros" style="display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:11px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:.875rem; font-weight:600; text-decoration:none; transition:all .2s ease;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                     Conoce SyA Group
                 </a>
             </div>
         </div>
-
-        <!-- Visual flotante -->
-        <div class="hidden lg:flex flex-col gap-4 flex-shrink-0 float">
-            <div class="w-72 rounded-2xl p-6 shadow-2xl"
-                 style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);">
-                <div class="w-11 h-11 rounded-xl bg-blue flex items-center justify-center mb-4 shadow-md">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-                    </svg>
-                </div>
-                <p class="font-semibold text-white text-base mb-1">Gestión Ambiental</p>
-                <p class="text-sm font-light text-white/50">MIA · Auditorías · Licenciamiento</p>
-                <div class="mt-5 flex gap-1.5">
-                    <div class="h-1.5 flex-1 rounded-full bg-green"></div>
-                    <div class="h-1.5 w-10 rounded-full" style="background: rgba(255,255,255,0.2);"></div>
-                    <div class="h-1.5 w-5 rounded-full"  style="background: rgba(255,255,255,0.1);"></div>
+        <div class="float" style="display:flex; flex-direction:column; gap:14px; flex-shrink:0;">
+            <div style="width:260px; border-radius:18px; padding:22px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+                <div style="width:42px; height:42px; border-radius:11px; background:#0367a6; display:flex; align-items:center; justify-content:center; margin-bottom:14px;"><i class="fas fa-seedling" style="color:#fff; font-size:.95rem;"></i></div>
+                <p style="font-weight:700; color:#fff; font-size:.9rem; margin-bottom:5px;">Gestion Ambiental</p>
+                <p style="font-size:.75rem; font-weight:300; color:rgba(255,255,255,0.5);">MIA · Auditorias · Licenciamiento</p>
+                <div style="display:flex; gap:6px; margin-top:14px;">
+                    <div style="height:4px; flex:1; border-radius:99px; background:#86bf30;"></div>
+                    <div style="height:4px; width:40px; border-radius:99px; background:rgba(255,255,255,0.15);"></div>
+                    <div style="height:4px; width:20px; border-radius:99px; background:rgba(255,255,255,0.08);"></div>
                 </div>
             </div>
-
-            <div class="self-end w-52 rounded-xl p-4 shadow-xl"
-                 style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-orange flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-white text-xs font-semibold">+20 años</p>
-                        <p class="text-white/50 text-xs">de experiencia</p>
-                    </div>
+            <div style="width:200px; margin-left:auto; border-radius:14px; padding:14px 16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; border-radius:9px; background:#ff8c42; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fas fa-award" style="color:#fff; font-size:.8rem;"></i></div>
+                    <div><p style="font-size:.8rem; font-weight:700; color:#fff;">+20 anos</p><p style="font-size:.7rem; color:rgba(255,255,255,0.5);">de experiencia</p></div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Stats bar -->
-    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8 pb-32">
-        <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10 rounded-2xl overflow-hidden shadow-2xl"
-             style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);">
-            <div class="px-6 py-5">
-                <p class="text-2xl md:text-3xl font-bold text-white">México</p>
-                <p class="text-xs font-light mt-1 text-white/45">Sede principal</p>
-            </div>
-            <div class="px-6 py-5">
-                <p class="text-2xl md:text-3xl font-bold text-white">+200</p>
-                <p class="text-xs font-light mt-1 text-white/45">Proyectos entregados</p>
-            </div>
-            <div class="px-6 py-5">
-                <p class="text-2xl md:text-3xl font-bold text-white">2003</p>
-                <p class="text-xs font-light mt-1 text-white/45">Año de fundación</p>
-            </div>
-            <div class="px-6 py-5">
-                <p class="text-2xl md:text-3xl font-bold text-white">Latinoamérica</p>
-                <p class="text-xs font-light mt-1 text-white/45">Alcance regional</p>
-            </div>
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem 8rem;">
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:16px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+            <div style="padding:20px 24px; border-right:1px solid rgba(255,255,255,0.08);"><p style="font-size:1.6rem; font-weight:800; color:#fff;">Mexico</p><p style="font-size:.72rem; font-weight:300; color:rgba(255,255,255,0.45); margin-top:3px;">Sede principal</p></div>
+            <div style="padding:20px 24px; border-right:1px solid rgba(255,255,255,0.08);"><p style="font-size:1.6rem; font-weight:800; color:#fff;">+200</p><p style="font-size:.72rem; font-weight:300; color:rgba(255,255,255,0.45); margin-top:3px;">Proyectos entregados</p></div>
+            <div style="padding:20px 24px; border-right:1px solid rgba(255,255,255,0.08);"><p style="font-size:1.6rem; font-weight:800; color:#fff;">2003</p><p style="font-size:.72rem; font-weight:300; color:rgba(255,255,255,0.45); margin-top:3px;">Ano de fundacion</p></div>
+            <div style="padding:20px 24px;"><p style="font-size:1.6rem; font-weight:800; color:#fff;">Latam</p><p style="font-size:.72rem; font-weight:300; color:rgba(255,255,255,0.45); margin-top:3px;">Alcance regional</p></div>
         </div>
     </div>
 </section>
 
-<!-- ════════════════════════════
-     SERVICIOS
-════════════════════════════ -->
-<section id="servicios" class="py-24 md:py-32 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-5 lg:px-8">
-
-        <div class="mb-14">
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-blue mb-3">
-                <span class="w-5 h-px bg-blue inline-block"></span>
-                ¿Qué hacemos?
-            </span>
-            <h2 class="text-4xl md:text-5xl font-bold text-blue-dark leading-tight">
-                Soluciones ambientales<br>
-                <span class="text-orange font-light italic">integrales.</span>
-            </h2>
+<!-- Servicios -->
+<section id="servicios" style="padding:6rem 0; background:#f9fafb;">
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem;">
+        <div style="margin-bottom:3.5rem;">
+            <div style="display:inline-flex; align-items:center; gap:8px; font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#0367a6; margin-bottom:12px;"><span style="width:20px; height:1px; background:#0367a6; display:inline-block;"></span>Que hacemos</div>
+            <h2 style="font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:#025283; line-height:1.1; letter-spacing:-.02em;">Soluciones ambientales<br><span style="color:#ff8c42; font-weight:400; font-style:italic;">integrales.</span></h2>
         </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-blue-dark/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-blue-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-blue-dark bg-blue-dark/10">MIA</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Manifestaciones de Impacto Ambiental</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Elaboración y tramitación ante la SEMARNAT para proyectos de infraestructura, industria y desarrollo.</p>
-            </div>
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-green/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-green bg-green/10">ADA</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Auditorías y Diagnósticos Ambientales</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Evaluación del desempeño ambiental de instalaciones, identificando riesgos, pasivos y oportunidades de mejora.</p>
-            </div>
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-blue/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-blue bg-blue/10">TLA</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Trámites de Licenciamiento Ambiental</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Gestión integral ante autoridades federales, estatales y municipales para permisos y autorizaciones ambientales.</p>
-            </div>
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-red/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-red bg-red/10">GRP</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Gestión de Residuos Peligrosos</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Planes de manejo y manifiestos conforme a las NOM vigentes para el correcto tratamiento de residuos peligrosos.</p>
-            </div>
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-blue-light/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-blue-light bg-blue-light/10">MMA</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Monitoreo y Muestreo Ambiental</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Campañas de monitoreo de calidad del agua, suelo y aire con laboratorio acreditado para reportes ante autoridades.</p>
-            </div>
-            <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100 group cursor-default">
-                <div class="flex items-start justify-between mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-orange/10 flex items-center justify-center transition-transform group-hover:scale-110">
-                        <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold tracking-widest px-2 py-1 rounded-lg text-orange bg-orange/10">CCE</span>
-                </div>
-                <h3 class="font-semibold text-blue-dark text-base mb-2.5 underline-grow">Capacitación y Consultoría Estratégica</h3>
-                <p class="text-sm font-light leading-relaxed text-gray-500">Programas de capacitación en legislación ambiental, sustentabilidad y gestión de riesgos para equipos operativos y directivos.</p>
-            </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(2,82,131,0.08);"><i class="fas fa-map" style="color:#025283; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(2,82,131,0.08); color:#025283;">MIA</span></div><p class="service-title">Manifestaciones de Impacto Ambiental</p><p class="service-desc">Elaboracion y tramitacion ante la SEMARNAT para proyectos de infraestructura, industria y desarrollo.</p></div>
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(134,191,48,0.1);"><i class="fas fa-clipboard-check" style="color:#86bf30; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(134,191,48,0.1); color:#86bf30;">ADA</span></div><p class="service-title">Auditorias y Diagnosticos Ambientales</p><p class="service-desc">Evaluacion del desempeno ambiental de instalaciones, identificando riesgos, pasivos y oportunidades.</p></div>
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(3,103,166,0.08);"><i class="fas fa-file-contract" style="color:#0367a6; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(3,103,166,0.08); color:#0367a6;">TLA</span></div><p class="service-title">Tramites de Licenciamiento Ambiental</p><p class="service-desc">Gestion integral ante autoridades federales, estatales y municipales para permisos y autorizaciones.</p></div>
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(242,65,48,0.08);"><i class="fas fa-trash-can" style="color:#f24130; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(242,65,48,0.08); color:#f24130;">GRP</span></div><p class="service-title">Gestion de Residuos Peligrosos</p><p class="service-desc">Planes de manejo y manifiestos conforme a las NOM vigentes para el correcto tratamiento de residuos.</p></div>
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(4,128,204,0.08);"><i class="fas fa-flask" style="color:#0480cc; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(4,128,204,0.08); color:#0480cc;">MMA</span></div><p class="service-title">Monitoreo y Muestreo Ambiental</p><p class="service-desc">Campanas de monitoreo de calidad del agua, suelo y aire con laboratorio acreditado para reportes.</p></div>
+            <div class="service-card"><div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div class="service-icon" style="background:rgba(255,140,66,0.1);"><i class="fas fa-chalkboard-user" style="color:#ff8c42; font-size:.9rem;"></i></div><span class="service-tag" style="background:rgba(255,140,66,0.1); color:#ff8c42;">CCE</span></div><p class="service-title">Capacitacion y Consultoria Estrategica</p><p class="service-desc">Programas en legislacion ambiental, sustentabilidad y gestion de riesgos para equipos operativos y directivos.</p></div>
         </div>
     </div>
 </section>
 
-<!-- ════════════════════════════
-     NOSOTROS
-════════════════════════════ -->
-<section id="nosotros" class="py-24 md:py-32 clip-inv bg-blue-dark relative overflow-hidden">
-    <div class="absolute inset-0 topo-pattern pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-10 pointer-events-none"
-         style="background: radial-gradient(circle, #ff8c42 0%, transparent 70%);"></div>
-
-    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
-
+<!-- Nosotros -->
+<section id="nosotros" style="padding:6rem 0; background:#025283; position:relative; overflow:hidden;" class="topo clip-inv">
+    <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 80% 80%, rgba(255,140,66,0.08) 0%, transparent 60%);"></div>
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem; position:relative; z-index:1;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:4rem; align-items:center;">
             <div>
-                <span class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-orange mb-4">
-                    <span class="w-5 h-px bg-orange inline-block"></span>
-                    Quiénes somos
-                </span>
-                <h2 class="text-4xl md:text-5xl font-bold text-white leading-tight mb-8">
-                    Sangüesa y<br>
-                    <span class="text-blue-light font-light italic">Asociados Limitada.</span>
-                </h2>
-                <div class="space-y-4 text-base font-light leading-relaxed text-white/60">
-                    <p>Somos una empresa mexicana fundada en 2003, especializada en asesorías y servicios ambientales técnicos para los sectores industrial, energético, agropecuario y de infraestructura.</p>
-                    <p>A lo largo de más de dos décadas, hemos desarrollado proyectos en todo el territorio nacional, conciliando el desarrollo económico con el cuidado del entorno natural.</p>
-                    <p>Nuestro equipo multidisciplinario de biólogos, ingenieros ambientales y especialistas jurídicos garantiza una asesoría integral con rigor técnico-legal.</p>
+                <div style="display:inline-flex; align-items:center; gap:8px; font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#ff8c42; margin-bottom:16px;"><span style="width:20px; height:1px; background:#ff8c42; display:inline-block;"></span>Quienes somos</div>
+                <h2 style="font-size:clamp(1.8rem,4vw,2.6rem); font-weight:800; color:#fff; line-height:1.1; letter-spacing:-.02em; margin-bottom:24px;">Sanguesa y<br><span style="color:#0480cc; font-weight:400; font-style:italic;">Asociados Limitada.</span></h2>
+                <div style="display:flex; flex-direction:column; gap:14px; font-size:.9rem; font-weight:300; line-height:1.7; color:rgba(255,255,255,0.6);">
+                    <p>Empresa mexicana fundada en 2003, especializada en asesorias y servicios ambientales tecnicos para los sectores industrial, energetico, agropecuario y de infraestructura.</p>
+                    <p>Mas de dos decadas desarrollando proyectos en todo el territorio nacional, conciliando el desarrollo economico con el cuidado del entorno natural.</p>
                 </div>
-                <div class="mt-8 flex flex-wrap gap-2.5">
-                    <span class="text-xs font-medium px-3 py-1.5 rounded-full text-white/65 border border-white/15"
-                          style="background: rgba(255,255,255,0.07);">NOM Compliance</span>
-                    <span class="text-xs font-medium px-3 py-1.5 rounded-full text-white/65 border border-white/15"
-                          style="background: rgba(255,255,255,0.07);">SEMARNAT</span>
-                    <span class="text-xs font-medium px-3 py-1.5 rounded-full text-white/65 border border-white/15"
-                          style="background: rgba(255,255,255,0.07);">ISO 14001</span>
-                    <span class="text-xs font-medium px-3 py-1.5 rounded-full text-white/65 border border-white/15"
-                          style="background: rgba(255,255,255,0.07);">LGEEPA</span>
-                    <span class="text-xs font-medium px-3 py-1.5 rounded-full text-white/65 border border-white/15"
-                          style="background: rgba(255,255,255,0.07);">Sustentabilidad</span>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:24px;">
+                    <span style="font-size:.72rem; font-weight:500; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.65);">NOM Compliance</span>
+                    <span style="font-size:.72rem; font-weight:500; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.65);">SEMARNAT</span>
+                    <span style="font-size:.72rem; font-weight:500; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.65);">ISO 14001</span>
+                    <span style="font-size:.72rem; font-weight:500; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.65);">LGEEPA</span>
+                    <span style="font-size:.72rem; font-weight:500; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.65);">Sustentabilidad</span>
                 </div>
             </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div style="border-radius:16px; padding:20px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);"><i class="fas fa-microscope" style="font-size:1.4rem; margin-bottom:12px; display:block;"></i><p style="font-weight:700; color:#fff; font-size:.875rem; margin-bottom:6px;">Rigor tecnico</p><p style="font-size:.75rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,0.45);">Metodologias validadas y profesionales certificados.</p></div>
+                <div style="border-radius:16px; padding:20px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);"><i class="fas fa-scale-balanced" style="font-size:1.4rem; margin-bottom:12px; display:block;"></i><p style="font-weight:700; color:#fff; font-size:.875rem; margin-bottom:6px;">Cumplimiento legal</p><p style="font-size:.75rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,0.45);">Conocimiento profundo de la legislacion ambiental.</p></div>
+                <div style="border-radius:16px; padding:20px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);"><i class="fas fa-tree" style="font-size:1.4rem; margin-bottom:12px; display:block;"></i><p style="font-weight:700; color:#fff; font-size:.875rem; margin-bottom:6px;">Sostenibilidad</p><p style="font-size:.75rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,0.45);">Equilibrio entre desarrollo economico y naturaleza.</p></div>
+                <div style="border-radius:16px; padding:20px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);"><i class="fas fa-handshake" style="font-size:1.4rem; margin-bottom:12px; display:block;"></i><p style="font-weight:700; color:#fff; font-size:.875rem; margin-bottom:6px;">Confianza</p><p style="font-size:.75rem; font-weight:300; line-height:1.6; color:rgba(255,255,255,0.45);">+20 anos siendo aliados estrategicos en Mexico.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="rounded-2xl p-5 border border-white/10" style="background: rgba(255,255,255,0.06);">
-                    <div class="text-2xl mb-3">🔬</div>
-                    <p class="font-semibold text-white text-sm mb-1.5">Rigor técnico</p>
-                    <p class="text-xs font-light leading-relaxed text-white/45">Metodologías validadas y profesionales certificados en cada proyecto.</p>
-                </div>
-                <div class="rounded-2xl p-5 border border-white/10" style="background: rgba(255,255,255,0.06);">
-                    <div class="text-2xl mb-3">⚖️</div>
-                    <p class="font-semibold text-white text-sm mb-1.5">Cumplimiento legal</p>
-                    <p class="text-xs font-light leading-relaxed text-white/45">Conocimiento profundo de la legislación ambiental mexicana vigente.</p>
-                </div>
-                <div class="rounded-2xl p-5 border border-white/10" style="background: rgba(255,255,255,0.06);">
-                    <div class="text-2xl mb-3">🌿</div>
-                    <p class="font-semibold text-white text-sm mb-1.5">Sostenibilidad</p>
-                    <p class="text-xs font-light leading-relaxed text-white/45">Soluciones que equilibran el desarrollo económico y la conservación natural.</p>
-                </div>
-                <div class="rounded-2xl p-5 border border-white/10" style="background: rgba(255,255,255,0.06);">
-                    <div class="text-2xl mb-3">🤝</div>
-                    <p class="font-semibold text-white text-sm mb-1.5">Confianza</p>
-                    <p class="text-xs font-light leading-relaxed text-white/45">+20 años siendo aliados estratégicos de nuestros clientes en México.</p>
+<!-- Impacto -->
+<section id="impacto" style="padding:6rem 0; background:#fff;">
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem;">
+        <div style="text-align:center; margin-bottom:3.5rem;">
+            <div style="display:inline-flex; align-items:center; gap:8px; font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#0367a6; margin-bottom:12px;"><span style="width:20px; height:1px; background:#0367a6;"></span>Nuestro alcance<span style="width:20px; height:1px; background:#0367a6;"></span></div>
+            <h2 style="font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:#025283; letter-spacing:-.02em;">Impacto que se mide.</h2>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:4rem;">
+            <div class="stat-card" style="border-top:4px solid #025283;"><p class="stat-num" style="color:#025283;">+200</p><p class="stat-label">Proyectos ambientales completados en Mexico</p></div>
+            <div class="stat-card" style="border-top:4px solid #ff8c42;"><p class="stat-num" style="color:#ff8c42;">+80</p><p class="stat-label">Clientes activos en sectores industriales y publicos</p></div>
+            <div class="stat-card" style="border-top:4px solid #86bf30;"><p class="stat-num" style="color:#86bf30;">22</p><p class="stat-label">Anos de trayectoria ininterrumpida en el sector</p></div>
+            <div class="stat-card" style="border-top:4px solid #0367a6;"><p class="stat-num" style="color:#0367a6;">100%</p><p class="stat-label">Comprometidos con el cumplimiento normativo</p></div>
+        </div>
+        <div id="contacto" style="border-radius:24px; padding:4rem; text-align:center; background:#025283; position:relative; overflow:hidden; box-shadow:0 20px 60px rgba(2,82,131,0.25);" class="topo">
+            <div style="position:absolute; top:0; right:0; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle, rgba(255,140,66,0.15) 0%, transparent 70%); transform:translate(30%,-30%); pointer-events:none;"></div>
+            <div style="position:relative; z-index:1;">
+                <h3 style="font-size:clamp(1.5rem,3vw,2.2rem); font-weight:800; color:#fff; letter-spacing:-.02em; margin-bottom:12px;">Tienes un proyecto ambiental?</h3>
+                <p style="font-size:.95rem; font-weight:300; color:rgba(255,255,255,0.6); margin-bottom:32px; max-width:480px; margin-left:auto; margin-right:auto; line-height:1.7;">Cuentanos tu caso. Un especialista te contactara sin costo ni compromiso.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+                    <a href="mailto:contacto@syagroup.com.mx" style="display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:11px; background:#ff8c42; color:#fff; font-size:.875rem; font-weight:700; text-decoration:none; transition:all .2s ease;" onmouseover="this.style.background='#e67a31'" onmouseout="this.style.background='#ff8c42'"><i class="fas fa-envelope"></i>Enviar consulta</a>
+                    <a href="https://wa.me/521XXXXXXXXXX" style="display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:11px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:.875rem; font-weight:600; text-decoration:none; transition:background .2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fab fa-whatsapp"></i>WhatsApp</a>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ════════════════════════════
-     IMPACTO
-════════════════════════════ -->
-<section id="impacto" class="py-24 md:py-32 bg-white">
-    <div class="max-w-7xl mx-auto px-5 lg:px-8">
-
-        <div class="text-center mb-14">
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-blue mb-3">
-                <span class="w-5 h-px bg-blue inline-block"></span>
-                Nuestro alcance
-                <span class="w-5 h-px bg-blue inline-block"></span>
-            </span>
-            <h2 class="text-4xl md:text-5xl font-bold text-blue-dark">Impacto que se mide.</h2>
-        </div>
-
-        <div class="grid md:grid-cols-4 gap-5 mb-20">
-            <div class="text-center p-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm border-t-4 border-blue-dark">
-                <p class="text-5xl font-bold mb-3 text-blue-dark">+200</p>
-                <p class="text-sm font-light text-gray-500 leading-snug">Proyectos ambientales completados en todo México</p>
+<!-- Footer -->
+<footer style="background:#111827; color:#9ca3af; padding:4rem 0 2rem;">
+    <div style="max-width:80rem; margin:0 auto; padding:0 1.5rem;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid #1f2937; margin-bottom:2rem;">
+            <div style="grid-column:span 2;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><div style="width:34px; height:34px; border-radius:9px; background:#ff8c42; display:flex; align-items:center; justify-content:center;"><i class="fas fa-leaf" style="color:#fff; font-size:.8rem;"></i></div><span style="font-weight:700; font-size:1rem; color:#fff;">SyA <span style="font-weight:400; opacity:.6;">Group</span></span></div>
+                <p style="font-size:.82rem; font-weight:300; line-height:1.7; max-width:280px;">Sanguesa y Asociados Limitada. Asesoria ambiental tecnica y legal desde 2003.</p>
             </div>
-            <div class="text-center p-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm border-t-4 border-orange">
-                <p class="text-5xl font-bold mb-3 text-orange">+80</p>
-                <p class="text-sm font-light text-gray-500 leading-snug">Clientes activos en sectores industriales y públicos</p>
-            </div>
-            <div class="text-center p-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm border-t-4 border-green">
-                <p class="text-5xl font-bold mb-3 text-green">22</p>
-                <p class="text-sm font-light text-gray-500 leading-snug">Años de trayectoria ininterrumpida en el sector</p>
-            </div>
-            <div class="text-center p-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm border-t-4 border-blue">
-                <p class="text-5xl font-bold mb-3 text-blue">100%</p>
-                <p class="text-sm font-light text-gray-500 leading-snug">Comprometidos con el cumplimiento normativo</p>
-            </div>
-        </div>
-
-        <!-- CTA -->
-        <div id="contacto" class="relative overflow-hidden rounded-3xl p-10 md:p-16 text-center bg-blue-dark shadow-2xl">
-            <div class="absolute inset-0 topo-pattern pointer-events-none"></div>
-            <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-15 pointer-events-none"
-                 style="background: radial-gradient(circle, #ff8c42 0%, transparent 70%); transform: translate(30%,-30%);"></div>
-
-            <div class="relative z-10">
-                <h3 class="text-3xl md:text-4xl font-bold text-white mb-4">¿Tienes un proyecto ambiental?</h3>
-                <p class="text-lg font-light text-white/60 mb-10 max-w-lg mx-auto">
-                    Cuéntanos tu caso. Un especialista te contactará sin costo ni compromiso.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="mailto:contacto@syagroup.com.mx"
-                       class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm text-white bg-orange hover:bg-orange-dark shadow-lg transition-all hover:scale-105">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Enviar consulta
-                    </a>
-                    <a href="https://wa.me/521XXXXXXXXXX"
-                       class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm text-white transition-all hover:scale-105"
-                       style="background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20);">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                        </svg>
-                        WhatsApp
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ════════════════════════════
-     FOOTER
-════════════════════════════ -->
-<footer class="bg-gray-900 text-gray-400">
-    <div class="max-w-7xl mx-auto px-5 lg:px-8 py-12">
-        <div class="grid md:grid-cols-4 gap-10 pb-10 border-b border-gray-800">
-
-            <div class="md:col-span-2">
-                <div class="flex items-center gap-2.5 mb-4">
-                    <div class="w-9 h-9 rounded-xl bg-orange flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 5-8 5H14C8 8 6 12.5 6 12.5A5.5 5.5 0 0117 8z"/>
-                        </svg>
-                    </div>
-                    <span class="text-white font-semibold text-lg">SyA <span class="font-light opacity-60">Group</span></span>
-                </div>
-                <p class="text-sm font-light leading-relaxed max-w-xs">
-                    Sangüesa y Asociados Limitada. Asesoría ambiental técnica y legal desde 2003.
-                </p>
-            </div>
-
             <div>
-                <h5 class="text-white text-sm font-semibold mb-4">Servicios</h5>
-                <ul class="space-y-2.5 text-sm font-light">
-                    <li><a href="#" class="hover:text-orange transition-colors">Impacto Ambiental (MIA)</a></li>
-                    <li><a href="#" class="hover:text-orange transition-colors">Auditorías Ambientales</a></li>
-                    <li><a href="#" class="hover:text-orange transition-colors">Licenciamiento</a></li>
-                    <li><a href="#" class="hover:text-orange transition-colors">Residuos Peligrosos</a></li>
-                    <li><a href="#" class="hover:text-orange transition-colors">Monitoreo Ambiental</a></li>
+                <h5 style="color:#fff; font-size:.85rem; font-weight:600; margin-bottom:16px;">Servicios</h5>
+                <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; font-size:.82rem; font-weight:300;">
+                    <li><a href="#" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Impacto Ambiental (MIA)</a></li>
+                    <li><a href="#" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Auditorias Ambientales</a></li>
+                    <li><a href="#" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Licenciamiento</a></li>
+                    <li><a href="#" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Residuos Peligrosos</a></li>
                 </ul>
             </div>
-
             <div>
-                <h5 class="text-white text-sm font-semibold mb-4">Empresa</h5>
-                <ul class="space-y-2.5 text-sm font-light">
-                    <li><a href="#nosotros" class="hover:text-orange transition-colors">Sobre nosotros</a></li>
-                    <li><a href="#contacto" class="hover:text-orange transition-colors">Contacto</a></li>
-                    <li><a href="#"         class="hover:text-orange transition-colors">Aviso de privacidad</a></li>
-                    <li><a href="{% url 'login' %}" class="hover:text-orange transition-colors">Acceso al sistema</a></li>
+                <h5 style="color:#fff; font-size:.85rem; font-weight:600; margin-bottom:16px;">Empresa</h5>
+                <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; font-size:.82rem; font-weight:300;">
+                    <li><a href="#nosotros" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Sobre nosotros</a></li>
+                    <li><a href="#contacto"  style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Contacto</a></li>
+                    <li><a href="{% url 'login' %}" style="color:#9ca3af; text-decoration:none;" onmouseover="this.style.color='#ff8c42'" onmouseout="this.style.color='#9ca3af'">Acceso al sistema</a></li>
                 </ul>
             </div>
         </div>
-
-        <div class="pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs">
-            <p>&copy; 2026 SyA Group · Sangüesa y Asociados Limitada. Todos los derechos reservados.</p>
-            <p>Hecho con cuidado en México 🇲🇽</p>
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; font-size:.75rem;">
+            <p>&copy; 2026 SyA Group · Sanguesa y Asociados Limitada. Todos los derechos reservados.</p>
+            <p>Hecho con cuidado en Mexico</p>
         </div>
     </div>
 </footer>
 
-<!-- ════════════════════════════
-     CHATBOT WIDGET FLOTANTE
-════════════════════════════ -->
+<!-- ── Chat Widget ──────────────────────────────── -->
+<div id="chat-widget">
+
+    <!-- CTA bubble -->
+    <div id="chat-cta" onclick="openChat()">
+        <div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#025283,#0367a6); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i class="fas fa-comment-dots" style="color:#fff; font-size:.78rem;"></i>
+        </div>
+        <div>
+            <p style="font-size:.76rem; font-weight:600; color:#025283; margin:0 0 2px;">Tienes dudas ambientales?</p>
+            <p style="font-size:.7rem; color:#6b7280; margin:0; line-height:1.4;">Chatea con nuestro asesor</p>
+        </div>
+        <button onclick="event.stopPropagation(); document.getElementById('chat-cta').classList.add('hidden');"
+                style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:.95rem; padding:2px; margin-left:2px;">&times;</button>
+    </div>
+
+    <!-- Chat window -->
+    <div id="chat-window" class="hidden">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                <div class="chat-avatar">
+                    <i class="fas fa-leaf" style="color:#ff8c42; font-size:.85rem;"></i>
+                    <span class="chat-avatar-dot"></span>
+                </div>
+                <div>
+                    <p style="font-size:.85rem; font-weight:700; color:#fff; margin:0 0 1px;">Asesor SyA Group</p>
+                    <p style="font-size:.68rem; color:rgba(255,255,255,0.6); margin:0; display:flex; align-items:center; gap:4px;">
+                        <span style="width:5px; height:5px; background:#86bf30; border-radius:50%; display:inline-block;"></span>
+                        En linea
+                    </p>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button class="chat-header-btn" id="reset-chat" title="Nueva conversacion">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+                <button class="chat-header-btn" id="close-chat" title="Cerrar">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages">
+            <div id="chat-history">
+                <div class="msg-row" style="display:flex; align-items:flex-start; gap:8px;">
+                    <div style="width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#025283,#0367a6); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">
+                        <i class="fas fa-leaf" style="color:#ff8c42; font-size:.6rem;"></i>
+                    </div>
+                    <div>
+                        <div class="msg-bot">{{ mensaje_bienvenida|default:"Hola! En que puedo ayudarte hoy?" }}</div>
+                        <p class="msg-time" style="padding-left:3px;">Ahora mismo</p>
+                    </div>
+                </div>
+                <div id="quick-replies" style="display:flex; flex-wrap:wrap; gap:6px; padding-left:34px;">
+                    <button class="qr-chip" onclick="quickReply('Que servicios ofrecen?')"><i class="fas fa-leaf" style="font-size:.6rem;"></i>Servicios</button>
+                    <button class="qr-chip" onclick="quickReply('Necesito una MIA')"><i class="fas fa-map" style="font-size:.6rem;"></i>Necesito MIA</button>
+                    <button class="qr-chip" onclick="quickReply('Cuales son sus precios?')"><i class="fas fa-tag" style="font-size:.6rem;"></i>Precios</button>
+                    <button class="qr-chip" onclick="quickReply('Como los contacto?')"><i class="fas fa-phone" style="font-size:.6rem;"></i>Contacto</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <div class="chat-input-row">
+                <input id="chat-input" type="text" placeholder="Escribe tu consulta...">
+                <button id="chat-send">
+                    <i class="fas fa-paper-plane" style="color:#fff; font-size:.72rem;"></i>
+                </button>
+            </div>
+            <p class="chat-powered">Powered by SyA Group</p>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <div id="chat-button">
+        <i id="chat-icon-open"  class="fas fa-comment-dots" style="color:#fff; font-size:1rem;"></i>
+        <i id="chat-icon-close" class="fas fa-xmark"        style="color:#fff; font-size:.95rem; display:none;"></i>
+    </div>
+</div>
+
 <script>
     const navbar = document.getElementById('navbar');
-    navbar.style.background = 'linear-gradient(to bottom, rgba(2,82,131,0.6) 0%, transparent 100%)';
-
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 60) {
-            navbar.classList.add('nav-solid');
-            navbar.style.background = '';
-        } else {
-            navbar.classList.remove('nav-solid');
-            navbar.style.background = 'linear-gradient(to bottom, rgba(2,82,131,0.6) 0%, transparent 100%)';
-        }
+        if (window.scrollY > 60) navbar.classList.add('scrolled');
+        else navbar.classList.remove('scrolled');
     });
 
-    // ── Chat widget ──────────────────────────────────────────
-    const sendUrl = '{% url "public_chat" %}';
+    const navDesktop = document.getElementById('nav-links-desktop');
+    if (window.innerWidth >= 768) navDesktop.style.display = 'flex';
+    window.addEventListener('resize', () => {
+        navDesktop.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
+    });
+
+    const sendUrl  = '{% url "public_chat" %}';
+    const resetUrl = '{% url "reset_chat" %}';
 
     function getCookie(name) {
         let val = null;
@@ -773,48 +560,52 @@
         return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
     }
 
+    function renderMarkdown(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/gs, '<ul style="margin:6px 0 6px 16px; padding:0; list-style:disc;">$1</ul>')
+            .replace(/\n{2,}/g, '<br><br>')
+            .replace(/\n/g, '<br>');
+    }
+
+    function botAvatar() {
+        return `<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#025283,#0367a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><i class="fas fa-leaf" style="color:#ff8c42;font-size:.6rem;"></i></div>`;
+    }
+
     function appendMessage(text, fromUser) {
-        const chatHistory = document.getElementById('chat-history');
-        const chatMessages = document.getElementById('chat-messages');
-
-        const wrapper = document.createElement('div');
+        const history  = document.getElementById('chat-history');
+        const messages = document.getElementById('chat-messages');
+        const wrapper  = document.createElement('div');
+        wrapper.className = 'msg-row';
         wrapper.style.cssText = 'display:flex;flex-direction:column;gap:3px;' + (fromUser ? 'align-items:flex-end;' : 'align-items:flex-start;');
-
         if (fromUser) {
-            wrapper.innerHTML = `
-                <div class="msg-user">${text}</div>
-                <span style="font-size:.65rem;color:#9ca3af;">${timeLabel()}</span>`;
+            wrapper.innerHTML = `<div class="msg-user">${renderMarkdown(text)}</div><span class="msg-time">${timeLabel()}</span>`;
         } else {
             wrapper.innerHTML = `
-                <div style="display:flex;align-items:flex-start;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#025283,#0367a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
-                        <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    </div>
+                <div style="display:flex;align-items:flex-start;gap:7px;">
+                    ${botAvatar()}
                     <div>
-                        <div class="msg-bot">${text}</div>
-                        <span style="font-size:.65rem;color:#9ca3af;display:block;margin-top:3px;padding-left:4px;">${timeLabel()}</span>
+                        <div class="msg-bot">${renderMarkdown(text)}</div>
+                        <span class="msg-time" style="padding-left:3px;">${timeLabel()}</span>
                     </div>
                 </div>`;
         }
-        chatHistory.appendChild(wrapper);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        history.appendChild(wrapper);
+        messages.scrollTop = messages.scrollHeight;
     }
 
     function showTyping() {
-        const chatHistory = document.getElementById('chat-history');
-        const chatMessages = document.getElementById('chat-messages');
+        const history  = document.getElementById('chat-history');
+        const messages = document.getElementById('chat-messages');
         const el = document.createElement('div');
         el.id = 'typing-indicator';
-        el.style.cssText = 'display:flex;align-items:flex-start;gap:8px;';
-        el.innerHTML = `
-            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#025283,#0367a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            </div>
-            <div class="msg-bot" style="padding:12px 16px;display:flex;gap:4px;align-items:center;">
-                <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-            </div>`;
-        chatHistory.appendChild(el);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        el.className = 'msg-row';
+        el.style.cssText = 'display:flex;align-items:flex-start;gap:7px;';
+        el.innerHTML = `${botAvatar()}<div class="msg-bot" style="padding:10px 14px;display:flex;gap:4px;align-items:center;"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+        history.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
     }
 
     function hideTyping() {
@@ -822,17 +613,44 @@
         if (el) el.remove();
     }
 
-    function sendChatMessage(messageOverride) {
-        const chatInput = document.getElementById('chat-input');
-        const message = messageOverride || chatInput.value.trim();
+    function showTransferCard() {
+        const history  = document.getElementById('chat-history');
+        const messages = document.getElementById('chat-messages');
+        const card = document.createElement('div');
+        card.className = 'msg-row';
+        card.style.paddingLeft = '34px';
+        card.innerHTML = `
+            <div class="transfer-card">
+                <div class="transfer-card-title">
+                    <i class="fas fa-circle-check" style="color:#0367a6;"></i>
+                    Consulta transferida exitosamente
+                </div>
+                <p style="font-size:.78rem; color:#374151; margin-bottom:12px; line-height:1.5;">
+                    Un asesor recibio tu informacion y se pondra en contacto contigo pronto.
+                </p>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="transfer-btn transfer-btn-primary" onclick="doResetChat()">
+                        <i class="fas fa-rotate-right"></i> Nueva consulta
+                    </button>
+                    <button class="transfer-btn transfer-btn-secondary" onclick="closeChatWindow()">
+                        <i class="fas fa-xmark"></i> Cerrar chat
+                    </button>
+                </div>
+            </div>`;
+        history.appendChild(card);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendChatMessage(override) {
+        const input   = document.getElementById('chat-input');
+        const message = override || input.value.trim();
         if (!message) return;
 
-        // Hide quick replies after first message
         const qr = document.getElementById('quick-replies');
         if (qr) qr.remove();
 
         appendMessage(message, true);
-        if (!messageOverride) { chatInput.value = ''; chatInput.focus(); }
+        if (!override) { input.value = ''; input.focus(); }
 
         showTyping();
 
@@ -848,279 +666,90 @@
         .then(r => r.json())
         .then(data => {
             hideTyping();
-            if (data.ok) {
-                appendMessage(data.reply || 'Respuesta recibida. Gracias por escribir.', false);
-            } else {
+            if (!data.ok) {
                 appendMessage(data.error || 'No se pudo obtener respuesta.', false);
+                return;
+            }
+            const reply = data.reply || '';
+            appendMessage(reply, false);
+
+            const transferKeywords = ['conectarte con un asesor', 'asesor para finalizar', 'en breve te contactaran', 'transferido'];
+            const wasTransferred = transferKeywords.some(kw => reply.toLowerCase().includes(kw));
+            if (wasTransferred) {
+                setTimeout(() => showTransferCard(), 800);
             }
         })
         .catch(() => {
             hideTyping();
-            appendMessage('Error de conexión. Inténtalo de nuevo más tarde.', false);
+            appendMessage('Error de conexion. Intentalo de nuevo.', false);
         });
     }
 
-    // Quick reply helper (global so onclick works inline)
-    window.quickReply = function(text) { sendChatMessage(text); };
+    async function doResetChat() {
+        await fetch(resetUrl, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const history = document.getElementById('chat-history');
+        history.innerHTML = '';
 
-    // Open chat (global so CTA bubble can call it)
+        const welcomeRow = document.createElement('div');
+        welcomeRow.className = 'msg-row';
+        welcomeRow.style.cssText = 'display:flex;align-items:flex-start;gap:8px;';
+        welcomeRow.innerHTML = `
+            ${botAvatar()}
+            <div>
+                <div class="msg-bot">{{ mensaje_bienvenida|default:"Hola de nuevo! En que puedo ayudarte hoy?" }}</div>
+                <p class="msg-time" style="padding-left:3px;">Ahora mismo</p>
+            </div>`;
+        history.appendChild(welcomeRow);
+
+        const qrDiv = document.createElement('div');
+        qrDiv.id = 'quick-replies';
+        qrDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;padding-left:34px;';
+        qrDiv.innerHTML = `
+            <button class="qr-chip" onclick="quickReply('Que servicios ofrecen?')"><i class="fas fa-leaf" style="font-size:.6rem;"></i>Servicios</button>
+            <button class="qr-chip" onclick="quickReply('Necesito una MIA')"><i class="fas fa-map" style="font-size:.6rem;"></i>Necesito MIA</button>
+            <button class="qr-chip" onclick="quickReply('Cuales son sus precios?')"><i class="fas fa-tag" style="font-size:.6rem;"></i>Precios</button>
+            <button class="qr-chip" onclick="quickReply('Como los contacto?')"><i class="fas fa-phone" style="font-size:.6rem;"></i>Contacto</button>`;
+        history.appendChild(qrDiv);
+
+        document.getElementById('chat-messages').scrollTop = 0;
+    }
+
+    function closeChatWindow() {
+        document.getElementById('chat-window').classList.add('hidden');
+        document.getElementById('chat-icon-open').style.display  = 'block';
+        document.getElementById('chat-icon-close').style.display = 'none';
+    }
+
+    window.quickReply = text => sendChatMessage(text);
+
     window.openChat = function() {
-        const chatWindow = document.getElementById('chat-window');
-        const chatCta    = document.getElementById('chat-cta');
-        const chatInput  = document.getElementById('chat-input');
-        const iconOpen   = document.getElementById('chat-icon-open');
-        const iconClose  = document.getElementById('chat-icon-close');
-        chatWindow.classList.remove('hidden');
-        chatCta.classList.add('hidden');
-        iconOpen.style.display  = 'none';
-        iconClose.style.display = 'block';
-        chatInput.focus();
+        document.getElementById('chat-window').classList.remove('hidden');
+        document.getElementById('chat-cta').classList.add('hidden');
+        document.getElementById('chat-icon-open').style.display  = 'none';
+        document.getElementById('chat-icon-close').style.display = 'block';
+        document.getElementById('chat-input').focus();
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatButton = document.getElementById('chat-button');
-        const chatWindow = document.getElementById('chat-window');
-        const closeChat  = document.getElementById('close-chat');
-        const chatInput  = document.getElementById('chat-input');
-        const iconOpen   = document.getElementById('chat-icon-open');
-        const iconClose  = document.getElementById('chat-icon-close');
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('chat-button');
+        const win = document.getElementById('chat-window');
 
-        chatButton.addEventListener('click', function() {
-            const isOpen = !chatWindow.classList.contains('hidden');
-            if (isOpen) {
-                chatWindow.classList.add('hidden');
-                iconOpen.style.display  = 'block';
-                iconClose.style.display = 'none';
-            } else {
-                openChat();
-            }
+        btn.addEventListener('click', () => {
+            if (!win.classList.contains('hidden')) closeChatWindow();
+            else openChat();
         });
 
-        closeChat.addEventListener('click', function() {
-            chatWindow.classList.add('hidden');
-            iconOpen.style.display  = 'block';
-            iconClose.style.display = 'none';
-        });
-
+        document.getElementById('close-chat').addEventListener('click', closeChatWindow);
+        document.getElementById('reset-chat').addEventListener('click', doResetChat);
         document.getElementById('chat-send').addEventListener('click', () => sendChatMessage());
-
-        chatInput.addEventListener('keydown', function(e) {
+        document.getElementById('chat-input').addEventListener('keydown', e => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
         });
     });
 </script>
-
-<!-- ════════════════════════════
-     CHATBOT WIDGET FLOTANTE
-════════════════════════════ -->
-<style>
-    /* ── Chat widget animations ── */
-    @keyframes chatSlideIn {
-        from { opacity: 0; transform: translateY(16px) scale(0.96); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes ctaPop {
-        0%   { opacity: 0; transform: translateX(12px); }
-        100% { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes pulse-ring {
-        0%   { box-shadow: 0 0 0 0 rgba(255,140,66,0.55); }
-        70%  { box-shadow: 0 0 0 12px rgba(255,140,66,0); }
-        100% { box-shadow: 0 0 0 0 rgba(255,140,66,0); }
-    }
-    @keyframes typingDot {
-        0%, 60%, 100% { transform: translateY(0); opacity: .4; }
-        30%            { transform: translateY(-5px); opacity: 1; }
-    }
-
-    #chat-widget { font-family: Figtree, sans-serif; }
-
-    /* FAB button */
-    #chat-button {
-        animation: pulse-ring 2.5s ease-out infinite;
-        transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease;
-    }
-    #chat-button:hover { transform: scale(1.1); animation: none; box-shadow: 0 8px 28px rgba(255,140,66,.45); }
-
-    /* CTA bubble */
-    #chat-cta {
-        animation: ctaPop .5s .8s cubic-bezier(.22,1,.36,1) both;
-    }
-    #chat-cta.hidden { display: none !important; }
-
-    /* Window */
-    #chat-window {
-        animation: chatSlideIn .3s cubic-bezier(.22,1,.36,1);
-        display: flex;
-        flex-direction: column;
-    }
-    #chat-window.hidden { display: none !important; }
-
-    /* Scrollbar inside messages */
-    #chat-messages::-webkit-scrollbar { width: 4px; }
-    #chat-messages::-webkit-scrollbar-track { background: transparent; }
-    #chat-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
-
-    /* Bot message bubble */
-    .msg-bot {
-        background: #ffffff;
-        border: 1px solid #f0f0f0;
-        border-radius: 4px 18px 18px 18px;
-        box-shadow: 0 1px 4px rgba(0,0,0,.06);
-        padding: 10px 14px;
-        max-width: 82%;
-        font-size: .8125rem;
-        color: #1f2937;
-        line-height: 1.55;
-    }
-    /* User message bubble */
-    .msg-user {
-        background: linear-gradient(135deg, #025283 0%, #0367a6 100%);
-        border-radius: 18px 18px 4px 18px;
-        padding: 10px 14px;
-        max-width: 82%;
-        font-size: .8125rem;
-        color: #ffffff;
-        line-height: 1.55;
-        box-shadow: 0 2px 8px rgba(2,82,131,.25);
-    }
-
-    /* Typing indicator */
-    .typing-dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: #9ca3af;
-        display: inline-block;
-    }
-    .typing-dot:nth-child(1) { animation: typingDot 1.2s .0s infinite; }
-    .typing-dot:nth-child(2) { animation: typingDot 1.2s .2s infinite; }
-    .typing-dot:nth-child(3) { animation: typingDot 1.2s .4s infinite; }
-
-    /* Input focus ring */
-    #chat-input:focus {
-        outline: none;
-        border-color: #0367a6;
-        box-shadow: 0 0 0 3px rgba(3,103,166,.15);
-    }
-
-    /* Send button */
-    #chat-send {
-        background: linear-gradient(135deg, #ff8c42, #e67e22);
-        border-radius: 12px;
-        width: 40px; height: 40px;
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        transition: transform .15s ease, box-shadow .15s ease;
-        border: none; cursor: pointer;
-    }
-    #chat-send:hover { transform: scale(1.07); box-shadow: 0 4px 14px rgba(255,140,66,.4); }
-    #chat-send:active { transform: scale(.97); }
-
-    /* Quick-reply chips */
-    .qr-chip {
-        display: inline-flex;
-        align-items: center;
-        font-size: .75rem;
-        font-weight: 500;
-        padding: 5px 12px;
-        border-radius: 99px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        color: #025283;
-        cursor: pointer;
-        transition: background .15s, border-color .15s, color .15s;
-        white-space: nowrap;
-    }
-    .qr-chip:hover { background: #025283; border-color: #025283; color: #fff; }
-</style>
-
-<div id="chat-widget" style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
-
-    <!-- ① CTA bubble (visible initially, hides on open) -->
-    <div id="chat-cta" style="display:flex; align-items:center; gap:10px; background:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 32px rgba(0,0,0,.13); border:1px solid #f0f0f0; cursor:pointer; max-width:260px;" onclick="openChat()">
-        <!-- Avatar -->
-        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#025283,#0367a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        </div>
-        <div>
-            <p style="font-size:.78rem;font-weight:600;color:#025283;margin:0 0 2px;">¿Tienes dudas ambientales?</p>
-            <p style="font-size:.72rem;color:#6b7280;margin:0;line-height:1.4;">Chatea con nuestro asesor ahora →</p>
-        </div>
-        <!-- close x -->
-        <button onclick="event.stopPropagation(); document.getElementById('chat-cta').classList.add('hidden');"
-                style="background:none;border:none;color:#9ca3af;cursor:pointer;padding:2px;line-height:1;margin-left:4px;font-size:16px;">&times;</button>
-    </div>
-
-    <!-- ② Chat window -->
-    <div id="chat-window" class="hidden" style="width:360px; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.18); overflow:hidden; border:1px solid rgba(0,0,0,.06);">
-
-        <!-- Header -->
-        <div style="background:linear-gradient(135deg,#025283 0%,#0367a6 100%); padding:16px 18px; display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="position:relative;">
-                    <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.25);">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style="color:#ff8c42;"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 5-8 5H14C8 8 6 12.5 6 12.5A5.5 5.5 0 0117 8z"/></svg>
-                    </div>
-                    <!-- Online dot -->
-                    <span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#10b981;border-radius:50%;border:2px solid #025283;"></span>
-                </div>
-                <div>
-                    <p style="font-size:.875rem;font-weight:700;color:#fff;margin:0 0 1px;">Asesor SyA Group</p>
-                    <p style="font-size:.7rem;color:rgba(255,255,255,.65);margin:0;display:flex;align-items:center;gap:4px;">
-                        <span style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;"></span>
-                        En línea · Respuesta inmediata
-                    </p>
-                </div>
-            </div>
-            <button id="close-chat" style="background:rgba(255,255,255,.12);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-
-        <!-- Messages area -->
-        <div id="chat-messages" style="flex:1;overflow-y:auto;padding:16px;background:#f8fafc;min-height:240px;max-height:320px;display:flex;flex-direction:column;gap:12px;">
-            <div id="chat-history" style="display:flex;flex-direction:column;gap:12px;">
-
-                <!-- Welcome message -->
-                <div style="display:flex;align-items:flex-start;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#025283,#0367a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
-                        <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    </div>
-                    <div>
-                        <div class="msg-bot">¡Hola! 👋 Soy el asesor de <strong>SyA Group</strong>. Estoy aquí para ayudarte con cualquier duda sobre asesoría ambiental, licenciamientos o cumplimiento normativo.</div>
-                        <p style="font-size:.68rem;color:#9ca3af;margin:4px 0 0 4px;">Ahora mismo</p>
-                    </div>
-                </div>
-
-                <!-- Quick replies -->
-                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-left:36px;" id="quick-replies">
-                    <button class="qr-chip" onclick="quickReply('¿Qué servicios ofrecen?')">🌿 ¿Qué servicios ofrecen?</button>
-                    <button class="qr-chip" onclick="quickReply('Necesito una MIA')">📋 Necesito una MIA</button>
-                    <button class="qr-chip" onclick="quickReply('¿Cómo los contacto?')">📞 ¿Cómo los contacto?</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input area -->
-        <div style="padding:12px 14px;background:#fff;border-top:1px solid #f0f0f0;">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <input id="chat-input" type="text" placeholder="Escribe tu consulta…"
-                       style="flex:1;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:.8125rem;font-family:Figtree,sans-serif;color:#1f2937;background:#f9fafb;transition:border-color .2s,box-shadow .2s;"
-                       onfocus="this.style.background='#fff'" onblur="this.style.background='#f9fafb'">
-                <button id="chat-send">
-                    <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                </button>
-            </div>
-            <p style="font-size:.65rem;color:#d1d5db;margin:6px 0 0;text-align:center;">Powered by SyA Group · Respuesta rápida garantizada</p>
-        </div>
-    </div>
-
-    <!-- ③ FAB button -->
-    <div id="chat-button" style="width:58px;height:58px;background:linear-gradient(135deg,#ff8c42,#e67e22);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px rgba(255,140,66,.45);">
-        <svg id="chat-icon-open" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        <svg id="chat-icon-close" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-    </div>
-</div>
 
 </body>
 </html>
