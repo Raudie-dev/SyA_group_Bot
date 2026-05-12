@@ -98,12 +98,14 @@ def configuracion(request):
         mensaje_bienvenida = request.POST.get('mensaje_bienvenida', '').strip()
         instrucciones_ia = request.POST.get('instrucciones_ia', '').strip()
         api_key = request.POST.get('api_key', '').strip()
+        api_provider = request.POST.get('api_provider', 'deepseek')
 
         if bot:
             bot.nombre = nombre
             bot.mensaje_bienvenida = mensaje_bienvenida
             bot.instrucciones_ia = instrucciones_ia
             bot.api_key = api_key
+            bot.api_provider = api_provider
             bot.save()
             messages.success(request, 'Configuración del bot actualizada correctamente.')
             return redirect('configuracion')
@@ -113,7 +115,8 @@ def configuracion(request):
                 owner=user,
                 mensaje_bienvenida=mensaje_bienvenida,
                 instrucciones_ia=instrucciones_ia,
-                api_key=api_key
+                api_key=api_key,
+                api_provider=api_provider
             )
             messages.success(request, 'Bot configurado correctamente. Ahora puedes conectar WhatsApp cuando quieras.')
 

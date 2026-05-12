@@ -15,7 +15,13 @@ class ConfigBot(models.Model):
     owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='bots', null=True, blank=True)
     mensaje_bienvenida = models.CharField(max_length=500, blank=True, help_text='Mensaje de bienvenida al usuario')
     instrucciones_ia = models.TextField(blank=True, help_text='Prompt o instrucciones para la IA / lógica de negocio')
-    api_key = models.CharField(max_length=100, blank=True, null=True, help_text='API Key de DeepSeek')
+    API_PROVIDERS = [
+        ('deepseek', 'DeepSeek'),
+        ('openai', 'OpenAI'),
+        ('gemini', 'Gemini'),
+    ]
+    api_provider = models.CharField(max_length=20, choices=API_PROVIDERS, default='deepseek', help_text='Proveedor de IA')
+    api_key = models.CharField(max_length=100, blank=True, null=True, help_text='API Key del proveedor seleccionado')
 
     def __str__(self):
         return self.nombre
