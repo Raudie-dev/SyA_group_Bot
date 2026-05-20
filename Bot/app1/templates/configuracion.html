@@ -119,17 +119,9 @@
         <!-- API Key -->
         <div class="panel">
             <div class="panel-title" style="padding-bottom:12px; border-bottom:1px solid var(--color-border); margin-bottom:18px;">Credenciales</div>
-            <div class="field">
-                <label class="field-label" for="api_provider">Proveedor de IA</label>
-                <select class="field-input" id="api_provider" name="api_provider" required>
-                    <option value="deepseek" {% if bot.api_provider == 'deepseek' %}selected{% endif %}>DeepSeek</option>
-                    <option value="openai" {% if bot.api_provider == 'openai' %}selected{% endif %}>OpenAI</option>
-                    <option value="gemini" {% if bot.api_provider == 'gemini' %}selected{% endif %}>Gemini</option>
-                </select>
-                <p class="field-hint">Selecciona el proveedor de IA que deseas usar.</p>
-            </div>
+
             <div class="field" style="margin-bottom:0;">
-                <label class="field-label" for="api_key">API Key del proveedor</label>
+                <label class="field-label" for="api_key">API Key de la IA</label>
                 <div style="position:relative;">
                     <input
                         class="field-input"
@@ -146,9 +138,6 @@
                         style="position:absolute; right:11px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--color-text-muted); cursor:pointer; font-size:0.78rem; padding:4px 6px; border-radius:5px; transition:color 0.2s;">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button type="button" id="openApiModal" aria-label="Cargar API key" style="position:absolute; right:45px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--color-brand-blue); cursor:pointer; font-size:0.78rem; padding:4px 6px; border-radius:5px; transition:color 0.2s;">
-                        <i class="fas fa-key"></i> <span style="font-size:0.75rem;">Cargar API key</span>
-                    </button>
                 </div>
                 <p class="field-hint">
                     <i class="fas fa-shield-halved" style="color:var(--color-brand-blue-light); margin-right:4px;"></i>
@@ -156,27 +145,6 @@
                 </p>
             </div>
         </div>
-
-        <!-- Modal para cargar API key -->
-        <div id="apiModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:1000; align-items:center; justify-content:center;">
-            <div style="background:#fff; border-radius:10px; padding:32px 24px; min-width:320px; max-width:90vw; box-shadow:0 8px 32px rgba(0,0,0,0.18); position:relative;">
-                <button type="button" id="closeApiModal" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.2rem; color:#888; cursor:pointer;">&times;</button>
-                <h3 style="margin-bottom:18px; font-size:1.1rem;">Cargar API Key</h3>
-                <div style="margin-bottom:14px;">
-                    <label for="modal_api_provider" style="font-weight:600; font-size:0.95rem;">Proveedor</label>
-                    <select id="modal_api_provider" class="field-input" style="margin-top:4px;">
-                        <option value="deepseek">DeepSeek</option>
-                        <option value="openai">OpenAI</option>
-                        <option value="gemini">Gemini</option>
-                    </select>
-                </div>
-                <div style="margin-bottom:14px;">
-                    <label for="modal_api_key" style="font-weight:600; font-size:0.95rem;">API Key</label>
-                    <input type="text" id="modal_api_key" class="field-input" placeholder="sk-..." autocomplete="off">
-                </div>
-                <button type="button" id="saveApiKey" class="btn btn-primary" style="width:100%;">Guardar</button>
-            </div>
-        </div
 
     </div>
 
@@ -211,60 +179,6 @@
         });
         toggleKey.addEventListener('mouseover', () => toggleKey.style.color = 'var(--color-brand-blue-light)');
         toggleKey.addEventListener('mouseout',  () => toggleKey.style.color = 'var(--color-text-muted)');
-    }
-
-    // Modal API Key
-    const openApiModal = document.getElementById('openApiModal');
-    const apiModal = document.getElementById('apiModal');
-    const closeApiModal = document.getElementById('closeApiModal');
-    const saveApiKey = document.getElementById('saveApiKey');
-    const modalApiProvider = document.getElementById('modal_api_provider');
-    const modalApiKey = document.getElementById('modal_api_key');
-    const apiProviderSelect = document.getElementById('api_provider');
-
-    // Guardar las API keys temporalmente en el navegador (solo para UX, no persistente)
-    let apiKeys = {
-        'deepseek': '',
-        'openai': '',
-        'gemini': ''
-    };
-    // Inicializar con el valor actual
-    if (apiKeyInput && apiProviderSelect) {
-        apiKeys[apiProviderSelect.value] = apiKeyInput.value;
-    }
-
-    if (openApiModal && apiModal) {
-        openApiModal.addEventListener('click', () => {
-            apiModal.style.display = 'flex';
-            // Setear el select y el input del modal según el actual
-            if (apiProviderSelect) {
-                modalApiProvider.value = apiProviderSelect.value;
-                modalApiKey.value = apiKeys[apiProviderSelect.value] || '';
-            }
-        });
-    }
-    if (closeApiModal && apiModal) {
-        closeApiModal.addEventListener('click', () => {
-            apiModal.style.display = 'none';
-        });
-    }
-    if (saveApiKey && apiModal) {
-        saveApiKey.addEventListener('click', () => {
-            const provider = modalApiProvider.value;
-            const key = modalApiKey.value;
-            apiKeys[provider] = key;
-            // Si el select principal coincide, actualiza el input principal
-            if (apiProviderSelect.value === provider) {
-                apiKeyInput.value = key;
-            }
-            apiModal.style.display = 'none';
-        });
-    }
-    // Cambiar el input de API key al cambiar el proveedor
-    if (apiProviderSelect && apiKeyInput) {
-        apiProviderSelect.addEventListener('change', function() {
-            apiKeyInput.value = apiKeys[this.value] || '';
-        });
     }
 
     // File upload preview

@@ -1,25 +1,23 @@
-{% load static tailwind_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SyA Group · Sangüesa y Asociados Chile</title>
-
-  {% tailwind_css %}
+  <title>SyA Group</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
 
-{# ── NAVBAR ────────────────────────────────────────── #}
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
 <nav id="navbar">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <img src="{% static 'img/Logo.png' %}" alt="SyA Group Logo" style="height:50px;">
+      <img src="{% static 'img/Logo.png' %}" alt="SyA Group Logo" style="height:46px;">
     </a>
     <div class="nav-links" id="nav-links-desktop">
       <a href="#servicios">Servicios</a>
@@ -30,579 +28,717 @@
       <a href="#sedes">Sedes</a>
       <a href="#contacto">Contacto</a>
     </div>
-    <a href="{% url 'login' %}" class="nav-cta">
-      <i class="fas fa-arrow-right-to-bracket" style="font-size:.75rem;"></i>
-      Acceso al Sistema
-    </a>
+    <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile-panel" id="navMobilePanel">
+    <a href="#servicios">Servicios</a>
+    <a href="#nosotros">Nosotros</a>
+    <a href="#equipo">Equipo</a>
+    <a href="#experiencia">Experiencia</a>
+    <a href="#certificaciones">Certificaciones</a>
+    <a href="#sedes">Sedes</a>
+    <a href="#contacto">Contacto</a>
   </div>
 </nav>
 
-{# ── HERO ──────────────────────────────────────────── #}
+<!-- ══ HERO CAROUSEL ═══════════════════════════════════ -->
 <section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
-  <div class="hero-orb hero-orb--1"></div>
-  <div class="hero-orb hero-orb--2"></div>
-  <div class="hero-orb hero-orb--3"></div>
+  <div class="carousel" id="carousel">
+    <div class="c-track" id="cTrack">
 
-  <div class="hero-content">
-    <div>
-      <div class="hero-eyebrow fade-up d1">
-        <span class="hero-eyebrow-dot"></span>
-        <span class="hero-eyebrow-text">Consultora Ambiental · Fundada 2003 · Chile</span>
+      <div class="c-slide active">
+        <div class="c-img" style="background-image:url('{% static 'img/hero-marino.jpg' %}')"></div>
+        <div class="c-overlay"></div>
+        <div class="c-body">
+          <span class="c-tag">Estudios Marinos y Oceanográficos</span>
+          <p class="c-title">Vigilancia biológica<br>y ecológica costera</p>
+          <p class="c-desc">Monitoreos ambientales, líneas base submareales e intermareales, modelación de dispersión de contaminantes y cumplimiento de RCA (Ley 19.300) en ecosistemas marinos de todo Chile.</p>
+          <div class="c-pills">
+            <span class="c-pill">Bentos marino</span>
+            <span class="c-pill">RCA · Ley 19.300</span>
+            <span class="c-pill">SEIA · DIA / EIA</span>
+          </div>
+        </div>
       </div>
-      <h1 class="fade-up d2">
-        Ciencia aplicada<br>al <em>entorno marino</em><br>y terrestre.
-      </h1>
-      <p class="hero-lead fade-up d3">
-        Sangüesa y Asociados entrega soluciones técnicas de excelencia en biología, química y
-        oceanografía — apoyando la toma de decisiones de empresas e instituciones con rigor científico.
-      </p>
-      <div class="hero-actions fade-up d4">
-        <a href="#servicios" class="btn-primary">
-          <i class="fas fa-microscope" style="font-size:.8rem;"></i>Ver servicios
-        </a>
-        <a href="#nosotros" class="btn-ghost">Quiénes somos</a>
+
+      <div class="c-slide">
+        <div class="c-img" style="background-image:url('{% static 'img/hero-laboratorio.jpg' %}')"></div>
+        <div class="c-overlay"></div>
+        <div class="c-body">
+          <span class="c-tag">Laboratorio de Ecología</span>
+          <p class="c-title">Análisis técnico-científico<br>de muestras ambientales</p>
+          <p class="c-desc">Clasificación taxonómica, análisis fisicoquímico de muestras bentónicas, fitoplancton y zooplancton en agua dulce y salada. Indicadores ecológicos y bioensayos de toxicidad.</p>
+          <div class="c-pills">
+            <span class="c-pill">ISO 17020</span>
+            <span class="c-pill">Bioensayos</span>
+            <span class="c-pill">Taxonomía</span>
+          </div>
+        </div>
       </div>
+
+      <div class="c-slide">
+        <div class="c-img" style="background-image:url('{% static 'img/hero-submarino.jpg' %}')"></div>
+        <div class="c-overlay"></div>
+        <div class="c-body">
+          <span class="c-tag">Operaciones Submarinas</span>
+          <p class="c-title">Inspección y remediación<br>de fondos marinos</p>
+          <p class="c-desc">Tecnología NDT/MPI única en Chile para detección de grietas y fugas en estructuras subacuáticas. Limpieza de cascos, inspección de emisarios y fondeos especializados.</p>
+          <div class="c-pills">
+            <span class="c-pill">NDT / MPI</span>
+            <span class="c-pill">Buceo especializado</span>
+            <span class="c-pill">Remediación</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="c-slide">
+        <div class="c-img" style="background-image:url('{% static 'img/hero-terrestre.jpg' %}')"></div>
+        <div class="c-overlay"></div>
+        <div class="c-body">
+          <span class="c-tag">Estudios Terrestres y Dulceacuícolas</span>
+          <p class="c-title">Flora, fauna y<br>ecosistemas continentales</p>
+          <p class="c-desc">Inventarios forestales, líneas base de fauna y flora silvestre, hidrobiología continental, evaluación de cuencas hidrográficas y planes de manejo ambiental según normativa CONAF.</p>
+          <div class="c-pills">
+            <span class="c-pill">CONAF</span>
+            <span class="c-pill">Flora y fauna</span>
+            <span class="c-pill">Cuencas hidrográficas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="c-slide">
+        <div class="c-img" style="background-image:url('{% static 'img/hero-oceanografia.jpg' %}')"></div>
+        <div class="c-overlay"></div>
+        <div class="c-body">
+          <span class="c-tag">Gestión Ambiental y Permisos Sectoriales</span>
+          <p class="c-title">Permisos, SEIA<br>y auditorías ambientales</p>
+          <p class="c-desc">Tramitación de permisos sectoriales, asesoría en DIA/EIA, cumplimiento de compromisos RCA, auditorías de diagnóstico ambiental y coordinación con organismos del Estado.</p>
+          <div class="c-pills">
+            <span class="c-pill">SEIA</span>
+            <span class="c-pill">Permisos sectoriales</span>
+            <span class="c-pill">OAECA</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="hero-panel hero-right fade-up d5">
-      <div class="hero-panel-header">
-        <span class="hero-panel-dot" style="background:#ef4444;"></span>
-        <span class="hero-panel-dot" style="background:#f59e0b;"></span>
-        <span class="hero-panel-dot" style="background:#22c55e;"></span>
-        <span style="font-size:.72rem;color:rgba(255,255,255,0.3);letter-spacing:.1em;margin-left:8px;">ÁREAS DE OPERACIÓN</span>
+    <div class="c-bar" id="cBar">
+      <div class="c-bar-item active" data-idx="0">
+        <div class="c-bar-icon"><i class="fas fa-water"></i></div>
+        <div class="c-bar-txt"><span class="c-bar-label">Marino</span><span class="c-bar-sub">Estudios oceanográficos</span></div>
+        <div class="c-bar-prog"></div>
       </div>
-      <div class="hero-panel-body">
-        <div class="metric-row">
-          <div class="metric-box">
-            <div class="metric-num">+20</div>
-            <div class="metric-label">Años activos</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-num">3</div>
-            <div class="metric-label">Regiones</div>
-          </div>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;margin-bottom:14px;">
-          <div style="font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;font-weight:600;">Especialidades</div>
-          <div class="service-pills">
-            <span class="service-pill"><i class="fas fa-water" style="font-size:.6rem;"></i>Marino</span>
-            <span class="service-pill"><i class="fas fa-flask" style="font-size:.6rem;"></i>Laboratorio</span>
-            <span class="service-pill"><i class="fas fa-fish" style="font-size:.6rem;"></i>Submarino</span>
-            <span class="service-pill"><i class="fas fa-tree" style="font-size:.6rem;"></i>Terrestre</span>
-            <span class="service-pill"><i class="fas fa-file-contract" style="font-size:.6rem;"></i>Gestión</span>
-            <span class="service-pill"><i class="fas fa-recycle" style="font-size:.6rem;"></i>Recuperación</span>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(74,158,47,0.09);border:1px solid rgba(74,158,47,0.2);border-radius:8px;">
-          <div style="width:32px;height:32px;border-radius:50%;background:rgba(74,158,47,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="fas fa-circle-check" style="color:#4a9e2f;font-size:.75rem;"></i>
-          </div>
-          <div>
-            <p style="font-size:.75rem;font-weight:500;color:#fff;margin-bottom:2px;">ETFA Acreditada</p>
-            <p style="font-size:.67rem;color:rgba(255,255,255,0.35);">Fiscalización Ambiental · SMA Chile</p>
-          </div>
-        </div>
+      <div class="c-bar-item" data-idx="1">
+        <div class="c-bar-icon"><i class="fas fa-flask"></i></div>
+        <div class="c-bar-txt"><span class="c-bar-label">Laboratorio</span><span class="c-bar-sub">Ecología y bioensayos</span></div>
+        <div class="c-bar-prog"></div>
       </div>
-    </div>
-  </div>
-
-  <div class="stats-bar">
-    <div class="stats-bar-inner">
-      <div class="stat-item"><div class="stat-num">2003</div><div class="stat-label">Año de fundación</div></div>
-      <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Áreas de servicio</div></div>
-      <div class="stat-item"><div class="stat-num">+5</div><div class="stat-label">Años PVA energéticos</div></div>
-      <div class="stat-item"><div class="stat-num">Latam</div><div class="stat-label">Alcance regional</div></div>
+      <div class="c-bar-item" data-idx="2">
+        <div class="c-bar-icon"><i class="fas fa-person-swimming"></i></div>
+        <div class="c-bar-txt"><span class="c-bar-label">Submarino</span><span class="c-bar-sub">NDT/MPI · Fondeos</span></div>
+        <div class="c-bar-prog"></div>
+      </div>
+      <div class="c-bar-item" data-idx="3">
+        <div class="c-bar-icon"><i class="fas fa-leaf"></i></div>
+        <div class="c-bar-txt"><span class="c-bar-label">Terrestre</span><span class="c-bar-sub">Flora · Fauna · Cuencas</span></div>
+        <div class="c-bar-prog"></div>
+      </div>
+      <div class="c-bar-item" data-idx="4">
+        <div class="c-bar-icon"><i class="fas fa-file-contract"></i></div>
+        <div class="c-bar-txt"><span class="c-bar-label">Gestión</span><span class="c-bar-sub">SEIA · Permisos</span></div>
+        <div class="c-bar-prog"></div>
+      </div>
     </div>
   </div>
 </section>
 
-{# ── SERVICIOS ─────────────────────────────────────── #}
+<!-- ══ SERVICIOS ════════════════════════════════════════ -->
 <section id="servicios" class="services-section">
-  <div class="section-inner">
-    <div class="services-header">
+  <div class="topo-canvas topo-light topo-animated" aria-hidden="true"></div>
+  <div class="section-inner" style="position:relative;z-index:1;">
+    <div class="services-header reveal">
       <div>
         <div class="section-label">Qué hacemos</div>
-        <h2>Portafolio de<br><em>servicios técnicos.</em></h2>
+        <h2>Portafolio de<br>servicios técnicos.</h2>
       </div>
-      <p class="services-lead">
-        Seis disciplinas especializadas que cubren el ciclo completo de evaluación,
-        monitoreo y gestión ambiental en ecosistemas marinos y terrestres.
-      </p>
+      <p class="services-lead">Seis disciplinas especializadas que cubren el ciclo completo de evaluación, monitoreo y gestión ambiental en ecosistemas marinos, costeros y terrestres a lo largo de Chile.</p>
     </div>
     <div class="services-grid">
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(10,77,110,0.08);"><i class="fas fa-water" style="color:#0e4d6e;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(10,77,110,0.08);color:#0e4d6e;">EMO</span>
+      <div class="svc-card reveal reveal-delay-1">
+        <div class="svc-icon" style="background:rgba(18,73,160,.09);"><i class="fas fa-water" style="color:#1249A0;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(18,73,160,.09);color:#1249A0;">EMO</span>
         <p class="svc-title">Estudios Marinos y Oceanográficos</p>
-        <p class="svc-desc">Monitoreo y análisis de cuerpos de agua, dinámicas marinas, corrientes y calidad de masa de agua en zonas costeras e insulares.</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Vigilancia biológica y ecológica de ambientes marinos en conformidad con estándares internacionales y cumplimiento de RCA (Ley 19.300). Incorporamos metodologías del MMA, DIRECTEMAR, SERNAPESCA y SUBPESCA.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(10,124,138,0.08);"><i class="fas fa-flask" style="color:#0a7c8a;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(10,124,138,0.08);color:#0a7c8a;">LAB</span>
+      <div class="svc-card reveal reveal-delay-2">
+        <div class="svc-icon" style="background:rgba(14,165,233,.09);"><i class="fas fa-flask" style="color:#0284C7;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(14,165,233,.09);color:#0284C7;">LAB</span>
         <p class="svc-title">Laboratorio de Ecología</p>
-        <p class="svc-desc">Análisis técnico y científico de muestras biológicas. Clasificación taxonómica, indicadores ecológicos y bioensayos de toxicidad.</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Contamos con instalaciones y equipos especializados para el análisis técnico-científico de comunidades bentónicas submareales e intermareales, fitoplancton y zooplancton en agua dulce y salada.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(74,158,47,0.1);"><i class="fas fa-person-swimming" style="color:#4a9e2f;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(74,158,47,0.1);color:#4a9e2f;">OPS</span>
+      <div class="svc-card reveal reveal-delay-3">
+        <div class="svc-icon" style="background:rgba(8,45,102,.1);"><i class="fas fa-person-swimming" style="color:#082D66;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(8,45,102,.09);color:#082D66;">OPS</span>
         <p class="svc-title">Operaciones Submarinas</p>
-        <p class="svc-desc">Trabajos técnicos especializados bajo el agua: inspecciones de estructuras, censos bentónicos y recolección de muestras profundas.</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Servicios subacuáticos de alta tecnología para buques, puertos y boyas. Contamos con el sistema NDT/MPI —único en Chile— para detección de grietas, fugas y defectos de soldaduras en estructuras metálicas subacuáticas.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(74,158,47,0.08);"><i class="fas fa-tree" style="color:#3d8a22;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(74,158,47,0.08);color:#3d8a22;">ETD</span>
+      <div class="svc-card reveal reveal-delay-1">
+        <div class="svc-icon" style="background:rgba(18,73,160,.07);"><i class="fas fa-tree" style="color:#3B6EC4;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(18,73,160,.07);color:#3B6EC4;">ETD</span>
         <p class="svc-title">Estudios Terrestres y Dulceacuícolas</p>
-        <p class="svc-desc">Evaluación de ecosistemas terrestres, cuencas hidrográficas, ríos y lagos. Flora, fauna e hidrobiología continental.</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Estudios del biota y ecosistemas continentales orientados a su conservación y producción, con metodologías actualizadas según la institucionalidad ambiental chilena vigente.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(200,169,110,0.1);"><i class="fas fa-file-contract" style="color:#c8a96e;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(200,169,110,0.1);color:#c8a96e;">GAP</span>
+      <div class="svc-card reveal reveal-delay-2">
+        <div class="svc-icon" style="background:rgba(99,102,241,.08);"><i class="fas fa-file-contract" style="color:#4338CA;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(99,102,241,.08);color:#4338CA;">GAP</span>
         <p class="svc-title">Gestión Ambiental y Permisos Sectoriales</p>
-        <p class="svc-desc">Tramitación y cumplimiento de normativa ambiental vigente. Asesoría integral en el Sistema de Evaluación de Impacto Ambiental (SEIA).</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Facilitamos la identificación de normativa ambiental y permisos sectoriales aplicables, en concordancia con la Ley N° 19.300 sobre Bases Generales del Medio Ambiente y el SEIA.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
-      <div class="svc-card">
-        <div class="svc-icon" style="background:rgba(232,66,10,0.08);"><i class="fas fa-recycle" style="color:#e8420a;font-size:.95rem;"></i></div>
-        <span class="svc-tag" style="background:rgba(232,66,10,0.08);color:#e8420a;">ORL</span>
+      <div class="svc-card reveal reveal-delay-3">
+        <div class="svc-icon" style="background:rgba(230,126,34,.08);"><i class="fas fa-recycle" style="color:#B45309;font-size:.95rem;"></i></div>
+        <span class="svc-tag" style="background:rgba(230,126,34,.08);color:#B45309;">ORL</span>
         <p class="svc-title">Operaciones de Recuperación y Limpieza</p>
-        <p class="svc-desc">Intervención en áreas impactadas por derrames de hidrocarburos u otros contaminantes. Planes de contingencia y restauración ecológica.</p>
-        <span class="svc-arrow">Ver más <i class="fas fa-arrow-right" style="font-size:.65rem;"></i></span>
+        <p class="svc-desc">Experiencia en mitigación y recuperación de pasivos ambientales para revertir los efectos de la contaminación, con seguimiento temporal y difusión de resultados ante las autoridades competentes.</p>
+        <div class="svc-arrow">Ver más <i class="fas fa-arrow-right"></i></div>
       </div>
     </div>
   </div>
 </section>
 
-{# ── NOSOTROS ──────────────────────────────────────── #}
+<!-- ══ CTA 1 — Naranja + topo ══════════════════════════ -->
+<section class="topo-cta-strip bg-degrade--light"
+         style="--cta-bg-img: url('{% static 'img/fondo.jpg' %}');">
+  <div class="topo-cta-bg" aria-hidden="true"></div>
+  <div class="topo-cta-vignette"></div>
+  <div class="topo-cta-inner">
+    <div class="topo-cta-left">
+      <div class="topo-cta-overline">Atención especializada</div>
+      <h2 class="topo-cta-title">¿Tienes un proyecto<br>ambiental en mente?</h2>
+      <p class="topo-cta-desc">Nuestros especialistas en biología marina, gestión ambiental y permisos SEIA están listos para orientarte. Sin costo ni compromiso.</p>
+    </div>
+    <div class="topo-cta-right">
+      <button class="btn-topo-cta" onclick="window.openChat()">
+        <div class="btn-topo-cta-icon"><i class="fas fa-comment-dots"></i></div>
+        <div class="btn-topo-cta-text">
+          <span class="btn-topo-cta-label">Conversa con nuestros asesores</span>
+          <span class="btn-topo-cta-sub">Respuesta inmediata · Sin costo</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ NOSOTROS ══════════════════════════════════════════ -->
 <section id="nosotros" class="about-section">
-  <div class="about-pattern"></div>
-  <div class="about-glow"></div>
+  <div class="topo-canvas topo-light" aria-hidden="true" style="opacity:.07;"></div>
   <div class="section-inner about-inner">
-    <div class="about-text">
-      <div class="section-label about-label">Quiénes somos</div>
-      <h2>Sangüesa y<br><em>Asociados Limitada.</em></h2>
-      <p class="about-p">Sociedad chilena fundada en 2003, especializada en consultorías y servicios ambientales técnicos para los sectores industrial, energético, pesquero y de infraestructura.</p>
-      <p class="about-p">Nuestro equipo multidisciplinario — ingenieros, topógrafos, biólogos marinos y oceanógrafos — aporta experiencia previa en CORFO, MOP, SUBPESCA y el Ministerio del Medio Ambiente.</p>
+    <div class="about-text reveal">
+      <div class="section-label">Quiénes somos</div>
+      <h2>Sangüesa y<br>Asociados Limitada.</h2>
+      <p class="about-p">Sociedad chilena fundada en 2003, dedicada a la consultoría y servicios ambientales integrales para los sectores industrial, energético, pesquero y de infraestructura.</p>
+      <p class="about-p">Nuestra misión es generar soluciones costo-efectivas para las necesidades ambientales en ámbitos marítimos, costeros y terrestres. Nuestra visión es ser referentes de excelencia y una mirada eficiente para orientar el desarrollo sostenible de la industria.</p>
       <div class="pillars">
         <div class="pillar">
-          <div class="pillar-icon"><i class="fas fa-user-tie" style="color:#4a9e2f;font-size:.8rem;"></i></div>
-          <div><p class="pillar-title">Trato personalizado y flexibilidad</p><p class="pillar-desc">Cada proyecto recibe atención directa y adaptada a las particularidades del cliente.</p></div>
+          <div class="pillar-icon"><i class="fas fa-user-tie" style="color:var(--brand-blue);font-size:.8rem;"></i></div>
+          <div>
+            <p class="pillar-title">Trato personalizado</p>
+            <p class="pillar-desc">Comunicación oportuna y transparente. Cada proyecto recibe atención directa y adaptada a las particularidades del cliente.</p>
+          </div>
         </div>
         <div class="pillar">
-          <div class="pillar-icon"><i class="fas fa-shield-halved" style="color:#4a9e2f;font-size:.8rem;"></i></div>
-          <div><p class="pillar-title">Confidencialidad y calidad</p><p class="pillar-desc">Estrictos protocolos de manejo de información y control de calidad en todos los entregables.</p></div>
+          <div class="pillar-icon"><i class="fas fa-arrows-spin" style="color:var(--brand-blue);font-size:.8rem;"></i></div>
+          <div>
+            <p class="pillar-title">Flexibilidad</p>
+            <p class="pillar-desc">Capacidad de adaptación ante cambios y contingencias propias del trabajo ambiental en terreno a lo largo de todo Chile.</p>
+          </div>
         </div>
         <div class="pillar">
-          <div class="pillar-icon"><i class="fas fa-microscope" style="color:#4a9e2f;font-size:.8rem;"></i></div>
-          <div><p class="pillar-title">Sólida experiencia técnica</p><p class="pillar-desc">Más de dos décadas desarrollando proyectos a lo largo de todo el territorio nacional.</p></div>
+          <div class="pillar-icon"><i class="fas fa-shield-halved" style="color:var(--brand-blue);font-size:.8rem;"></i></div>
+          <div>
+            <p class="pillar-title">Confidencialidad y calidad</p>
+            <p class="pillar-desc">Cláusulas estrictas de reserva de información y mejora continua de procesos en todos los entregables técnicos.</p>
+          </div>
         </div>
       </div>
     </div>
     <div>
       <div class="about-cards">
-        <div class="about-card"><span class="about-card-icon"><i class="fas fa-microscope"></i></span><p class="about-card-title">Rigor científico</p><p class="about-card-body">Metodologías validadas y profesionales titulados en biología, química y oceanografía.</p></div>
-        <div class="about-card"><span class="about-card-icon"><i class="fas fa-scale-balanced"></i></span><p class="about-card-title">Cumplimiento legal</p><p class="about-card-body">Dominio profundo de la normativa ambiental chilena vigente, SEA y permisos sectoriales.</p></div>
-        <div class="about-card"><span class="about-card-icon"><i class="fas fa-leaf"></i></span><p class="about-card-title">Desarrollo sostenible</p><p class="about-card-body">Visión: ser una mirada eficiente para orientar el desarrollo sostenible de la industria.</p></div>
-        <div class="about-card"><span class="about-card-icon"><i class="fas fa-handshake"></i></span><p class="about-card-title">Alianza estratégica</p><p class="about-card-body">+20 años siendo socios confiables de empresas e instituciones en Chile.</p></div>
-      </div>
-      <div class="about-badge-row">
-        <span class="about-badge">SEIA</span><span class="about-badge">SUBPESCA</span><span class="about-badge">CONAF</span>
-        <span class="about-badge">ISO 14001</span><span class="about-badge">Ley Karin</span><span class="about-badge">SMA · ETFA</span><span class="about-badge">Sostenibilidad</span>
+        <div class="about-card reveal reveal-delay-1">
+          <span class="about-card-icon"><i class="fas fa-microscope"></i></span>
+          <p class="about-card-title">Rigor científico</p>
+          <p class="about-card-body">Metodologías validadas y profesionales titulados en Biología Marina, Oceanografía, Química e Ingeniería Ambiental con experiencia desde 2003.</p>
+        </div>
+        <div class="about-card reveal reveal-delay-2">
+          <span class="about-card-icon"><i class="fas fa-scale-balanced"></i></span>
+          <p class="about-card-title">Cumplimiento legal</p>
+          <p class="about-card-body">Dominio profundo de la normativa ambiental chilena vigente: SEIA, RCA (Ley 19.300), permisos sectoriales y Ley Karin.</p>
+        </div>
+        <div class="about-card reveal reveal-delay-3">
+          <span class="about-card-icon"><i class="fas fa-leaf"></i></span>
+          <p class="about-card-title">Desarrollo sostenible</p>
+          <p class="about-card-body">Visión: ser una mirada eficiente para orientar el desarrollo sostenible de la industria chilena y latinoamericana.</p>
+        </div>
+        <div class="about-card reveal reveal-delay-4">
+          <span class="about-card-icon"><i class="fas fa-handshake"></i></span>
+          <p class="about-card-title">Alianza estratégica</p>
+          <p class="about-card-body">Más de 20 años siendo socios confiables de empresas e instituciones públicas y privadas en Chile.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-{# ── EQUIPO ────────────────────────────────────────── #}
+<!-- ══ EQUIPO ════════════════════════════════════════════ -->
 <section id="equipo" class="team-section">
   <div class="team-accent-line"></div>
+  <div class="topo-canvas topo-light topo-animated" aria-hidden="true"></div>
   <div class="section-inner team-inner">
     <div class="team-eyebrow"><span class="team-eyebrow-rule"></span>Nuestra gente</div>
     <div class="team-head">
-      <div><h2>El equipo detrás<br>de <em>cada proyecto.</em></h2></div>
-      <p class="team-head-sub">Biólogos, oceanógrafos, ingenieros y gestores ambientales con trayectoria en el sector público y privado chileno desde 2003.</p>
+      <h2>El equipo detrás<br>de cada proyecto.</h2>
+      <p class="team-head-sub">Biólogos marinos, oceanógrafos, ingenieros, químicos y gestores ambientales con trayectoria en el sector público y privado chileno desde 2003.</p>
     </div>
     <div class="lead-grid">
-      <div class="lead-card lead-card--prime">
+      <div class="lead-card lead-card--prime reveal">
         <span class="founder-pill">Fundador</span>
         <span class="role-tag role-tag--gm"><i class="fas fa-user-tie"></i> Gerencia General</span>
         <div class="lead-person-row">
           <div class="lead-av lead-av--teal">AS</div>
-          <div><p class="lead-name">Álvaro Sangüesa N.</p><p class="lead-title">Gerente General · Socio Fundador</p></div>
+          <div>
+            <p class="lead-name">Álvaro Sangüesa N.</p>
+            <p class="lead-title">Gerente General · Socio Fundador</p>
+          </div>
         </div>
         <div class="lead-sep"></div>
         <p class="lead-desc">Más de dos décadas dirigiendo proyectos ambientales estratégicos en ecosistemas marinos y terrestres a lo largo de todo el territorio nacional. Motor fundacional de SyA Group desde 2003.</p>
-        <div class="chip-row"><span class="chip">+20 años</span><span class="chip">Estudios Marinos</span><span class="chip">Gestión Ambiental</span></div>
+        <div class="chip-row">
+          <span class="chip">+20 años</span>
+          <span class="chip">Estudios Marinos</span>
+          <span class="chip">Gestión Ambiental</span>
+        </div>
       </div>
-      <div class="lead-card">
+      <div class="lead-card reveal reveal-delay-2">
         <span class="role-tag role-tag--adm"><i class="fas fa-chart-line"></i> Administración</span>
         <div class="lead-person-row">
           <div class="lead-av lead-av--blue">CS</div>
-          <div><p class="lead-name">Carlos Sangüesa N.</p><p class="lead-title">Gerente de Administración y Finanzas</p></div>
+          <div>
+            <p class="lead-name">Carlos Sangüesa N.</p>
+            <p class="lead-title">Gerente de Administración y Finanzas</p>
+          </div>
         </div>
         <div class="lead-sep"></div>
         <p class="lead-desc">Responsable de la estructura operativa y la sostenibilidad económica del grupo. Garantiza la eficiencia en la gestión de recursos y el crecimiento ordenado de la empresa.</p>
         <div class="chip-row"><span class="chip">Finanzas</span><span class="chip">Operaciones</span></div>
       </div>
-      <div class="lead-card">
+      <div class="lead-card reveal reveal-delay-3">
         <span class="role-tag role-tag--qly"><i class="fas fa-shield-halved"></i> Calidad</span>
         <div class="lead-person-row">
           <div class="lead-av lead-av--green">LA</div>
-          <div><p class="lead-name">Lorena Arriagada O.</p><p class="lead-title">Jefe de Proyectos · Encargada de Calidad</p></div>
+          <div>
+            <p class="lead-name">Lorena Arriagada O.</p>
+            <p class="lead-title">Jefe de Proyectos · Encargada de Calidad</p>
+          </div>
         </div>
         <div class="lead-sep"></div>
         <p class="lead-desc">Lidera la ejecución técnica y asegura el cumplimiento de estándares nacionales e internacionales. Referente en control de calidad y entrega de informes técnicos.</p>
-        <div class="chip-row"><span class="chip">ISO 14001</span><span class="chip">SEIA</span><span class="chip">ETFA</span></div>
+        <div class="chip-row"><span class="chip">ISO 17020</span><span class="chip">SEIA</span><span class="chip">ETFA</span></div>
       </div>
     </div>
-    <div class="spec-hd"><span class="spec-hd-label">Especialistas técnicos</span><div class="spec-hd-rule"></div></div>
-    <div class="spec-grid">
-      <div class="spec-card"><div class="spec-ico spec-ico--teal"><i class="fas fa-water"></i></div><p class="spec-name">Biología Marina y Oceanografía</p><p class="spec-desc">Ecosistemas acuáticos, dinámica costera y caracterización de masas de agua.</p></div>
-      <div class="spec-card"><div class="spec-ico spec-ico--green"><i class="fas fa-drafting-compass"></i></div><p class="spec-name">Ingeniería y Topografía</p><p class="spec-desc">Levantamiento de datos, modelamiento de terrenos y cartografía ambiental.</p></div>
-      <div class="spec-card"><div class="spec-ico spec-ico--amber"><i class="fas fa-file-contract"></i></div><p class="spec-name">Gestión Ambiental</p><p class="spec-desc">Cumplimiento normativo, tramitación de permisos sectoriales y asesoría SEIA.</p></div>
-      <div class="spec-card"><div class="spec-ico spec-ico--purple"><i class="fas fa-laptop-code"></i></div><p class="spec-name">Informática Aplicada</p><p class="spec-desc">Procesamiento de datos ambientales y herramientas tecnológicas de consultoría.</p></div>
+    <div class="spec-hd">
+      <span class="spec-hd-label">Especialistas técnicos</span>
+      <div class="spec-hd-rule"></div>
     </div>
-    <div class="inst-bar">
-      <span class="inst-bar-label">Experiencia previa en</span>
-      <div class="inst-divider"></div>
-      <div class="inst-chips">
-        <span class="inst-chip"><i class="fas fa-building-columns"></i>MOP</span>
-        <span class="inst-chip"><i class="fas fa-building-columns"></i>CORFO</span>
-        <span class="inst-chip"><i class="fas fa-building-columns"></i>SUBPESCA</span>
-        <span class="inst-chip"><i class="fas fa-leaf"></i>Min. Medio Ambiente</span>
-        <span class="inst-chip"><i class="fas fa-certificate"></i>SMA · ETFA</span>
+    <div class="spec-grid">
+      <div class="spec-card reveal reveal-delay-1">
+        <div class="spec-ico spec-ico--teal"><i class="fas fa-water"></i></div>
+        <p class="spec-name">Biología Marina y Oceanografía</p>
+        <p class="spec-desc">Ecosistemas acuáticos, dinámica costera, líneas base y caracterización de masas de agua superficiales y profundas.</p>
+      </div>
+      <div class="spec-card reveal reveal-delay-2">
+        <div class="spec-ico spec-ico--green"><i class="fas fa-flask"></i></div>
+        <p class="spec-name">Química Ambiental y Laboratorio</p>
+        <p class="spec-desc">Análisis fisicoquímico, bioensayos de toxicidad y control de calidad de muestras bentónicas y planctónicas.</p>
+      </div>
+      <div class="spec-card reveal reveal-delay-3">
+        <div class="spec-ico spec-ico--amber"><i class="fas fa-mountain"></i></div>
+        <p class="spec-name">Ecología Terrestre y Vegetal</p>
+        <p class="spec-desc">Flora, fauna silvestre, inventarios forestales y caracterización de hábitats continentales y cuencas hidrográficas.</p>
+      </div>
+      <div class="spec-card reveal reveal-delay-4">
+        <div class="spec-ico spec-ico--purple"><i class="fas fa-gavel"></i></div>
+        <p class="spec-name">Derecho y Gestión Ambiental</p>
+        <p class="spec-desc">Tramitación de permisos sectoriales, SEIA (DIA/EIA), auditorías y cumplimiento regulatorio integral ante OAECA.</p>
       </div>
     </div>
     <div class="team-stats-row">
-      <div class="team-stat"><p class="team-stat-n">+20 <span>años</span></p><p class="team-stat-lbl">de experiencia en el sector ambiental</p></div>
-      <div class="team-stat"><p class="team-stat-n">3</p><p class="team-stat-lbl">regiones de operación activa en Chile</p></div>
-      <div class="team-stat"><p class="team-stat-n">6</p><p class="team-stat-lbl">áreas de servicio multidisciplinarias</p></div>
-      <div class="team-stat team-stat--last"><p class="team-stat-n">ETFA</p><p class="team-stat-lbl">acreditación SMA vigente en Chile</p></div>
+      <div class="team-stat reveal"><p class="team-stat-n">+20 <span>años</span></p><p class="team-stat-lbl">de experiencia técnica continua</p></div>
+      <div class="team-stat reveal reveal-delay-1"><p class="team-stat-n">3</p><p class="team-stat-lbl">regiones con presencia directa</p></div>
+      <div class="team-stat reveal reveal-delay-2"><p class="team-stat-n">6</p><p class="team-stat-lbl">áreas de servicio multidisciplinarias</p></div>
+      <div class="team-stat team-stat--last reveal reveal-delay-3"><p class="team-stat-n">ETFA</p><p class="team-stat-lbl">acreditación SMA vigente en Chile</p></div>
     </div>
   </div>
 </section>
 
-{# ── EXPERIENCIA ───────────────────────────────────── #}
+<!-- ══ EXPERIENCIA ════════════════════════════════════════ -->
 <section id="experiencia" class="exp-section">
+  <div class="topo-canvas topo-warm topo-animated" aria-hidden="true"></div>
   <div class="section-inner">
-    <div class="section-label" style="display:flex;justify-content:center;">Nuestra experiencia</div>
-    <h2 style="place-self:center;text-align:center;">Proyectos que<br><em>dejan huella.</em></h2>
+    <div class="section-label" style="justify-content:center;">Nuestra experiencia</div>
+    <h2 class="reveal">Proyectos que<br>dejan huella.</h2>
     <div class="exp-grid">
-      <div class="exp-card">
+      <div class="exp-card reveal reveal-delay-1">
         <span class="exp-card-tag">Sector Energético · PVA</span>
         <p class="exp-card-title">Programa de Vigilancia Ambiental — 5 años continuos</p>
-        <p class="exp-card-body">Ejecución y coordinación de monitoreos ambientales sistemáticos para instalaciones del sector energético en zonas costeras del norte y centro de Chile.</p>
-        <span class="exp-client"><i class="fas fa-industry" style="font-size:.65rem;"></i>Sector energético — largo plazo</span>
+        <p class="exp-card-body">Ejecución y coordinación de monitoreos ambientales sistemáticos (PVA) para instalaciones del sector energético en zonas costeras del norte y centro de Chile, con variables químicas y biológicas según RCA vigente.</p>
+        <span class="exp-client"><i class="fas fa-industry"></i>Sector energético — largo plazo</span>
       </div>
-      <div class="exp-card">
+      <div class="exp-card reveal reveal-delay-2">
         <span class="exp-card-tag">Industria Hidrocarburos · Flora &amp; Fauna</span>
         <p class="exp-card-title">Informes de Flora y Fauna 2024–2026</p>
-        <p class="exp-card-body">Levantamiento y análisis de biodiversidad terrestre y marina en zonas de influencia de operaciones de hidrocarburos.</p>
-        <span class="exp-client"><i class="fas fa-oil-well" style="font-size:.65rem;"></i>ENAP</span>
+        <p class="exp-card-body">Levantamiento y análisis de biodiversidad terrestre y marina en zonas de influencia de operaciones de hidrocarburos, cumpliendo compromisos de RCA vigentes con metodología CONAF y MMA.</p>
+        <span class="exp-client"><i class="fas fa-oil-well"></i>ENAP</span>
       </div>
-      <div class="exp-card">
+      <div class="exp-card reveal reveal-delay-3">
         <span class="exp-card-tag">Emergencia Ambiental · Derrame</span>
         <p class="exp-card-title">Monitoreo post-derrame y recuperación de costa</p>
-        <p class="exp-card-body">Evaluación y seguimiento del impacto ambiental tras derrames marítimos. Coordinación con autoridades y empresas navieras.</p>
-        <span class="exp-client"><i class="fas fa-ship" style="font-size:.65rem;"></i>Empresas navieras</span>
+        <p class="exp-card-body">Evaluación y seguimiento del impacto ambiental tras derrames marítimos. Biorremediación de suelos, coordinación con DIRECTEMAR y autoridades, y relocalización de comunidades bentónicas impactadas.</p>
+        <span class="exp-client"><i class="fas fa-ship"></i>Empresas navieras</span>
       </div>
-      <div class="exp-card">
+      <div class="exp-card reveal reveal-delay-4">
         <span class="exp-card-tag">Sector Portuario · Monitoreo</span>
         <p class="exp-card-title">Vigilancia ambiental en puertos del norte de Chile</p>
-        <p class="exp-card-body">Programas de monitoreo marino y terrestre en instalaciones portuarias, incluyendo calidad de agua y comunidades bentónicas.</p>
-        <span class="exp-client"><i class="fas fa-anchor" style="font-size:.65rem;"></i>Puerto de Arica · Puerto de Antofagasta</span>
+        <p class="exp-card-body">Programas de monitoreo marino y terrestre en instalaciones portuarias, incluyendo calidad de agua, comunidades bentónicas y cumplimiento de normativa SEIA e informes a SEREMI Medio Ambiente.</p>
+        <span class="exp-client"><i class="fas fa-anchor"></i>Puerto de Arica · Puerto de Antofagasta</span>
       </div>
     </div>
+
+    <!-- ══ CARRUSEL CLIENTES — estructura corregida ════ -->
     <div class="clients-row">
       <p class="clients-label">Clientes y organismos con quienes hemos trabajado</p>
-      <div class="clients-logos">
-        <div class="client-chip"><i class="fas fa-building-columns"></i>ENAP</div>
-        <div class="client-chip"><i class="fas fa-building-columns"></i>CONAF</div>
-        <div class="client-chip"><i class="fas fa-building-columns"></i>Oxiquim</div>
-        <div class="client-chip"><i class="fas fa-anchor"></i>Puerto de Arica</div>
-        <div class="client-chip"><i class="fas fa-anchor"></i>Puerto de Antofagasta</div>
-        <div class="client-chip"><i class="fas fa-building-columns"></i>CORFO</div>
-        <div class="client-chip"><i class="fas fa-building-columns"></i>MOP</div>
-        <div class="client-chip"><i class="fas fa-building-columns"></i>SUBPESCA</div>
-      </div>
+      <div class="brands-carousel-wrapper">
+        <div class="brands-carousel-container">
+          <div class="brands-carousel-track brands-carousel-ltr" id="clientesCarouselTrackLTR">
+
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/1.jpg' %}" alt="Cliente 1" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/2.jpg' %}" alt="Cliente 2" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/3.jpg' %}" alt="Cliente 3" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/4.jpg' %}" alt="Cliente 4" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/5.jpg' %}" alt="Cliente 5" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/6.jpg' %}" alt="Cliente 6" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/7.jpg' %}" alt="Cliente 7" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/8.jpg' %}" alt="Cliente 8" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/9.jpg' %}" alt="Cliente 9" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/10.jpg' %}" alt="Cliente 10" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/11.jpg' %}" alt="Cliente 11" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/12.jpg' %}" alt="Cliente 12" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/13.jpg' %}" alt="Cliente 13" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/14.jpg' %}" alt="Cliente 14" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/15.jpg' %}" alt="Cliente 15" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/16.jpg' %}" alt="Cliente 16" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/17.jpg' %}" alt="Cliente 17" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/18.jpg' %}" alt="Cliente 18" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/19.jpg' %}" alt="Cliente 19" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+            <div class="brand-carousel-item cliente-item">
+              <div class="cliente-card"><div class="cliente-logo-wrapper">
+                <img src="{% static 'img/20.jpg' %}" alt="Cliente 20" class="brand-logo" loading="lazy">
+              </div></div>
+            </div>
+
+          </div><!-- /.brands-carousel-track -->
+        </div><!-- /.brands-carousel-container -->
+      </div><!-- /.brands-carousel-wrapper -->
+    </div><!-- /.clients-row -->
+
+  </div><!-- /.section-inner -->
+</section>
+
+<!-- ══ CTA 2 — Azul profundo + topo ═══════════════════ -->
+<section class="topo-cta-strip topo-cta-strip--dark bg-degrade"
+         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
+  <div class="topo-cta-bg" aria-hidden="true"></div>
+  <div class="topo-cta-vignette"></div>
+  <div class="topo-cta-inner">
+    <div class="topo-cta-left">
+      <div class="topo-cta-overline">Asesoría sin costo</div>
+      <h2 class="topo-cta-title">Conversemos sobre<br>tu caso ambiental</h2>
+      <p class="topo-cta-desc">Desde permisos sectoriales hasta monitoreos de RCA — nuestros especialistas te orientan desde el primer contacto. Sin burocracia, sin rodeos.</p>
+    </div>
+    <div class="topo-cta-right">
+      <button class="btn-topo-cta" onclick="window.openChat()" style="color:var(--brand-blue3);">
+        <div class="btn-topo-cta-icon" style="background:rgba(18,73,160,.1);color:var(--brand-blue3);"><i class="fas fa-comment-dots"></i></div>
+        <div class="btn-topo-cta-text">
+          <span class="btn-topo-cta-label">Conversa con nuestros asesores</span>
+          <span class="btn-topo-cta-sub">Chat en línea · Respuesta inmediata</span>
+        </div>
+      </button>
     </div>
   </div>
 </section>
 
-<section id="certificaciones" class="cert-full-section">
+<!-- ══ CERTIFICACIONES ════════════════════════════════════ -->
+<section id="certificaciones" class="topo-cta-strip topo-cta-strip--dark bg-degrade"
+         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
   <div class="cert-bg-shape cert-bg-shape--1"></div>
   <div class="cert-bg-shape cert-bg-shape--2"></div>
-
+  <div class="topo-canvas topo-dark topo-animated" aria-hidden="true"></div>
   <div class="section-inner cert-full-inner">
-    <div class="cert-full-header">
-      <div class="cert-full-eyebrow">
-        <span class="cert-eyebrow-dot"></span>
-        Acreditaciones oficiales
-      </div>
-      <h2>
-        "La experiencia y calidad<br>
-        de nuestro servicio es<br>
-        <em>nuestro respaldo."</em>
-      </h2>
-      <p class="cert-full-lead">
-        Contamos con certificaciones nacionales e internacionales que avalan la
-        rigurosidad técnica y la validez legal de cada uno de nuestros entregables.
-      </p>
+    <div class="cert-full-header reveal">
+      <div class="cert-full-eyebrow"><span class="cert-eyebrow-dot"></span>Acreditaciones oficiales · ETFA</div>
+      <h2>La experiencia y calidad<br>de nuestro servicio es<br>nuestro respaldo.</h2>
+      <p class="cert-full-lead">Acreditados por la Superintendencia del Medio Ambiente (SMA) como Entidad Técnica de Fiscalización Ambiental (ETFA) — Resolución Exenta N° 741/2023 — con certificaciones nacionales e internacionales que avalan la rigurosidad técnica y la validez legal de cada uno de nuestros entregables.</p>
     </div>
-
     <div class="cert-docs-grid">
-
-      <div class="cert-doc-card" onclick="openCertModal('{% static "pdf/Certificado-OI-216-17020.pdf" %}', 'Certificación OI 216 17020')">
+      <div class="cert-doc-card reveal reveal-delay-1" onclick="openCertModal('{% static 'pdf/Certificado-OI-216-17020.pdf' %}', 'Certificación OI 216 · ISO 17020')">
         <div class="cert-doc-preview">
-          <div class="cert-doc-watermark">
-            <i class="fas fa-file-certificate"></i>
-            </div>
-            <div class="cert-doc-stamp cert-doc-stamp--inn">
-            <img src="{% static 'pdf/Certificado-OI-216-17020.jpg' %}" alt="INN" onerror="this.style.display='none'">
-            <span>INN</span>
-          </div>
-          <div class="cert-doc-overlay">
-            <i class="fas fa-magnifying-glass-plus"></i>
-            <span>Ver certificado</span>
-          </div>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/Certificado-OI-216-17020.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
+          <div class="cert-doc-stamp cert-doc-stamp--inn"><span>INN</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--blue">Acreditación</span>
-          <p class="cert-doc-title">Certificación OI 216 17020</p>
+          <p class="cert-doc-title">Certificación OI 216 · ISO 17020</p>
           <p class="cert-doc-body">Instituto Nacional de Normalización · NCh-ISO/IEC 17020:2012</p>
-          <a href="{% static 'pdf/Certificado-OI-216-17020.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()">
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
+          <a href="{% static 'pdf/Certificado-OI-216-17020.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
-
-      <div class="cert-doc-card" onclick="openCertModal('{% static "pdf/RESOL-383-SMA-2017.pdf" %}', 'Resolución 383 SMA 2017')">
+      <div class="cert-doc-card reveal reveal-delay-2" onclick="openCertModal('{% static 'pdf/RESOL-383-SMA-2017.pdf' %}', 'Resolución 383 SMA 2017')">
         <div class="cert-doc-preview">
-          <div class="cert-doc-watermark"><i class="fas fa-file-certificate"></i></div>
-          <div class="cert-doc-stamp cert-doc-stamp--sma">
-            <span>SMA</span>
-          </div>
-          <div class="cert-doc-overlay">
-            <i class="fas fa-magnifying-glass-plus"></i>
-            <span>Ver certificado</span>
-          </div>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/RESOL-383-SMA-2017.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
+          <div class="cert-doc-stamp cert-doc-stamp--sma"><span>SMA</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--green">Resolución</span>
           <p class="cert-doc-title">Resolución 383 SMA 2017</p>
-          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Fiscalización Ambiental</p>
-          <a href="{% static 'pdf/RESOL-383-SMA-2017.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()">
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
+          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Acreditación ETFA inicial</p>
+          <a href="{% static 'pdf/RESOL-383-SMA-2017.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
-
-      <div class="cert-doc-card" onclick="openCertModal('{% static "pdf/RESOL-813-SMA-2018.pdf" %}', 'Resolución 813 SMA 2018')">
+      <div class="cert-doc-card reveal reveal-delay-3" onclick="openCertModal('{% static 'pdf/RESOL-813-SMA-2018.pdf' %}', 'Resolución 813 SMA 2018')">
         <div class="cert-doc-preview">
-          <div class="cert-doc-watermark"><i class="fas fa-file-certificate"></i></div>
-          <div class="cert-doc-stamp cert-doc-stamp--sma">
-            <span>SMA</span>
-          </div>
-          <div class="cert-doc-overlay">
-            <i class="fas fa-magnifying-glass-plus"></i>
-            <span>Ver certificado</span>
-          </div>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/RESOL-813-SMA-2018.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
+          <div class="cert-doc-stamp cert-doc-stamp--sma"><span>SMA</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--green">Resolución</span>
           <p class="cert-doc-title">Resolución 813 SMA 2018</p>
-          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Actualización ETFA</p>
-          <a href="{% static 'pdf/RESOL-813-SMA-2018.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()">
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
+          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Actualización y ampliación ETFA</p>
+          <a href="{% static 'pdf/RESOL-813-SMA-2018.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
-
-      <div class="cert-doc-card" onclick="openCertModal('{% static "pdf/Certificado-OI-219-17020.pdf" %}', 'Certificación OI 219 17020')">
+      <div class="cert-doc-card reveal reveal-delay-4" onclick="openCertModal('{% static 'pdf/AA-824-Cert-_2.pdf' %}', 'Certificación IAS AA-824 · 2025–2026')">
         <div class="cert-doc-preview">
-          <div class="cert-doc-watermark"><i class="fas fa-file-certificate"></i></div>
-          <div class="cert-doc-stamp cert-doc-stamp--inn">
-            <span>INN</span>
-          </div>
-          <div class="cert-doc-overlay">
-            <i class="fas fa-magnifying-glass-plus"></i>
-            <span>Ver certificado</span>
-          </div>
-        </div>
-        <div class="cert-doc-info">
-          <span class="cert-doc-tag cert-doc-tag--blue">Acreditación</span>
-          <p class="cert-doc-title">Certificación OI 219 17020</p>
-          <p class="cert-doc-body">Instituto Nacional de Normalización · NCh-ISO/IEC 17020:2012</p>
-          <a href="{% static 'pdf/Certificado-OI-219-17020.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()">
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
-        </div>
-      </div>
-
-      <div class="cert-doc-card" onclick="openCertModal('{% static "pdf/AA-824-Cert-_2.pdf" %}', 'Certificación Inspection Agency AA-824')">
-        <div class="cert-doc-preview">
-          <div class="cert-doc-watermark"><i class="fas fa-file-certificate"></i></div>
-          <div class="cert-doc-stamp cert-doc-stamp--ias">
-            <span>IAS</span>
-          </div>
-          <div class="cert-doc-overlay">
-            <i class="fas fa-magnifying-glass-plus"></i>
-            <span>Ver certificado</span>
-          </div>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/AA-824-Cert-_2.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
+          <div class="cert-doc-stamp cert-doc-stamp--ias"><span>IAS</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--orange">Internacional</span>
-          <p class="cert-doc-title">Certificación Inspection Agency AA-824</p>
+          <p class="cert-doc-title">Certificación IAS AA-824 · 2025–2026</p>
           <p class="cert-doc-body">International Accreditation Service · Inspection Agency AA-824 (Type A)</p>
-          <a href="{% static 'pdf/AA-824-Cert-_2.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()">
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="cert-summary-row">
-      <div class="cert-summary-badge">
-        <div class="cert-summary-icon" style="background:rgba(26,95,168,0.1);color:#1a5fa8;">
-          <i class="fas fa-award"></i>
-        </div>
-        <div>
-          <p class="cert-summary-label">ISO/IEC 17020</p>
-          <p class="cert-summary-sub">Organismos de Inspección · INN</p>
-        </div>
-      </div>
-      <div class="cert-summary-badge">
-        <div class="cert-summary-icon" style="background:rgba(74,158,47,0.1);color:#4a9e2f;">
-          <i class="fas fa-certificate"></i>
-        </div>
-        <div>
-          <p class="cert-summary-label">ETFA · SMA</p>
-          <p class="cert-summary-sub">Fiscalización Ambiental Chile</p>
-        </div>
-      </div>
-      <div class="cert-summary-badge">
-        <div class="cert-summary-icon" style="background:rgba(232,66,10,0.08);color:#e8420a;">
-          <i class="fas fa-globe"></i>
-        </div>
-        <div>
-          <p class="cert-summary-label">IAS AA-824</p>
-          <p class="cert-summary-sub">International Accreditation Service</p>
-        </div>
-      </div>
-      <div class="cert-summary-badge">
-        <div class="cert-summary-icon" style="background:rgba(200,169,110,0.1);color:#c8a96e;">
-          <i class="fas fa-shield-check"></i>
-        </div>
-        <div>
-          <p class="cert-summary-label">Ley Karin</p>
-          <p class="cert-summary-sub">Cumplimiento normativo interno</p>
+          <a href="{% static 'pdf/AA-824-Cert-_2.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
-{# ── MODAL VISOR PDF ───────────────────────────────── #}
+<!-- Modal certificados -->
 <div id="cert-modal" class="cert-modal" onclick="closeCertModal()">
   <div class="cert-modal-box" onclick="event.stopPropagation()">
     <div class="cert-modal-header">
       <p id="cert-modal-title" class="cert-modal-title"></p>
       <div style="display:flex;gap:8px;">
-        <a id="cert-modal-dl" href="#" target="_blank" class="cert-modal-btn cert-modal-btn--dl">
-          <i class="fas fa-download"></i> Descargar
-        </a>
-        <button class="cert-modal-btn cert-modal-btn--close" onclick="closeCertModal()">
-          <i class="fas fa-xmark"></i>
-        </button>
+        <a id="cert-modal-dl" href="#" target="_blank" class="cert-modal-btn cert-modal-btn--dl"><i class="fas fa-download"></i> Descargar</a>
+        <button class="cert-modal-btn cert-modal-btn--close" onclick="closeCertModal()"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
     <iframe id="cert-modal-frame" src="" title="Certificado"></iframe>
   </div>
 </div>
 
-{# ── SEDES ─────────────────────────────────────────── #}
-<section id="sedes" class="geo-section">
+<!-- ══ SEDES ══════════════════════════════════════════════ -->
+<section id="sedes" class="geo-section topo-cta-strip topo-cta-strip--dark bg-degrade"
+         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
   <div class="geo-glow"></div>
+  <div class="topo-canvas topo-dark topo-animated" aria-hidden="true"></div>
   <div class="geo-inner">
-    <div class="geo-header">
-      <div class="section-label geo-label">Presencia geográfica</div>
-      <h2>Operamos en<br><em>todo Chile.</em></h2>
+    <div class="geo-header reveal">
+      <div class="geo-label">Presencia geográfica</div>
+      <h2>Operamos en<br>todo Chile.</h2>
     </div>
     <div class="geo-grid">
-      <div class="geo-card">
-        <div class="geo-tag">Casa Matriz</div>
+      <div class="geo-card reveal reveal-delay-1">
+        <span class="geo-tag">Casa Matriz</span>
         <p class="geo-title">Región de Valparaíso</p>
-        <p class="geo-addr">Los Molinos N° 747<br>Quilpué, Región de Valparaíso<br><br><span style="color:rgba(255,255,255,0.3);font-size:.75rem;">Oficina principal · Atención general</span></p>
+        <p class="geo-addr">Los Molinos N° 747<br>Quilpué, Región de Valparaíso<br><br>
+          <span style="color:rgba(255,255,255,.22);font-size:.73rem;">Oficina principal · Atención general</span></p>
       </div>
-      <div class="geo-card">
-        <div class="geo-tag">Zona Norte</div>
+      <div class="geo-card reveal reveal-delay-2">
+        <span class="geo-tag">Zona Norte</span>
         <p class="geo-title">Región de Antofagasta</p>
-        <p class="geo-addr">Contacto técnico en la zona norte<br>II Región, Chile<br><br><span style="color:rgba(255,255,255,0.3);font-size:.75rem;">Soporte a proyectos mineros y portuarios</span></p>
+        <p class="geo-addr">Contacto técnico en la zona norte<br>II Región, Chile<br><br>
+          <span style="color:rgba(255,255,255,.22);font-size:.73rem;">Soporte a proyectos mineros y portuarios</span></p>
       </div>
-      <div class="geo-card">
-        <div class="geo-tag">Norte Grande</div>
+      <div class="geo-card reveal reveal-delay-3">
+        <span class="geo-tag">Norte Grande</span>
         <p class="geo-title">Región de Tarapacá</p>
-        <p class="geo-addr">Edificio Darma<br>Iquique, I Región de Tarapacá<br><br><span style="color:rgba(255,255,255,0.3);font-size:.75rem;">Operaciones en zona altiplánica y costera</span></p>
+        <p class="geo-addr">Edificio Darma<br>Iquique, I Región de Tarapacá<br><br>
+          <span style="color:rgba(255,255,255,.22);font-size:.73rem;">Operaciones en zona altiplánica y costera</span></p>
       </div>
     </div>
   </div>
 </section>
 
-{# ── CONTACTO ──────────────────────────────────────── #}
-<section id="contacto" class="cta-block">
+<!-- ══ CONTACTO ════════════════════════════════════════════ -->
+<section id="contacto" class="cta-block bg-degrade bg-degrade--light">
+  <div class="topo-canvas topo-light" aria-hidden="true" style="opacity:.06;"></div>
   <div class="cta-inner">
-    <div class="section-label" style="justify-content:center;">Contacto</div>
-    <h2>¿Tienes un proyecto<br><em>ambiental en mente?</em></h2>
-    <p>Cuéntanos tu caso. Un especialista de SyA Group revisará tu situación y te contactará sin costo ni compromiso. Atendemos todo el territorio nacional.</p>
-    <div class="cta-buttons">
-      <a href="mailto:contacto@syagroup.cl" class="btn-ocean"><i class="fas fa-envelope" style="font-size:.8rem;"></i>Enviar consulta</a>
-      <a href="https://wa.me/569XXXXXXXX" class="btn-outline-ocean"><i class="fab fa-whatsapp" style="font-size:.9rem;"></i>WhatsApp</a>
+    <div class="section-eyebrow" style="justify-content:center;">Contacto</div>
+    <h2 class="reveal">¿Tienes un proyecto<br>ambiental en mente?</h2>
+    <p class="reveal reveal-delay-1">Cuéntanos tu caso. Un especialista de SyA Group revisará tu situación y te contactará sin costo ni compromiso. Atendemos todo el territorio nacional.</p>
+    <div class="cta-buttons reveal reveal-delay-2">
+      <button class="btn-cta-warm" onclick="window.openChat()">
+        <i class="fas fa-comment-dots" style="font-size:.88rem;"></i>
+        Conversa con nuestros asesores
+      </button>
+      <a href="mailto:contacto@syagroup.cl" class="btn-ocean"><i class="fas fa-envelope" style="font-size:.78rem;"></i> Enviar consulta</a>
+      <a href="https://wa.me/569XXXXXXXX" class="btn-outline-ocean"><i class="fab fa-whatsapp" style="font-size:.88rem;"></i> WhatsApp</a>
     </div>
   </div>
 </section>
 
-{# ── FOOTER ────────────────────────────────────────── #}
+<!-- ══ FOOTER ══════════════════════════════════════════════ -->
 <footer>
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="#" class="logo" style="margin-bottom:.75rem;">
-          <img src="{% static 'img/Logo.png' %}" alt="SyA Group Logo" style="height:50px;">
+        <a href="#" class="logo">
+          <img src="{% static 'img/Logo.png' %}" alt="SyA Group Logo" style="height:44px;filter:brightness(.85);">
         </a>
         <p>Sangüesa y Asociados Limitada.<br>Asesoría ambiental técnica desde 2003.</p>
       </div>
       <div>
         <p class="footer-col-title">Servicios</p>
         <ul class="footer-links">
-          <li><a href="#">Estudios Marinos</a></li><li><a href="#">Laboratorio de Ecología</a></li>
-          <li><a href="#">Operaciones Submarinas</a></li><li><a href="#">Estudios Terrestres</a></li>
-          <li><a href="#">Gestión Ambiental</a></li><li><a href="#">Recuperación y Limpieza</a></li>
+          <li><a href="#servicios">Estudios Marinos y Oceanográficos</a></li>
+          <li><a href="#servicios">Laboratorio de Ecología</a></li>
+          <li><a href="#servicios">Operaciones Submarinas</a></li>
+          <li><a href="#servicios">Estudios Terrestres y Dulceacuícolas</a></li>
+          <li><a href="#servicios">Gestión Ambiental y Permisos</a></li>
+          <li><a href="#servicios">Recuperación y Limpieza</a></li>
         </ul>
       </div>
       <div>
         <p class="footer-col-title">Empresa</p>
         <ul class="footer-links">
-          <li><a href="#nosotros">Nosotros</a></li><li><a href="#equipo">Equipo</a></li>
-          <li><a href="#certificaciones">Certificaciones</a></li><li><a href="#">ETFA</a></li>
-          <li><a href="#">Normativa</a></li><li><a href="#">Ley Karin</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#equipo">Equipo</a></li>
+          <li><a href="#certificaciones">Certificaciones</a></li>
+          <li><a href="#certificaciones">ETFA · SMA</a></li>
+          <li><a href="#">Normativa</a></li>
+          <li><a href="#">Ley Karin</a></li>
         </ul>
       </div>
       <div>
         <p class="footer-col-title">Sedes</p>
         <ul class="footer-links">
-          <li><a href="#">Quilpué (Casa Matriz)</a></li><li><a href="#">Antofagasta</a></li><li><a href="#">Iquique</a></li>
+          <li><a href="#sedes">Quilpué (Casa Matriz)</a></li>
+          <li><a href="#sedes">Antofagasta</a></li>
+          <li><a href="#sedes">Iquique</a></li>
         </ul>
         <div style="margin-top:1.5rem;">
-          <a href="mailto:contacto@syagroup.cl" style="font-size:.78rem;color:rgba(255,255,255,0.3);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s;" onmouseover="this.style.color='#4a9e2f'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
-            <i class="fas fa-envelope" style="font-size:.7rem;"></i>contacto@syagroup.cl
+          <a href="mailto:contacto@syagroup.cl"
+             style="font-family:var(--font-sans);font-size:.77rem;color:rgba(255,255,255,.28);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s;"
+             onmouseover="this.style.color='var(--brand-accent)'"
+             onmouseout="this.style.color='rgba(255,255,255,.28)'">
+            <i class="fas fa-envelope" style="font-size:.68rem;"></i>
+            contacto@syagroup.cl
           </a>
         </div>
       </div>
@@ -614,42 +750,40 @@
   </div>
 </footer>
 
-{# ── CHAT WIDGET ───────────────────────────────────── #}
+<!-- ══ CHAT WIDGET ══════════════════════════════════════════ -->
 <div id="chat-widget">
   <div id="chat-cta" onclick="openChat()">
-    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0a1628,#0e4d6e);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <i class="fas fa-comment-dots" style="color:#4a9e2f;font-size:.78rem;"></i>
+    <div style="width:34px;height:34px;border-radius:9px;background:var(--brand-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="fas fa-comment-dots" style="color:#fff;font-size:.78rem;"></i>
     </div>
     <div>
-      <p style="font-size:.76rem;font-weight:600;color:#0e4d6e;margin:0 0 2px;">¿Dudas ambientales?</p>
-      <p style="font-size:.7rem;color:#6b7280;margin:0;line-height:1.4;">Chatea con nuestro asesor</p>
+      <p style="font-family:var(--font-sans);font-size:.75rem;font-weight:600;color:var(--ink);margin:0 0 2px;">¿Dudas ambientales?</p>
+      <p style="font-family:var(--font-sans);font-size:.68rem;color:var(--ink-muted);margin:0;line-height:1.4;">Chatea con nuestro asesor</p>
     </div>
-    <button onclick="event.stopPropagation(); document.getElementById('chat-cta').classList.add('hidden');" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:.95rem;padding:2px;margin-left:2px;">&times;</button>
+    <button onclick="event.stopPropagation(); document.getElementById('chat-cta').classList.add('hidden');"
+            style="background:none;border:none;color:var(--ink-ghost);cursor:pointer;font-size:.95rem;padding:2px;margin-left:2px;">&times;</button>
   </div>
   <div id="chat-window" class="hidden">
     <div class="chat-header">
       <div style="display:flex;align-items:center;gap:10px;flex:1;">
-        <div class="chat-avatar">
-          <i class="fas fa-water" style="color:#4a9e2f;font-size:.85rem;"></i>
-          <span class="chat-avatar-dot"></span>
-        </div>
         <div>
-          <p style="font-size:.85rem;font-weight:700;color:#fff;margin:0 0 1px;">Asesor SyA Group</p>
-          <p style="font-size:.68rem;color:rgba(255,255,255,0.6);margin:0;display:flex;align-items:center;gap:4px;">
-            <span style="width:5px;height:5px;background:#4a9e2f;border-radius:50%;display:inline-block;"></span>En línea
+          <p style="font-family:var(--font-sans);font-size:.84rem;font-weight:600;color:#fff;margin:0 0 1px;">Asesor SyA Group</p>
+          <p style="font-family:var(--font-sans);font-size:.67rem;color:rgba(255,255,255,.6);margin:0;display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;background:var(--brand-accent);border-radius:50%;display:inline-block;"></span>En línea
           </p>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
         <button class="chat-header-btn" id="reset-chat"><i class="fas fa-rotate-right"></i></button>
+        <button class="chat-header-btn" id="toggle-fullscreen" title="Ampliar chat"><i class="fas fa-expand"></i></button>
         <button class="chat-header-btn" id="close-chat"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
     <div id="chat-messages">
       <div id="chat-history">
         <div class="msg-row" style="display:flex;align-items:flex-start;gap:8px;">
-          <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0a1628,#0e4d6e);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
-            <i class="fas fa-water" style="color:#4a9e2f;font-size:.6rem;"></i>
+          <div style="width:26px;height:26px;border-radius:8px;background:var(--brand-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+            <i class="fas fa-water" style="color:#fff;font-size:.58rem;"></i>
           </div>
           <div>
             <div class="msg-bot">{{ mensaje_bienvenida|default:"¡Hola! ¿En qué puedo ayudarte hoy?" }}</div>
@@ -667,14 +801,14 @@
     <div class="chat-input-area">
       <div class="chat-input-row">
         <input id="chat-input" type="text" placeholder="Escribe tu consulta...">
-        <button id="chat-send"><i class="fas fa-paper-plane" style="color:#fff;font-size:.72rem;"></i></button>
+        <button id="chat-send"><i class="fas fa-paper-plane" style="color:#fff;font-size:.7rem;"></i></button>
       </div>
       <p class="chat-powered">Powered by SyA Group</p>
     </div>
   </div>
   <div id="chat-button">
-    <i id="chat-icon-open" class="fas fa-comment-dots" style="color:#fff;font-size:1rem;"></i>
-    <i id="chat-icon-close" class="fas fa-xmark" style="color:#fff;font-size:.95rem;display:none;"></i>
+    <i id="chat-icon-open" class="fas fa-comment-dots" style="color:#fff;font-size:.95rem;"></i>
+    <i id="chat-icon-close" class="fas fa-xmark" style="color:#fff;font-size:.9rem;display:none;"></i>
   </div>
 </div>
 
@@ -682,20 +816,6 @@
   window.CHAT_SEND_URL  = '{% url "public_chat" %}';
   window.CHAT_RESET_URL = '{% url "reset_chat" %}';
   window.CHAT_WELCOME   = '{{ mensaje_bienvenida|default:"¡Hola de nuevo! ¿En qué puedo ayudarte hoy?"|escapejs }}';
-
-  function openCertModal(url, title) {
-    document.getElementById('cert-modal-title').textContent = title;
-    document.getElementById('cert-modal-frame').src = url;
-    document.getElementById('cert-modal-dl').href = url;
-    document.getElementById('cert-modal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeCertModal() {
-    document.getElementById('cert-modal').classList.remove('active');
-    document.getElementById('cert-modal-frame').src = '';
-    document.body.style.overflow = '';
-  }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCertModal(); });
 </script>
 <script src="{% static 'js/main.js' %}"></script>
 </body>
