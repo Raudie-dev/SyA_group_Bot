@@ -2,6 +2,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+      #relieve-bg-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.32;
+        mix-blend-mode: multiply;
+      }
+      body { position: relative; }
+    </style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SyA Group</title>
@@ -12,6 +27,70 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
+<div id="relieve-bg-canvas"></div>
+<script>
+// Efecto relieve topográfico decorativo, overlay universal
+let relieveCanvas;
+const resolution = 4;
+const noiseScale = 0.0035;
+const numLevels = 16;
+
+function setup() {
+  const c = createCanvas(window.innerWidth, window.innerHeight);
+  c.parent('relieve-bg-canvas');
+  relieveCanvas = c;
+  noLoop();
+}
+
+function draw() {
+  clear();
+  background(0,0,0,0); // transparente
+  stroke('#222222');
+  strokeWeight(1.2);
+  noFill();
+  strokeJoin(ROUND);
+  strokeCap(ROUND);
+  let levels = [];
+  for (let i = 1; i <= numLevels; i++) {
+    levels.push(i / (numLevels + 1));
+  }
+  for (let x = 0; x < width; x += resolution) {
+    for (let y = 0; y < height; y += resolution) {
+      let n1 = noise(x * noiseScale, y * noiseScale);
+      let n2 = noise((x + resolution) * noiseScale, y * noiseScale);
+      let n3 = noise((x + resolution) * noiseScale, (y + resolution) * noiseScale);
+      let n4 = noise(x * noiseScale, (y + resolution) * noiseScale);
+      for (let lvl of levels) {
+        let b1 = n1 >= lvl ? 1 : 0;
+        let b2 = n2 >= lvl ? 1 : 0;
+        let b3 = n3 >= lvl ? 1 : 0;
+        let b4 = n4 >= lvl ? 1 : 0;
+        let sum = b1 + b2 + b3 + b4;
+        if (sum > 0 && sum < 4) {
+          let xA = x + resolution / 2;
+          let yA = y;
+          let xB = x + resolution;
+          let yB = y + resolution / 2;
+          let xC = x + resolution / 2;
+          let yC = y + resolution;
+          let xD = x;
+          let yD = y + resolution / 2;
+          if (b1 !== b2) line(xA, yA, xD, yD);
+          if (b2 !== b3) line(xA, yA, xB, yB);
+          if (b3 !== b4) line(xB, yB, xC, yC);
+          if (b4 !== b1) line(xC, yC, xD, yD);
+        }
+      }
+    }
+  }
+}
+function windowResized() {
+  if (relieveCanvas) {
+    resizeCanvas(window.innerWidth, window.innerHeight);
+    redraw();
+  }
+}
+</script>
 
 <!-- ══ NAVBAR ══════════════════════════════════════════ -->
 <nav id="navbar">
