@@ -2,21 +2,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <style>
-      #relieve-bg-canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 1;
-        pointer-events: none;
-        opacity: 0.32;
-        mix-blend-mode: multiply;
-      }
-      body { position: relative; }
-    </style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SyA Group</title>
@@ -25,72 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
-<div id="relieve-bg-canvas"></div>
-<script>
-// Efecto relieve topográfico decorativo, overlay universal
-let relieveCanvas;
-const resolution = 4;
-const noiseScale = 0.0035;
-const numLevels = 16;
-
-function setup() {
-  const c = createCanvas(window.innerWidth, window.innerHeight);
-  c.parent('relieve-bg-canvas');
-  relieveCanvas = c;
-  noLoop();
-}
-
-function draw() {
-  clear();
-  background(0,0,0,0); // transparente
-  stroke('#222222');
-  strokeWeight(1.2);
-  noFill();
-  strokeJoin(ROUND);
-  strokeCap(ROUND);
-  let levels = [];
-  for (let i = 1; i <= numLevels; i++) {
-    levels.push(i / (numLevels + 1));
-  }
-  for (let x = 0; x < width; x += resolution) {
-    for (let y = 0; y < height; y += resolution) {
-      let n1 = noise(x * noiseScale, y * noiseScale);
-      let n2 = noise((x + resolution) * noiseScale, y * noiseScale);
-      let n3 = noise((x + resolution) * noiseScale, (y + resolution) * noiseScale);
-      let n4 = noise(x * noiseScale, (y + resolution) * noiseScale);
-      for (let lvl of levels) {
-        let b1 = n1 >= lvl ? 1 : 0;
-        let b2 = n2 >= lvl ? 1 : 0;
-        let b3 = n3 >= lvl ? 1 : 0;
-        let b4 = n4 >= lvl ? 1 : 0;
-        let sum = b1 + b2 + b3 + b4;
-        if (sum > 0 && sum < 4) {
-          let xA = x + resolution / 2;
-          let yA = y;
-          let xB = x + resolution;
-          let yB = y + resolution / 2;
-          let xC = x + resolution / 2;
-          let yC = y + resolution;
-          let xD = x;
-          let yD = y + resolution / 2;
-          if (b1 !== b2) line(xA, yA, xD, yD);
-          if (b2 !== b3) line(xA, yA, xB, yB);
-          if (b3 !== b4) line(xB, yB, xC, yC);
-          if (b4 !== b1) line(xC, yC, xD, yD);
-        }
-      }
-    }
-  }
-}
-function windowResized() {
-  if (relieveCanvas) {
-    resizeCanvas(window.innerWidth, window.innerHeight);
-    redraw();
-  }
-}
-</script>
 
 <!-- ══ NAVBAR ══════════════════════════════════════════ -->
 <nav id="navbar">
@@ -235,8 +157,8 @@ function windowResized() {
 </section>
 
 <!-- ══ SERVICIOS ════════════════════════════════════════ -->
-<section id="servicios" class="services-section">
-  <div class="topo-canvas topo-light topo-animated" aria-hidden="true"></div>
+<section id="servicios" class="services-section relief-zone">
+  <div class="relief-placeholder"></div>
   <div class="section-inner" style="position:relative;z-index:1;">
     <div class="services-header reveal">
       <div>
@@ -293,10 +215,8 @@ function windowResized() {
 </section>
 
 <!-- ══ CTA 1 — Naranja + topo ══════════════════════════ -->
-<section class="topo-cta-strip bg-degrade--light"
-         style="--cta-bg-img: url('{% static 'img/fondo.jpg' %}');">
-  <div class="topo-cta-bg" aria-hidden="true"></div>
-  <div class="topo-cta-vignette"></div>
+<section class="topo-cta-strip relief-zone">
+  <div class="relief-placeholder"></div>
   <div class="topo-cta-inner">
     <div class="topo-cta-left">
       <div class="topo-cta-overline">Atención especializada</div>
@@ -317,7 +237,6 @@ function windowResized() {
 
 <!-- ══ NOSOTROS ══════════════════════════════════════════ -->
 <section id="nosotros" class="about-section">
-  <div class="topo-canvas topo-light" aria-hidden="true" style="opacity:.07;"></div>
   <div class="section-inner about-inner">
     <div class="about-text reveal">
       <div class="section-label">Quiénes somos</div>
@@ -378,7 +297,6 @@ function windowResized() {
 <!-- ══ EQUIPO ════════════════════════════════════════════ -->
 <section id="equipo" class="team-section">
   <div class="team-accent-line"></div>
-  <div class="topo-canvas topo-light topo-animated" aria-hidden="true"></div>
   <div class="section-inner team-inner">
     <div class="team-eyebrow"><span class="team-eyebrow-rule"></span>Nuestra gente</div>
     <div class="team-head">
@@ -467,8 +385,8 @@ function windowResized() {
 </section>
 
 <!-- ══ EXPERIENCIA ════════════════════════════════════════ -->
-<section id="experiencia" class="exp-section">
-  <div class="topo-canvas topo-warm topo-animated" aria-hidden="true"></div>
+<section id="experiencia" class="exp-section relief-zone">
+  <div class="relief-placeholder"></div>
   <div class="section-inner">
     <div class="section-label" style="justify-content:center;">Nuestra experiencia</div>
     <h2 class="reveal">Proyectos que<br>dejan huella.</h2>
@@ -616,9 +534,8 @@ function windowResized() {
 </section>
 
 <!-- ══ CTA 2 — Azul profundo + topo ═══════════════════ -->
-<section class="topo-cta-strip topo-cta-strip--dark bg-degrade"
-         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
-  <div class="topo-cta-bg" aria-hidden="true"></div>
+<section class="topo-cta-strip relief-zone">
+  <div class="relief-placeholder"></div>
   <div class="topo-cta-vignette"></div>
   <div class="topo-cta-inner">
     <div class="topo-cta-left">
@@ -639,11 +556,7 @@ function windowResized() {
 </section>
 
 <!-- ══ CERTIFICACIONES ════════════════════════════════════ -->
-<section id="certificaciones" class="topo-cta-strip topo-cta-strip--dark bg-degrade"
-         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
-  <div class="cert-bg-shape cert-bg-shape--1"></div>
-  <div class="cert-bg-shape cert-bg-shape--2"></div>
-  <div class="topo-canvas topo-dark topo-animated" aria-hidden="true"></div>
+<section id="certificaciones" class="cert-full-section relief-zone">
   <div class="section-inner cert-full-inner">
     <div class="cert-full-header reveal">
       <div class="cert-full-eyebrow"><span class="cert-eyebrow-dot"></span>Acreditaciones oficiales · ETFA</div>
@@ -722,10 +635,8 @@ function windowResized() {
 </div>
 
 <!-- ══ SEDES ══════════════════════════════════════════════ -->
-<section id="sedes" class="geo-section topo-cta-strip topo-cta-strip--dark bg-degrade"
-         style="--cta-bg-img: url('{% static 'img/fondo-black.jpg' %}');">
-  <div class="geo-glow"></div>
-  <div class="topo-canvas topo-dark topo-animated" aria-hidden="true"></div>
+<section id="sedes" class="geo-section relief-zone">
+  <div class="relief-placeholder" style="color: #B45309;"></div>
   <div class="geo-inner">
     <div class="geo-header reveal">
       <div class="geo-label">Presencia geográfica</div>
@@ -756,7 +667,6 @@ function windowResized() {
 
 <!-- ══ CONTACTO ════════════════════════════════════════════ -->
 <section id="contacto" class="cta-block bg-degrade bg-degrade--light">
-  <div class="topo-canvas topo-light" aria-hidden="true" style="opacity:.06;"></div>
   <div class="cta-inner">
     <div class="section-eyebrow" style="justify-content:center;">Contacto</div>
     <h2 class="reveal">¿Tienes un proyecto<br>ambiental en mente?</h2>
@@ -897,5 +807,6 @@ function windowResized() {
   window.CHAT_WELCOME   = '{{ mensaje_bienvenida|default:"¡Hola de nuevo! ¿En qué puedo ayudarte hoy?"|escapejs }}';
 </script>
 <script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/relief-sections.js' %}"></script>
 </body>
 </html>

@@ -124,6 +124,29 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
   overflow: hidden;
 }
 
+.relief-zone {
+  position: relative;
+  overflow: hidden;
+}
+
+.relief-zone .section-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.relief-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.topo-canvas,
+.topo-cta-bg {
+  display: none !important;
+}
+
 /* Light section topo (off-white bg) */
 .topo-light svg {
   width: 100%;
@@ -532,6 +555,12 @@ nav.solid {
   width: 100%;
   min-height: 580px;
   background: var(--off-white);
+  overflow: hidden;
+}
+
+.hero,
+.services-section {
+  position: relative;
   overflow: hidden;
 }
 
