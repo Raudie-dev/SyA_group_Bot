@@ -1,95 +1,129 @@
 (function(){
   if (typeof window.p5 === 'undefined') return;
 
-  const resolution = 4;
-  const noiseScale = 0.0035;
-  const numLevels = 16;
+  /* ─── Paleta y semillas fijas por clase de sección ─── */
+  const SECTION_CONFIG = {
+    'cert-full-section': { color: '#E67E22', seed: 42 },
+    'geo-section':       { color: '#E67E22', seed: 42 },
+    'topo-cta-strip':    { color: '#FFFFFF', seed: 77 },
+    'services-section':  { color: '#1249A0', seed: 11 },
+    'exp-section':       { color: '#1249A0', seed: 11 },
+  };
+  const DEFAULT_CONFIG = { color: '#1249A0', seed: 11 };
 
-  function createReliefOnElement(el){
-    if (!el) return;
-    if (el.__reliefCreated) return;
+  const resolution = 4;
+  const noiseScale = 0.0032;
+  const numLevels  = 18;
+
+  function getSectionConfig(el) {
+    const section = el.closest('section') || el.parentElement;
+    if (!section) return DEFAULT_CONFIG;
+    for (const cls of section.classList) {
+      if (SECTION_CONFIG[cls]) return SECTION_CONFIG[cls];
+    }
+    return DEFAULT_CONFIG;
+  }
+
+  function createReliefOnElement(el) {
+    if (!el || el.__reliefCreated) return;
     el.__reliefCreated = true;
+
+    const cfg = getSectionConfig(el);
 
     const sketch = (p) => {
       let cvs;
-      p.setup = function(){
-        cvs = p.createCanvas(el.clientWidth || 300, el.clientHeight || 200);
+
+      p.setup = function() {
+        /* Tomar dimensiones del contenedor padre, no del placeholder */
+        const parent = el.parentElement || el;
+        const w = parent.offsetWidth  || el.clientWidth  || 1200;
+        const h = parent.offsetHeight || el.clientHeight || 600;
+
+        cvs = p.createCanvas(w, h);
         cvs.parent(el);
-        cvs.style.position = 'absolute';
-        cvs.style.top = '0';
-        cvs.style.left = '0';
-        cvs.style.width = '100%';
-        cvs.style.height = '100%';
-        cvs.style.pointerEvents = 'none';
-        cvs.style.opacity = '0.45';
-        cvs.style.mixBlendMode = 'normal';
-        cvs.style.zIndex = '0';
+
+        const c = cvs.elt;
+        c.style.position     = 'absolute';
+        c.style.top          = '0';
+        c.style.left         = '0';
+        c.style.width        = '100%';
+        c.style.height       = '100%';
+        c.style.pointerEvents = 'none';
+        c.style.opacity      = String(cfg.opacity);
+        c.style.zIndex       = '0';
+
         p.noLoop();
         p.redraw();
       };
 
-      p.draw = function(){
+      p.draw = function() {
+        /* Semilla fija → mismo patrón siempre */
+        p.noiseSeed(cfg.seed);
+
         p.clear();
-        p.background(0,0,0,0);
-        p.stroke('#222222');
-        p.strokeWeight(1.2);
+        p.background(0, 0, 0, 0);
+        p.stroke(cfg.color);
+        p.strokeWeight(1.1);
         p.noFill();
         p.strokeJoin(p.ROUND);
         p.strokeCap(p.ROUND);
+
         const levels = [];
-        for (let i=1;i<=numLevels;i++) levels.push(i/(numLevels+1));
-        for (let x=0;x<p.width;x+=resolution){
-          for (let y=0;y<p.height;y+=resolution){
-            let n1 = p.noise(x*noiseScale, y*noiseScale);
-            let n2 = p.noise((x+resolution)*noiseScale, y*noiseScale);
-            let n3 = p.noise((x+resolution)*noiseScale, (y+resolution)*noiseScale);
-            let n4 = p.noise(x*noiseScale, (y+resolution)*noiseScale);
-            for (let lvl of levels){
-              let b1 = n1 >= lvl ? 1 : 0;
-              let b2 = n2 >= lvl ? 1 : 0;
-              let b3 = n3 >= lvl ? 1 : 0;
-              let b4 = n4 >= lvl ? 1 : 0;
-              let sum = b1+b2+b3+b4;
-              if (sum>0 && sum<4){
-                let xA = x + resolution/2;
-                let yA = y;
-                let xB = x + resolution;
-                let yB = y + resolution/2;
-                let xC = x + resolution/2;
-                let yC = y + resolution;
-                let xD = x;
-                let yD = y + resolution/2;
-                if (b1 !== b2) p.line(xA,yA,xD,yD);
-                if (b2 !== b3) p.line(xA,yA,xB,yB);
-                if (b3 !== b4) p.line(xB,yB,xC,yC);
-                if (b4 !== b1) p.line(xC,yC,xD,yD);
+        for (let i = 1; i <= numLevels; i++) levels.push(i / (numLevels + 1));
+
+        for (let x = 0; x < p.width; x += resolution) {
+          for (let y = 0; y < p.height; y += resolution) {
+            const n1 = p.noise( x              * noiseScale,  y              * noiseScale);
+            const n2 = p.noise((x + resolution) * noiseScale,  y              * noiseScale);
+            const n3 = p.noise((x + resolution) * noiseScale, (y + resolution) * noiseScale);
+            const n4 = p.noise( x              * noiseScale, (y + resolution) * noiseScale);
+
+            for (const lvl of levels) {
+              const b1 = n1 >= lvl ? 1 : 0;
+              const b2 = n2 >= lvl ? 1 : 0;
+              const b3 = n3 >= lvl ? 1 : 0;
+              const b4 = n4 >= lvl ? 1 : 0;
+              const sum = b1 + b2 + b3 + b4;
+
+              if (sum > 0 && sum < 4) {
+                const xA = x + resolution / 2,    yA = y;
+                const xB = x + resolution,         yB = y + resolution / 2;
+                const xC = x + resolution / 2,    yC = y + resolution;
+                const xD = x,                       yD = y + resolution / 2;
+
+                if (b1 !== b2) p.line(xA, yA, xD, yD);
+                if (b2 !== b3) p.line(xA, yA, xB, yB);
+                if (b3 !== b4) p.line(xB, yB, xC, yC);
+                if (b4 !== b1) p.line(xC, yC, xD, yD);
               }
             }
           }
         }
       };
 
-      p.windowResized = function(){
-        if (cvs) {
-          p.resizeCanvas(el.clientWidth || 300, el.clientHeight || 200);
-          p.redraw();
-        }
+      p.windowResized = function() {
+        if (!cvs) return;
+        const parent = el.parentElement || el;
+        const w = parent.offsetWidth  || 1200;
+        const h = parent.offsetHeight || 600;
+        p.resizeCanvas(w, h);
+        p.redraw();
       };
     };
 
-    // create a new p5 instance attached to the element
-    try{
+    try {
       new p5(sketch, el);
-    }catch(e){
-      console.error('Failed to create relief p5 instance for', el, e);
+    } catch (e) {
+      console.error('SyA relief: failed for', el, e);
     }
   }
 
-  function observePlaceholders(){
-    const opts = { root: null, rootMargin: '0px', threshold: 0.05 };
+  function observePlaceholders() {
+    const opts = { root: null, rootMargin: '0px', threshold: 0.04 };
+
     const io = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting){
+        if (entry.isIntersecting) {
           createReliefOnElement(entry.target);
           observer.unobserve(entry.target);
         }
@@ -97,32 +131,23 @@
     }, opts);
 
     document.querySelectorAll('.relief-placeholder').forEach(el => {
-      // ensure placeholder has height so canvas can size
-      if (!el.style.minHeight) el.style.minHeight = '120px';
       io.observe(el);
     });
 
-    // fallback: create for visible ones on load
+    /* Fallback: crear para los que ya están en viewport al cargar */
     window.addEventListener('load', () => {
       document.querySelectorAll('.relief-placeholder').forEach(el => {
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) createReliefOnElement(el);
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          createReliefOnElement(el);
+        }
       });
-    });
-
-    // resize handling: debounce resize and call windowResized on all created instances
-    let rTO;
-    window.addEventListener('resize', ()=>{
-      clearTimeout(rTO);
-      rTO = setTimeout(()=>{
-        // p5 instances expose global p5 instances on window._p5Instances? Not reliable.
-        // Trigger redraw by dispatching a custom event handled by each canvas via window.resize.
-        window.dispatchEvent(new Event('resize'));
-      }, 200);
     });
   }
 
-  // init
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', observePlaceholders);
-  else observePlaceholders();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observePlaceholders);
+  } else {
+    observePlaceholders();
+  }
 })();
