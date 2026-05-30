@@ -43,8 +43,8 @@
         cvs.parent(el);
 
         const c = cvs.elt;
-        c.style.position     = 'absolute';
-        c.style.top          = '0';
+        c.style.position = 'absolute';
+        c.style.top = '0';
         c.style.left         = '0';
         c.style.width        = '100%';
         c.style.height       = '100%';
@@ -73,10 +73,10 @@
 
         for (let x = 0; x < p.width; x += resolution) {
           for (let y = 0; y < p.height; y += resolution) {
-            const n1 = p.noise( x              * noiseScale,  y              * noiseScale);
-            const n2 = p.noise((x + resolution) * noiseScale,  y              * noiseScale);
+            const n1 = p.noise( x * noiseScale,  y * noiseScale);
+            const n2 = p.noise((x + resolution) * noiseScale,  y * noiseScale);
             const n3 = p.noise((x + resolution) * noiseScale, (y + resolution) * noiseScale);
-            const n4 = p.noise( x              * noiseScale, (y + resolution) * noiseScale);
+            const n4 = p.noise( x * noiseScale, (y + resolution) * noiseScale);
 
             for (const lvl of levels) {
               const b1 = n1 >= lvl ? 1 : 0;
@@ -86,10 +86,10 @@
               const sum = b1 + b2 + b3 + b4;
 
               if (sum > 0 && sum < 4) {
-                const xA = x + resolution / 2,    yA = y;
-                const xB = x + resolution,         yB = y + resolution / 2;
-                const xC = x + resolution / 2,    yC = y + resolution;
-                const xD = x,                       yD = y + resolution / 2;
+                const xA = x + resolution / 2, yA = y;
+                const xB = x + resolution, yB = y + resolution / 2;
+                const xC = x + resolution / 2, yC = y + resolution;
+                const xD = x, yD = y + resolution / 2;
 
                 if (b1 !== b2) p.line(xA, yA, xD, yD);
                 if (b2 !== b3) p.line(xA, yA, xB, yB);
@@ -114,7 +114,7 @@
     try {
       new p5(sketch, el);
     } catch (e) {
-      console.error('SyA relief: failed for', el, e);
+      console.error('SY relief: failed for', el, e);
     }
   }
 
