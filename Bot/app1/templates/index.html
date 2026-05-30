@@ -41,6 +41,7 @@
       <a href="#certificaciones">Certificaciones</a>
       <a href="#sedes">Sedes</a>
       <a href="#contacto">Contacto</a>
+      <a href="#reclamos" class="nav-link-reclamos"><i class="fas fa-file-signature"></i>Reclamos</a>
     </div>
     <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -54,6 +55,7 @@
     <a href="#certificaciones">Certificaciones</a>
     <a href="#sedes">Sedes</a>
     <a href="#contacto">Contacto</a>
+    <a href="#reclamos" class="nav-mobile-reclamos"><i class="fas fa-file-signature"></i>Reclamos y reportes</a>
   </div>
 </nav>
 
@@ -236,7 +238,6 @@
           <img src="{% static 'img/limpieza.JPG' %}" alt="Operaciones de Recuperación y Limpieza" loading="lazy">
         </div>
         <div class="svc-card-content">
-          <div class="svc-icon" style="background:rgba(230,126,34,.08);"><i class="fas fa-recycle" style="color:#B45309;font-size:.95rem;"></i></div>
           <span class="svc-tag" style="background:rgba(230,126,34,.08);color:#B45309;">ORL</span>
           <p class="svc-title">Operaciones de Recuperación y Limpieza</p>
           <p class="svc-desc">Experiencia en mitigación y recuperación de pasivos ambientales para revertir los efectos de la contaminación, con seguimiento temporal y difusión de resultados ante las autoridades competentes.</p>
@@ -298,74 +299,6 @@
   </div>
 </section>
 
-<!-- ══ REPORTES Y RECLAMOS ══════════════════════════════ -->
-<section class="topo-cta-strip relief-zone" style="background:#f7f7f7;">
-  <div class="relief-placeholder"></div>
-  <div class="topo-cta-inner">
-    <div class="topo-cta-left">
-      <div class="topo-cta-overline">Reportes y Reclamos</div>
-      <h2 class="topo-cta-title">¿Tienes un reclamo o reporte?<br>¡Queremos escucharte!</h2>
-      <p class="topo-cta-desc">Puedes enviar tu reclamo, reporte o sugerencia. Nuestro equipo lo recibirá y te contactará a la brevedad. Adjunta imágenes o PDF si es necesario.</p>
-    </div>
-    <div class="topo-cta-right">
-      <button class="btn-topo-cta" onclick="document.getElementById('reclamo-modal').classList.remove('hidden')">
-        <div class="btn-topo-cta-icon"><i class="fas fa-file-signature"></i></div>
-        <div class="btn-topo-cta-text">
-          <span class="btn-topo-cta-label">Generar reclamo</span>
-          <span class="btn-topo-cta-sub">Formulario confidencial</span>
-        </div>
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- Modal de Reporte/Reclamo -->
-<div id="reclamo-modal" class="modal-bg hidden" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;">
-  <div class="modal-box" style="background:#fff;padding:32px 24px;border-radius:16px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
-    <button onclick="document.getElementById('reclamo-modal').classList.add('hidden')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.3rem;color:#888;cursor:pointer;"><i class="fas fa-times"></i></button>
-    <h3 style="margin-bottom:18px;font-size:1.2rem;font-weight:600;color:#1a365d;">Enviar reporte o reclamo</h3>
-    <form id="reclamo-form" method="post" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:14px;">
-      {% csrf_token %}
-      <label style="font-weight:500;">Nombre
-        <input type="text" name="nombre" required maxlength="100" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;">
-      </label>
-      <label style="font-weight:500;">Teléfono
-        <input type="tel" name="telefono" maxlength="20" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;">
-      </label>
-      <label style="font-weight:500;">Descripción
-        <textarea name="descripcion" required maxlength="1000" rows="4" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;"></textarea>
-      </label>
-      <label style="font-weight:500;">Adjuntar archivo (imagen o PDF)
-        <input type="file" name="archivo" accept="image/*,application/pdf" style="margin-top:3px;">
-      </label>
-      <button type="submit" class="btn-topo-cta" style="margin-top:10px;">Enviar reclamo</button>
-      <div id="reclamo-msg" style="margin-top:8px;font-size:.98rem;"></div>
-    </form>
-  </div>
-</div>
-
-<script>
-document.getElementById('reclamo-form').onsubmit = async function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const msg = document.getElementById('reclamo-msg');
-  msg.textContent = 'Enviando...';
-  const data = new FormData(form);
-  const resp = await fetch('{% url "enviar_reclamo" %}', {
-    method: 'POST',
-    body: data,
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  });
-  const res = await resp.json();
-  if(res.ok) {
-    msg.textContent = '¡Reclamo enviado correctamente!';
-    form.reset();
-    setTimeout(()=>document.getElementById('reclamo-modal').classList.add('hidden'), 1800);
-  } else {
-    msg.textContent = res.error || 'Error al enviar el reclamo.';
-  }
-};
-</script>
 
 <!-- ══ NOSOTROS ══════════════════════════════════════════ -->
 <section id="nosotros" class="about-section">
@@ -630,28 +563,107 @@ document.getElementById('reclamo-form').onsubmit = async function(e) {
   </div>
 </section>
 
-<!-- ══ CTA 2 — Azul profundo + topo ═══════════════════ -->
-<section class="topo-cta-strip relief-zone">
+
+<!-- ══ REPORTES Y RECLAMOS ══════════════════════════════ -->
+<section id="reclamos" class="reclamos-section relief-zone">
   <div class="relief-placeholder"></div>
-  <div class="topo-cta-vignette"></div>
-  <div class="topo-cta-inner">
-    <div class="topo-cta-left">
-      <div class="topo-cta-overline">Asesoría sin costo</div>
-      <h2 class="topo-cta-title">Conversemos sobre<br>tu caso ambiental</h2>
-      <p class="topo-cta-desc">Desde permisos sectoriales hasta monitoreos de RCA — nuestros especialistas te orientan desde el primer contacto. Sin burocracia, sin rodeos.</p>
+  <div class="reclamos-inner">
+    <div class="reclamos-content reveal">
+      <div class="reclamos-overline"><i class="fas fa-shield-halved"></i> Canal de atención ciudadana</div>
+      <h2 class="reclamos-title">¿Tienes un reclamo<br>o reporte? </h2>
+      <p class="reclamos-desc">Envía tu reclamo, reporte o sugerencia de forma segura y confidencial. Nuestro equipo lo recibirá y te contactará a la brevedad. Puedes adjuntar imágenes o documentos PDF como respaldo.</p>
+      <ul class="reclamos-features">
+        <li><i class="fas fa-lock"></i> Información confidencial y protegida</li>
+        <li><i class="fas fa-clock"></i> Respuesta dentro de 48 horas hábiles</li>
+        <li><i class="fas fa-paperclip"></i> Adjunta evidencia en imagen o PDF</li>
+      </ul>
     </div>
-    <div class="topo-cta-right">
-      <button class="btn-topo-cta" onclick="window.openChat()" style="color:var(--brand-blue3);">
-        <div class="btn-topo-cta-icon" style="background:rgba(18,73,160,.1);color:var(--brand-blue3);"><i class="fas fa-comment-dots"></i></div>
-        <div class="btn-topo-cta-text">
-          <span class="btn-topo-cta-label">Conversa con nuestros asesores</span>
-          <span class="btn-topo-cta-sub">Chat en línea · Respuesta inmediata</span>
-        </div>
+
+    <div class="reclamos-card reveal reveal-delay-2">
+      <div class="reclamos-card-icon"><i class="fas fa-file-signature"></i></div>
+      <h3 class="reclamos-card-title">Formulario de reclamos y reportes</h3>
+      <p class="reclamos-card-sub">Completa el formulario y nuestro equipo dará seguimiento a tu solicitud.</p>
+      <button class="reclamos-btn" type="button" onclick="document.getElementById('reclamo-modal').classList.remove('hidden')">
+        <i class="fas fa-pen-to-square"></i> Generar reclamo
       </button>
+      <span class="reclamos-card-note"><i class="fas fa-shield-halved"></i> Tus datos están protegidos</span>
     </div>
   </div>
 </section>
 
+<!-- Modal de Reporte/Reclamo -->
+<div id="reclamo-modal" class="reclamo-modal hidden">
+  <div class="reclamo-modal-box">
+    <div class="reclamo-modal-header">
+      <div class="reclamo-modal-head-txt">
+        <span class="reclamo-modal-eyebrow"><i class="fas fa-file-signature"></i> Canal de reclamos</span>
+        <h3 class="reclamo-modal-title">Enviar reporte o reclamo</h3>
+      </div>
+      <button class="reclamo-modal-close" type="button" aria-label="Cerrar" onclick="document.getElementById('reclamo-modal').classList.add('hidden')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="reclamo-form" class="reclamo-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="reclamo-field">
+        <label for="rec-nombre">Nombre completo</label>
+        <input id="rec-nombre" type="text" name="nombre" required maxlength="100" placeholder="Ej. Juan Pérez">
+      </div>
+      <div class="reclamo-field">
+        <label for="rec-telefono">Teléfono <span>(opcional)</span></label>
+        <input id="rec-telefono" type="tel" name="telefono" maxlength="20" placeholder="+56 9 1234 5678">
+      </div>
+      <div class="reclamo-field">
+        <label for="rec-descripcion">Descripción</label>
+        <textarea id="rec-descripcion" name="descripcion" required maxlength="1000" rows="4" placeholder="Describe tu reclamo, reporte o sugerencia..."></textarea>
+      </div>
+      <div class="reclamo-field">
+        <label for="rec-archivo">Adjuntar archivo <span>(imagen o PDF, opcional)</span></label>
+        <label class="reclamo-file" for="rec-archivo">
+          <i class="fas fa-cloud-arrow-up"></i>
+          <span>Haz clic para seleccionar un archivo</span>
+        </label>
+        <input id="rec-archivo" type="file" name="archivo" accept="image/*,application/pdf" hidden>
+      </div>
+      <button type="submit" class="reclamo-submit"><i class="fas fa-paper-plane"></i> Enviar reclamo</button>
+      <div id="reclamo-msg" class="reclamo-msg"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Mostrar nombre del archivo seleccionado en la etiqueta de carga
+(function(){
+  const fileInput = document.getElementById('rec-archivo');
+  const fileLabel = document.querySelector('.reclamo-file span');
+  if (fileInput && fileLabel) {
+    fileInput.addEventListener('change', function(){
+      fileLabel.textContent = fileInput.files.length
+        ? fileInput.files[0].name
+        : 'Haz clic para seleccionar un archivo';
+    });
+  }
+})();
+
+document.getElementById('reclamo-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const msg = document.getElementById('reclamo-msg');
+  msg.textContent = 'Enviando...';
+  const data = new FormData(form);
+  const resp = await fetch('{% url "enviar_reclamo" %}', {
+    method: 'POST',
+    body: data,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  });
+  const res = await resp.json();
+  if(res.ok) {
+    msg.textContent = '¡Reclamo enviado correctamente!';
+    form.reset();
+    setTimeout(()=>document.getElementById('reclamo-modal').classList.add('hidden'), 1800);
+  } else {
+    msg.textContent = res.error || 'Error al enviar el reclamo.';
+  }
+};
+</script>
 <!-- ══ CERTIFICACIONES ════════════════════════════════════ -->
 <section id="certificaciones" class="cert-full-section relief-zone">
   <div class="relief-placeholder" style="color: #B45309;"></div>
