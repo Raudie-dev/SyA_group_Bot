@@ -13,6 +13,9 @@ import pandas as pd
 from .models import User as User_admin, ConfigBot, WhatsAppSession, WhatsAppMessage, ContextFile, Departamento, Agente
 from django_ratelimit.decorators import ratelimit
 
+from django.core.mail import EmailMessage
+from django.views.decorators.http import require_POST
+
 def _get_session_user(request):
     uid = request.session.get('user_admin_id')
     if not uid:
@@ -31,6 +34,43 @@ def index(request):
         'user': user,
         'mensaje_bienvenida': mensaje_bienvenida,
     })
+
+# Vista para recibir y enviar reclamos por correo
+@require_POST
+@csrf_exempt
+def enviar_reclamo(request):
+    nombre = request.POST.get('nombre', '').strip()
+    telefono = request.POST.get('telefono', '').strip()
+    descripcion = request.POST.get('descripcion', '').strip()
+    archivo = request.FILES.get('archivo')
+    if not nombre or not descripcion:
+        return JsonResponse({'ok': False, 'error': 'Nombre y descripción son obligatorios.'})
+    # Validar archivo (solo imagen o PDF)
+    if archivo:
+        ext = os.path.splitext(archivo.name)[1].lower()
+        if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.pdf']:
+            return JsonResponse({'ok': False, 'error': 'Solo se permiten imágenes o PDF.'})
+    # Construir mensaje
+    cuerpo = f"""
+    Se ha recibido un nuevo reclamo/reporte desde la web:
+
+    Nombre: {nombre}
+    Teléfono: {telefono}
+    Descripción: {descripcion}
+    """
+    email = EmailMessage(
+        subject='Nuevo reclamo o reporte desde la web',
+        body=cuerpo,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=['contacto@syagroup-chile.com']
+    )
+    if archivo:
+        email.attach(archivo.name, archivo.read(), archivo.content_type)
+    try:
+        email.send()
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': 'No se pudo enviar el correo. ' + str(e)})
 
 def login(request):
     if request.method == 'POST':

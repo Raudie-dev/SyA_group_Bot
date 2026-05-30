@@ -13,8 +13,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
   <!-- Rev. 2026-F: lab-slider.js y services-carousel.js ELIMINADOS.
        Su lógica está consolidada en js/main.js. Puedes borrar esos dos archivos del proyecto. -->
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-W5PD2S7P');</script>
+  <!-- End Google Tag Manager -->
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W5PD2S7P"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
 <!-- ══ NAVBAR ══════════════════════════════════════════ -->
 <nav id="navbar">
@@ -286,6 +297,75 @@
     </div>
   </div>
 </section>
+
+<!-- ══ REPORTES Y RECLAMOS ══════════════════════════════ -->
+<section class="topo-cta-strip relief-zone" style="background:#f7f7f7;">
+  <div class="relief-placeholder"></div>
+  <div class="topo-cta-inner">
+    <div class="topo-cta-left">
+      <div class="topo-cta-overline">Reportes y Reclamos</div>
+      <h2 class="topo-cta-title">¿Tienes un reclamo o reporte?<br>¡Queremos escucharte!</h2>
+      <p class="topo-cta-desc">Puedes enviar tu reclamo, reporte o sugerencia. Nuestro equipo lo recibirá y te contactará a la brevedad. Adjunta imágenes o PDF si es necesario.</p>
+    </div>
+    <div class="topo-cta-right">
+      <button class="btn-topo-cta" onclick="document.getElementById('reclamo-modal').classList.remove('hidden')">
+        <div class="btn-topo-cta-icon"><i class="fas fa-file-signature"></i></div>
+        <div class="btn-topo-cta-text">
+          <span class="btn-topo-cta-label">Generar reclamo</span>
+          <span class="btn-topo-cta-sub">Formulario confidencial</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Modal de Reporte/Reclamo -->
+<div id="reclamo-modal" class="modal-bg hidden" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div class="modal-box" style="background:#fff;padding:32px 24px;border-radius:16px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
+    <button onclick="document.getElementById('reclamo-modal').classList.add('hidden')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.3rem;color:#888;cursor:pointer;"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom:18px;font-size:1.2rem;font-weight:600;color:#1a365d;">Enviar reporte o reclamo</h3>
+    <form id="reclamo-form" method="post" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:14px;">
+      {% csrf_token %}
+      <label style="font-weight:500;">Nombre
+        <input type="text" name="nombre" required maxlength="100" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;">
+      </label>
+      <label style="font-weight:500;">Teléfono
+        <input type="tel" name="telefono" maxlength="20" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;">
+      </label>
+      <label style="font-weight:500;">Descripción
+        <textarea name="descripcion" required maxlength="1000" rows="4" style="width:100%;padding:7px 10px;margin-top:3px;border-radius:6px;border:1px solid #bbb;"></textarea>
+      </label>
+      <label style="font-weight:500;">Adjuntar archivo (imagen o PDF)
+        <input type="file" name="archivo" accept="image/*,application/pdf" style="margin-top:3px;">
+      </label>
+      <button type="submit" class="btn-topo-cta" style="margin-top:10px;">Enviar reclamo</button>
+      <div id="reclamo-msg" style="margin-top:8px;font-size:.98rem;"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('reclamo-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const msg = document.getElementById('reclamo-msg');
+  msg.textContent = 'Enviando...';
+  const data = new FormData(form);
+  const resp = await fetch('{% url "enviar_reclamo" %}', {
+    method: 'POST',
+    body: data,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  });
+  const res = await resp.json();
+  if(res.ok) {
+    msg.textContent = '¡Reclamo enviado correctamente!';
+    form.reset();
+    setTimeout(()=>document.getElementById('reclamo-modal').classList.add('hidden'), 1800);
+  } else {
+    msg.textContent = res.error || 'Error al enviar el reclamo.';
+  }
+};
+</script>
 
 <!-- ══ NOSOTROS ══════════════════════════════════════════ -->
 <section id="nosotros" class="about-section">

@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('enviar-reclamo/', views.enviar_reclamo, name='enviar_reclamo'),
     path('login/', views.login, name='login'),
     path('estado/', views.estado, name='estado'),
     path('qr-json/', views.qr_json, name='qr_json'),

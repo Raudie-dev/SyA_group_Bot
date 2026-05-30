@@ -139,3 +139,12 @@ TAILWIND_APP_NAME = 'theme'
 APP_NAME = 'SyA Group Bot'
 
 WEBHOOK_SECRET = '82NYYei3GcCBvd1hZL5p8jFLzJV9NYQ8AK9qvGc0YxM'
+
+# Configuración de correo electrónico con Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'syagroupweb@gmail.com'
+EMAIL_HOST_PASSWORD = 'snxmwbzvakszowsq'
+DEFAULT_FROM_EMAIL = 'syagroupweb@gmail.com'
