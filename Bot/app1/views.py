@@ -42,14 +42,8 @@ def enviar_reclamo(request):
     nombre = request.POST.get('nombre', '').strip()
     telefono = request.POST.get('telefono', '').strip()
     descripcion = request.POST.get('descripcion', '').strip()
-    archivo = request.FILES.get('archivo')
     if not nombre or not descripcion:
         return JsonResponse({'ok': False, 'error': 'Nombre y descripción son obligatorios.'})
-    # Validar archivo (solo imagen o PDF)
-    if archivo:
-        ext = os.path.splitext(archivo.name)[1].lower()
-        if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.pdf']:
-            return JsonResponse({'ok': False, 'error': 'Solo se permiten imágenes o PDF.'})
     # Construir mensaje
     cuerpo = f"""
     Se ha recibido un nuevo reclamo/reporte desde la web:
@@ -62,10 +56,8 @@ def enviar_reclamo(request):
         subject='Nuevo reclamo o reporte desde la web',
         body=cuerpo,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=['contacto@syagroup-chile.com']
+        to=['sergio@syagroupchile.com', 'contacto@syagroup-chile.com']
     )
-    if archivo:
-        email.attach(archivo.name, archivo.read(), archivo.content_type)
     try:
         email.send()
         return JsonResponse({'ok': True})

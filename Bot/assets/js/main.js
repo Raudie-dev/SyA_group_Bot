@@ -598,7 +598,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.openChat = function() {
     document.getElementById('chat-cta')?.classList.add('hidden');
-    document.getElementById('chat-window')?.classList.remove('hidden');
+    const chatWin = document.getElementById('chat-window');
+    if (chatWin) {
+      chatWin.classList.remove('hidden');
+      chatWin.classList.add('fullscreen');
+    }
     document.getElementById('chat-button')?.classList.add('active');
     const iconO = document.getElementById('chat-icon-open');
     const iconC = document.getElementById('chat-icon-close');

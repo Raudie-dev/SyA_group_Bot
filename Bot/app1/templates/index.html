@@ -615,14 +615,7 @@
         <label for="rec-descripcion">Descripción</label>
         <textarea id="rec-descripcion" name="descripcion" required maxlength="1000" rows="4" placeholder="Describe tu reclamo, reporte o sugerencia..."></textarea>
       </div>
-      <div class="reclamo-field">
-        <label for="rec-archivo">Adjuntar archivo <span>(imagen o PDF, opcional)</span></label>
-        <label class="reclamo-file" for="rec-archivo">
-          <i class="fas fa-cloud-arrow-up"></i>
-          <span>Haz clic para seleccionar un archivo</span>
-        </label>
-        <input id="rec-archivo" type="file" name="archivo" accept="image/*,application/pdf" hidden>
-      </div>
+
       <button type="submit" class="reclamo-submit"><i class="fas fa-paper-plane"></i> Enviar reclamo</button>
       <div id="reclamo-msg" class="reclamo-msg"></div>
     </form>
@@ -630,18 +623,7 @@
 </div>
 
 <script>
-// Mostrar nombre del archivo seleccionado en la etiqueta de carga
-(function(){
-  const fileInput = document.getElementById('rec-archivo');
-  const fileLabel = document.querySelector('.reclamo-file span');
-  if (fileInput && fileLabel) {
-    fileInput.addEventListener('change', function(){
-      fileLabel.textContent = fileInput.files.length
-        ? fileInput.files[0].name
-        : 'Haz clic para seleccionar un archivo';
-    });
-  }
-})();
+
 
 document.getElementById('reclamo-form').onsubmit = async function(e) {
   e.preventDefault();
