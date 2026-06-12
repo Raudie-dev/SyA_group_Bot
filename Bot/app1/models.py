@@ -21,8 +21,10 @@ class ConfigBot(models.Model):
         ('gemini', 'Gemini'),
     ]
     api_provider = models.CharField(max_length=20, choices=API_PROVIDERS, default='deepseek', help_text='Proveedor de IA')
-    api_key = models.CharField(max_length=100, blank=True, null=True, help_text='API Key del proveedor seleccionado')
+    api_key = models.TextField(blank=True, null=True, help_text='API Key del proveedor seleccionado (cifrada)')
     max_response_chars = models.IntegerField(default=1000, help_text='Límite de caracteres en respuestas del bot')
+    mensaje_cierre = models.CharField(max_length=500, blank=True, default='', help_text='Mensaje al cerrar conversación por inactividad')
+    inactividad_minutos = models.IntegerField(default=0, help_text='Minutos de inactividad para cerrar conversación (0 = desactivado)')
 
     def __str__(self):
         return self.nombre
@@ -80,3 +82,17 @@ class Agente(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class ClienteConsulta(models.Model):
+    bot = models.ForeignKey(ConfigBot, on_delete=models.CASCADE, related_name='consultas')
+    remote_jid = models.CharField(max_length=200, blank=True)
+    nombre = models.CharField(max_length=200, blank=True)
+    correo = models.EmailField(blank=True)
+    telefono = models.CharField(max_length=50, blank=True)
+    empresa = models.CharField(max_length=200, blank=True)
+    plan_interes = models.CharField(max_length=200, blank=True)
+    resumen = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre or self.remote_jid} — {self.created_at:%d/%m/%Y}"

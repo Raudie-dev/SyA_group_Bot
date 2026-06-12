@@ -4,3 +4,4 @@ gunicorn==23.0.0
 packaging==25.0
 sqlparse==0.5.3
 django-tailwind>=3.8.0
+cryptography>=42.0.0

@@ -1,133 +1,286 @@
-{% extends "base_control.html" %}
-{% block title %}Estado — {{ APP_NAME }}{% endblock %}
+{% extends 'base_control.html' %}
+{% block title %}Configuracion Bot — {{ APP_NAME }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-divider {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        margin: 28px 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--color-border);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 12px;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        gap: 8px;
+    }
+    .file-item-info {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex: 1;
+        min-width: 0;
+    }
+    .upload-zone {
+        display: block;
+        padding: 20px;
+        border: 2px dashed var(--color-brand-blue);
+        border-radius: 9px;
+        text-align: center;
+        cursor: pointer;
+        background: rgba(3,103,166,0.04);
+        transition: all 0.2s ease;
+        margin-top: 12px;
+    }
+    .upload-zone:hover { background: rgba(3,103,166,0.08); }
+
+    .char-counter {
+        font-size: 0.72rem;
+        color: var(--color-text-muted);
+        text-align: right;
+        margin-top: 4px;
+    }
+    .char-counter.warn { color: var(--color-brand-orange); }
+    .char-counter.over { color: var(--color-brand-red); }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <div class="page-header">
-    <div class="page-eyebrow">Panel de control</div>
-    <h1 class="page-title">Estado del Bot</h1>
-    <p class="page-subtitle">Monitorea y gestiona la conexion de WhatsApp en tiempo real.</p>
+    <div class="page-eyebrow">Configuracion</div>
+    <h1 class="page-title">Configuracion del Bot</h1>
+    <p class="page-subtitle">Comportamiento, contexto y credenciales de tu asistente.</p>
 </div>
 
-{% if bot_statuses %}
-    {% for status in bot_statuses %}
-    <div class="panel" style="max-width: 560px;">
-        <div class="panel-title">{{ status.bot.nombre }}</div>
+<form method="post" enctype="multipart/form-data" id="bot-form">
+    {% csrf_token %}
 
-        <div style="margin-bottom: 24px;">
-            {% if status.status == 'connected' %}
-            <div class="status-badge status-connected">
-                <span class="status-dot"></span>
-                <i class="fas fa-circle-check"></i>
-                Conectado — Sesion activa
+    <!-- IDENTIDAD + INSTRUCCIONES -->
+    <div class="grid-2" style="margin-bottom:20px;">
+
+        <div class="panel">
+            <div class="panel-title">Identidad</div>
+
+            <div class="field">
+                <label class="field-label" for="nombre">Nombre del bot</label>
+                <input class="field-input" type="text" id="nombre" name="nombre"
+                    value="{{ bot.nombre }}" placeholder="Ej: Asistente de ventas" required>
             </div>
 
-            {% elif status.status == 'initializing' %}
-            <div class="status-badge status-initializing">
-                <span class="status-dot"></span>
-                <i class="fas fa-spinner fa-spin"></i>
-                Inicializando — Generando QR
+            <div class="field">
+                <label class="field-label" for="mensaje_bienvenida">Mensaje de bienvenida</label>
+                <textarea class="field-input" id="mensaje_bienvenida" name="mensaje_bienvenida"
+                    rows="3" placeholder="Hola, soy tu asistente virtual.">{{ bot.mensaje_bienvenida }}</textarea>
+                <p class="field-hint">Primer mensaje visible al cliente al abrir el chat.</p>
             </div>
 
-            {% elif status.status == 'unlinked' %}
-            <div class="status-badge status-unlinked">
-                <span class="status-dot"></span>
-                <i class="fas fa-link-slash"></i>
-                Telefono desvinculado
+            <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="api_key">API Key</label>
+                <div style="position:relative;">
+                    <input class="field-input" type="password" id="api_key" name="api_key"
+                        value="{{ bot.api_key }}" placeholder="sk-..." required autocomplete="off"
+                        style="padding-right:42px;">
+                    <button type="button" id="toggleKey" aria-label="Mostrar API key"
+                        style="position:absolute; right:11px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--color-text-muted); cursor:pointer; font-size:0.78rem; padding:4px 6px; border-radius:5px; transition:color 0.2s;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <p class="field-hint"><i class="fas fa-shield-halved" style="color:var(--color-brand-blue-light); margin-right:4px;"></i>Almacenada cifrada.</p>
             </div>
+        </div>
 
+        <div class="panel">
+            <div class="panel-title">Instrucciones de IA</div>
+            <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="instrucciones_ia">Prompt del sistema</label>
+                <textarea class="field-input" id="instrucciones_ia" name="instrucciones_ia"
+                    rows="16" placeholder="Eres un asistente de atencion al cliente de [Empresa]..." required
+                >{{ bot.instrucciones_ia }}</textarea>
+                <p class="field-hint">Define el rol, tono y limites del agente.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- COMPORTAMIENTO -->
+    <div class="section-divider">Comportamiento</div>
+
+    <div class="grid-3" style="margin-bottom:20px;">
+
+        <div class="panel">
+            <div class="panel-title">Longitud de respuesta</div>
+            <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="max_response_chars">Límite de caracteres</label>
+                <input class="field-input" type="number" id="max_response_chars" name="max_response_chars"
+                    value="{{ bot.max_response_chars|default:1000 }}" min="100" max="4000" step="100">
+                <p class="field-hint">El bot truncará respuestas más largas. 0 = sin límite.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Inactividad</div>
+            <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="inactividad_minutos">Minutos sin respuesta</label>
+                <input class="field-input" type="number" id="inactividad_minutos" name="inactividad_minutos"
+                    value="{{ bot.inactividad_minutos|default:0 }}" min="0" max="1440" step="5">
+                <p class="field-hint">Cierra la conversación tras este tiempo. 0 = desactivado.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Mensaje de cierre</div>
+            <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="mensaje_cierre">Texto al cerrar</label>
+                <textarea class="field-input" id="mensaje_cierre" name="mensaje_cierre" rows="3"
+                    placeholder="Tu conversacion fue cerrada por inactividad.">{{ bot.mensaje_cierre }}</textarea>
+                <p class="field-hint">Se envía cuando expira el tiempo de inactividad.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ARCHIVOS DE CONTEXTO -->
+    <div class="section-divider">Archivos de contexto</div>
+
+    <div class="panel" style="margin-bottom:20px;">
+        {% if bot %}
+            {% if context_files %}
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+                {% for file in context_files %}
+                <div class="file-item">
+                    <div class="file-item-info">
+                        {% if '.pdf' in file.file.name|lower %}
+                            <i class="fas fa-file-pdf" style="color:var(--color-brand-red); font-size:1.1rem; flex-shrink:0;"></i>
+                        {% elif '.doc' in file.file.name|lower %}
+                            <i class="fas fa-file-word" style="color:var(--color-brand-blue-light); font-size:1.1rem; flex-shrink:0;"></i>
+                        {% elif '.xls' in file.file.name|lower %}
+                            <i class="fas fa-file-excel" style="color:var(--color-brand-green); font-size:1.1rem; flex-shrink:0;"></i>
+                        {% else %}
+                            <i class="fas fa-file" style="color:var(--color-text-muted); font-size:1.1rem; flex-shrink:0;"></i>
+                        {% endif %}
+                        <span style="font-size:0.82rem; font-weight:500; color:var(--color-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ file.file.name|cut:"context_files/"|truncatechars:40 }}</span>
+                        <span style="font-size:0.72rem; color:var(--color-text-muted); flex-shrink:0;">{{ file.uploaded_at|date:"d/m/Y" }}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <a href="{{ file.file.url }}" target="_blank" class="btn btn-secondary" style="padding:5px 10px; font-size:0.75rem;">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <input type="checkbox" id="del_{{ file.id }}" name="delete_files" value="{{ file.id }}" style="display:none;">
+                        <button type="button" onclick="toggleDelete(this, 'del_{{ file.id }}')"
+                            style="cursor:pointer; color:var(--color-brand-red); padding:5px 8px; border-radius:6px; border:1px solid rgba(242,65,48,0.2); font-size:0.75rem; transition:background 0.2s; background:transparent;"
+                            onmouseover="if(!this.classList.contains('marked'))this.style.background='rgba(242,65,48,0.1)'"
+                            onmouseout="if(!this.classList.contains('marked'))this.style.background='transparent'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
             {% else %}
-            <div class="status-badge status-unknown">
-                <span class="status-dot"></span>
-                <i class="fas fa-circle-question"></i>
-                Sin conexion
-            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-muted); margin-bottom:12px; font-style:italic;">Sin archivos de contexto.</p>
             {% endif %}
-        </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a href="{% url 'configuracion' %}" class="btn btn-secondary">
-                <i class="fas fa-sliders"></i>
-                Configuracion
-            </a>
-            <a href="{% url 'whatsapp_configuracion' %}" class="btn btn-primary">
-                <i class="fab fa-whatsapp"></i>
-                Gestionar WhatsApp
-            </a>
-        </div>
+            <label id="upload-label" for="context_files" class="upload-zone">
+                <i class="fas fa-cloud-arrow-up" style="font-size:1.6rem; color:var(--color-brand-blue); display:block; margin-bottom:7px;"></i>
+                <span style="display:block; font-size:0.875rem; font-weight:600; color:var(--color-text);">Seleccionar archivos</span>
+                <span style="display:block; font-size:0.75rem; color:var(--color-text-muted); margin-top:3px;">PDF, Word, Excel</span>
+            </label>
+            <input type="file" id="context_files" name="context_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" style="display:none;">
+
+        {% else %}
+            <div style="text-align:center; padding:32px 20px;">
+                <i class="fas fa-file-circle-plus" style="font-size:2.2rem; color:var(--color-surface-light); display:block; margin-bottom:12px;"></i>
+                <p style="font-size:0.86rem; color:var(--color-text-muted);">Guarda el bot primero para subir archivos de contexto.</p>
+            </div>
+        {% endif %}
     </div>
-    {% endfor %}
 
-{% else %}
-    <div class="panel" style="max-width: 480px; text-align:center; padding: 48px 32px;">
-        <div style="font-size:2.5rem; color:var(--color-surface-light); margin-bottom:16px;">
-            <i class="fas fa-robot"></i>
-        </div>
-        <div style="font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--color-text); margin-bottom:8px;">
-            Sin bot configurado
-        </div>
-        <p style="font-size:0.875rem; color:var(--color-text-muted); line-height:1.6; margin-bottom:24px;">
-            Aun no tienes un bot configurado. Crea uno para empezar a atender clientes en WhatsApp.
-        </p>
-        <a href="{% url 'configuracion' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            Configurar bot
+    <!-- ACCIONES -->
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--color-border);">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-floppy-disk"></i>
+            Guardar configuracion
+        </button>
+        {% if bot %}
+        <a href="{% url 'whatsapp_configuracion' %}" class="btn btn-secondary">
+            <i class="fab fa-whatsapp"></i>
+            Configurar WhatsApp
         </a>
+        {% endif %}
     </div>
-{% endif %}
 
-<style>
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 11px 18px;
-        border-radius: 9px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        border: 1px solid transparent;
-    }
-    .status-dot {
-        width: 7px; height: 7px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-    .status-connected {
-        background: rgba(134,191,48,0.1);
-        border-color: rgba(134,191,48,0.25);
-        color: var(--color-brand-green-light);
-    }
-    .status-connected .status-dot {
-        background: var(--color-brand-green);
-        box-shadow: 0 0 6px var(--color-brand-green);
-        animation: pulse-dot 2s infinite;
-    }
-    .status-initializing {
-        background: rgba(3,103,166,0.1);
-        border-color: rgba(3,103,166,0.25);
-        color: var(--color-brand-blue-light);
-    }
-    .status-initializing .status-dot {
-        background: var(--color-brand-blue-light);
-        animation: pulse-dot 1s infinite;
-    }
-    .status-unlinked {
-        background: rgba(255,140,66,0.1);
-        border-color: rgba(255,140,66,0.25);
-        color: var(--color-brand-orange);
-    }
-    .status-unlinked .status-dot { background: var(--color-brand-orange); }
-    .status-unknown {
-        background: rgba(122,148,176,0.1);
-        border-color: rgba(122,148,176,0.2);
-        color: var(--color-text-muted);
-    }
-    .status-unknown .status-dot { background: var(--color-text-muted); }
+</form>
 
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: 0.5; transform: scale(1.6); }
-    }
-</style>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+    // API key toggle
+    const toggleKey   = document.getElementById('toggleKey');
+    const apiKeyInput = document.getElementById('api_key');
+    if (toggleKey) {
+        toggleKey.addEventListener('click', () => {
+            const isHidden = apiKeyInput.type === 'password';
+            apiKeyInput.type = isHidden ? 'text' : 'password';
+            toggleKey.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+    }
+
+    // File upload preview
+    const fileInput   = document.getElementById('context_files');
+    const uploadLabel = document.getElementById('upload-label');
+    if (fileInput && uploadLabel) {
+        fileInput.addEventListener('change', function() {
+            const files = Array.from(this.files);
+            if (files.length > 0) {
+                uploadLabel.innerHTML = `
+                    <i class="fas fa-circle-check" style="font-size:1.6rem; color:var(--color-brand-green); display:block; margin-bottom:7px;"></i>
+                    <span style="display:block; font-size:0.875rem; font-weight:600; color:var(--color-text);">${files.length} archivo(s) seleccionado(s)</span>
+                    <span style="display:block; font-size:0.75rem; color:var(--color-text-muted); margin-top:3px;">${files.map(f => f.name).join(', ')}</span>
+                `;
+                uploadLabel.style.borderColor = 'var(--color-brand-green)';
+                uploadLabel.style.background  = 'rgba(134,191,48,0.06)';
+            }
+        });
+    }
+
+    // Save new fields to views
+    const inactividadInput = document.getElementById('inactividad_minutos');
+    const maxCharsInput    = document.getElementById('max_response_chars');
+
+    function toggleDelete(btn, cbId) {
+        const cb = document.getElementById(cbId);
+        cb.checked = !cb.checked;
+        if (cb.checked) {
+            btn.classList.add('marked');
+            btn.style.background   = 'rgba(242,65,48,0.15)';
+            btn.style.borderColor  = 'rgba(242,65,48,0.4)';
+        } else {
+            btn.classList.remove('marked');
+            btn.style.background  = 'transparent';
+            btn.style.borderColor = 'rgba(242,65,48,0.2)';
+        }
+    }
+</script>
 {% endblock %}

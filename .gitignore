@@ -2,8 +2,9 @@
 api.txt
 *.pyc
 __pycache__/
-db.sqlite3
+Bot/db.sqlite3
 whatsapp-gateway/auth_info/
 node_modules/
 *.log
 media/
+venv/

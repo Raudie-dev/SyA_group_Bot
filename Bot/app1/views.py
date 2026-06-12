@@ -10,10 +10,11 @@ import os
 import PyPDF2
 import docx
 import pandas as pd
-from .models import User as User_admin, ConfigBot, WhatsAppSession, WhatsAppMessage, ContextFile, Departamento, Agente
+from .models import User as User_admin, ConfigBot, WhatsAppSession, WhatsAppMessage, ContextFile, Departamento, Agente, ClienteConsulta
 from django_ratelimit.decorators import ratelimit
 
 from django.core.mail import EmailMessage
+from .crypto import encrypt_value, decrypt_value
 from django.views.decorators.http import require_POST
 
 def _get_session_user(request):
@@ -73,7 +74,7 @@ def login(request):
             user = User_admin.objects.get(nombre=nombre)
             if user.bloqueado:
                 messages.error(request, 'Usuario bloqueado')
-            elif user.password == password or check_password(password, user.password):
+            elif check_password(password, user.password):
                 request.session['user_admin_id'] = user.id
                 return redirect('estado')
             else:
@@ -136,8 +137,11 @@ def configuracion(request):
             bot.nombre = nombre
             bot.mensaje_bienvenida = mensaje_bienvenida
             bot.instrucciones_ia = instrucciones_ia
-            bot.api_key = api_key
+            bot.api_key = encrypt_value(api_key) if api_key else ''
             bot.api_provider = api_provider
+            bot.max_response_chars = int(request.POST.get('max_response_chars', 1000))
+            bot.inactividad_minutos = int(request.POST.get('inactividad_minutos', 0))
+            bot.mensaje_cierre = request.POST.get('mensaje_cierre', '').strip()
             bot.save()
         else:
             bot = ConfigBot.objects.create(
@@ -145,8 +149,11 @@ def configuracion(request):
                 owner=user,
                 mensaje_bienvenida=mensaje_bienvenida,
                 instrucciones_ia=instrucciones_ia,
-                api_key=api_key,
-                api_provider=api_provider
+                api_key=encrypt_value(api_key) if api_key else '',
+                api_provider=api_provider,
+                max_response_chars=int(request.POST.get('max_response_chars', 1000)),
+                inactividad_minutos=int(request.POST.get('inactividad_minutos', 0)),
+                mensaje_cierre=request.POST.get('mensaje_cierre', '').strip(),
             )
 
         allowed_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx']
@@ -394,7 +401,8 @@ def public_chat(request):
     if not bot:
         return JsonResponse({'ok': False, 'error': 'No hay bot configurado.'}, status=500)
 
-    if not bot.api_key or not bot.instrucciones_ia:
+    api_key_plain = decrypt_value(bot.api_key) if bot.api_key else ''
+    if not api_key_plain or not bot.instrucciones_ia:
         return JsonResponse({'ok': False, 'error': 'Bot sin configuracion de IA.'}, status=500)
 
     # Verificar conexion WhatsApp activa
@@ -491,7 +499,7 @@ def public_chat(request):
             'https://api.deepseek.com/v1/chat/completions',
             json={"model": "deepseek-chat", "messages": messages_ia},
             headers={
-                'Authorization': f'Bearer {bot.api_key}',
+                'Authorization': f'Bearer {api_key_plain}',
                 'Content-Type': 'application/json'
             },
             timeout=15
@@ -571,7 +579,7 @@ def public_chat(request):
                 return JsonResponse({'ok': True, 'reply': reply_limpio})
 
             # Una sola llamada DeepSeek para datos + resumen
-            datos_cliente = _extraer_datos_y_resumen(conv_texto, bot.api_key)
+            datos_cliente = _extraer_datos_y_resumen(conv_texto, api_key_plain)
             resumen_ia    = datos_cliente.pop('resumen', '')
             plan_interes  = datos_cliente.get('plan_interes') or 'No especificado'
 
@@ -716,6 +724,23 @@ def whatsapp_webhook(request):
     if not messageText:
         return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
 
+    # Verificar inactividad
+    if config.inactividad_minutos and config.inactividad_minutos > 0:
+        from django.utils.timezone import now
+        from datetime import timedelta
+        ultimo_msg = WhatsAppMessage.objects.filter(
+            bot=config, remote_jid=remoteJid
+        ).order_by('-received_at').first()
+        if ultimo_msg:
+            delta = now() - ultimo_msg.received_at
+            if delta > timedelta(minutes=config.inactividad_minutos):
+                # Resetear conversación
+                WhatsAppMessage.objects.filter(
+                    bot=config, remote_jid=remoteJid
+                ).update(transferido=False)
+                cierre = config.mensaje_cierre or 'Tu conversación anterior fue cerrada por inactividad. Puedes comenzar de nuevo.'
+                return JsonResponse({'remoteJid': remoteJid, 'reply': cierre})
+
     # Guardar mensaje entrante
     WhatsAppMessage.objects.create(
         bot=config,
@@ -768,7 +793,7 @@ def whatsapp_webhook(request):
     messages_ia.append({'role': 'user', 'content': messageText})
 
     # Llamar DeepSeek
-    api_key = config.api_key or ''
+    api_key = decrypt_value(config.api_key) if config.api_key else ''
     reply   = 'Gracias por tu mensaje. En breve te respondemos.'
 
     if api_key and instrucciones:
@@ -863,6 +888,20 @@ def whatsapp_webhook(request):
                     print(f'[Transferencia] Enviado a {agente.nombre}')
                 except Exception as ex:
                     print(f'[Transferencia] Error enviando a {agente.nombre}:', ex)
+
+            # Guardar ClienteConsulta
+            conv_texto = '\n'.join(resumen_lines)
+            datos = _extraer_datos_y_resumen(conv_texto, api_key)
+            ClienteConsulta.objects.create(
+                bot=config,
+                remote_jid=remoteJid,
+                nombre=datos.get('nombre', ''),
+                correo=datos.get('correo', ''),
+                telefono=datos.get('telefono', ''),
+                empresa=datos.get('empresa', ''),
+                plan_interes=datos.get('plan_interes', ''),
+                resumen=datos.get('resumen', ''),
+            )
 
             # Marcar como transferido
             WhatsAppMessage.objects.filter(
@@ -1216,6 +1255,15 @@ def conversaciones(request):
         transferido=Max('transferido')
     ).order_by('-ultimo_mensaje')
 
+    if request.GET.get('json'):
+        from django.utils.timezone import now
+        from datetime import timedelta
+        hoy = now().date()
+        mensajes_hoy = WhatsAppMessage.objects.filter(bot=bot, received_at__date=hoy).count()
+        activas = convs.filter(transferido=False).count()
+        transferidas = convs.filter(transferido=True).count()
+        return JsonResponse({'mensajes_hoy': mensajes_hoy, 'activas': activas, 'transferidas': transferidas})
+    
     return render(request, 'conversaciones.html', {
         'conversaciones': convs,
         'user': user,
@@ -1267,7 +1315,7 @@ def perfil(request):
 
         if nuevo_password:
             from django.contrib.auth.hashers import check_password, make_password
-            if not (check_password(password_actual, user.password) or user.password == password_actual):
+            if not check_password(password_actual, user.password):
                 messages.error(request, 'Contraseña actual incorrecta.')
                 return redirect('perfil')
             if nuevo_password != confirmar_password:
