@@ -573,8 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!data.ok) { appendMessage(data.error || 'No se pudo obtener respuesta.', false); return; }
       const reply = data.reply || '';
       appendMessage(reply, false);
-      if (['conectarte con un asesor','asesor para finalizar','en breve te contactarán','transferido'].some(k => reply.toLowerCase().includes(k)))
+      if (data.transferido || ['conectarte con un asesor','asesor para finalizar','en breve te contactarán','transferido a un asesor'].some(k => reply.toLowerCase().includes(k))) {
         setTimeout(showTransferCard, 800);
+        const inputArea = document.querySelector('.chat-input-area');
+        if (inputArea) inputArea.style.display = 'none';
+      }
     })
     .catch(() => { hideTyping(); appendMessage('Error de conexión. Inténtalo de nuevo.', false); });
   };

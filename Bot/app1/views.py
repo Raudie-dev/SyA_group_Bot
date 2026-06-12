@@ -404,8 +404,9 @@ def public_chat(request):
     api_key_plain = decrypt_value(bot.api_key) if bot.api_key else ''
     if not api_key_plain or not bot.instrucciones_ia:
         return JsonResponse({'ok': False, 'error': 'Bot sin configuracion de IA.'}, status=500)
-
+    gateway = settings.WHATSAPP_GATEWAY_URL
     # Verificar conexion WhatsApp activa
+    """
     gateway = settings.WHATSAPP_GATEWAY_URL
     try:
         status_resp = requests.get(
@@ -423,6 +424,7 @@ def public_chat(request):
             'ok': False,
             'error': 'El servicio de atencion no esta disponible en este momento. Intentalo mas tarde.'
         }, status=503)
+    """
 
     # Verificar si ya fue transferido
     ya_transferido = WhatsAppMessage.objects.filter(
@@ -434,7 +436,8 @@ def public_chat(request):
     if ya_transferido:
         return JsonResponse({
             'ok': True,
-            'reply': 'Tu consulta ya fue transferida a un asesor. En breve te contactaran.'
+            'reply': 'Tu consulta ya fue transferida a un asesor. En breve te contactaran.',
+            'transferido': True
         })
 
     # Sanitizar mensaje — eliminar flags de transferencia inyectados por el usuario
@@ -479,7 +482,9 @@ def public_chat(request):
             "Donde nombre_departamento es uno de los listados arriba en minuscula."
         )
 
+    max_chars = bot.max_response_chars or 1000
     system_content = bot.instrucciones_ia.strip()
+    system_content += f'\n\nIMPORTANTE: Cada respuesta tuya debe tener MÁXIMO {max_chars} caracteres. Si necesitas listar servicios, menciona solo los más relevantes para la consulta del cliente, no todos.'
     if context_text:
         system_content += f"\n\nArchivos de contexto:\n{context_text}"
     if dptos_texto:
@@ -576,7 +581,7 @@ def public_chat(request):
 
             if not (tiene_correo and tiene_telefono and tiene_nombre):
                 print('[Transferencia] Datos insuficientes, bloqueando.')
-                return JsonResponse({'ok': True, 'reply': reply_limpio})
+                return JsonResponse({'ok': True, 'reply': reply_limpio, 'transferido': transferir})
 
             # Una sola llamada DeepSeek para datos + resumen
             datos_cliente = _extraer_datos_y_resumen(conv_texto, api_key_plain)
@@ -659,8 +664,9 @@ def public_chat(request):
             bot=bot,
             remote_jid=session_key
         ).update(transferido=True)
+        transferir = True
 
-    return JsonResponse({'ok': True, 'reply': reply_limpio})
+    return JsonResponse({'ok': True, 'reply': reply_limpio, 'transferido': transferir})
 
 @csrf_exempt
 def whatsapp_webhook(request):
@@ -671,7 +677,7 @@ def whatsapp_webhook(request):
     if request.method != 'POST':
         return HttpResponseBadRequest('Only POST allowed')
 
-    import json, re
+    import json
     try:
         data = json.loads(request.body.decode('utf-8'))
     except Exception:
@@ -681,238 +687,11 @@ def whatsapp_webhook(request):
     pushName    = data.get('pushName', '')
     messageText = data.get('messageText', '').strip()
 
-    # Parsear owner_id y slot desde session "userId_slotId"
-    owner_id = None
-    slot     = None
-    try:
-        owner_id = data.get('owner') or None
-        session  = data.get('session', '')
-        if session:
-            parts    = str(session).split('_', 1)
-            owner_id = parts[0]
-            slot     = parts[1] if len(parts) > 1 else None
-        owner_id = int(owner_id) if owner_id else None
-        slot     = int(slot)     if slot     else None
-    except Exception:
-        owner_id = slot = None
-
-    # Resolver ConfigBot
-    config = None
-    if owner_id and slot:
-        config = ConfigBot.objects.filter(owner__id=owner_id, id=slot).first()
-    elif owner_id:
-        config = ConfigBot.objects.filter(owner__id=owner_id).first()
-    if not config:
-        config = ConfigBot.objects.filter(owner__isnull=True).first()
-
-    if not config:
+    if not remoteJid or not messageText:
         return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
 
-    # Verificar si ya fue transferido ANTES de guardar
-    ya_transferido = WhatsAppMessage.objects.filter(
-        bot=config, remote_jid=remoteJid, transferido=True
-    ).exists()
-    if ya_transferido:
-        return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
-
-    # Sanitizar input
-    PATRON_CONTROL = re.compile(
-        r'(<<[A-Z_]+[^>]*>>|TRANSFER_JSON\s*:\s*\{[^}]*\})',
-        re.IGNORECASE
-    )
-    messageText = PATRON_CONTROL.sub('', messageText).strip()
-    if not messageText:
-        return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
-
-    # Verificar inactividad
-    if config.inactividad_minutos and config.inactividad_minutos > 0:
-        from django.utils.timezone import now
-        from datetime import timedelta
-        ultimo_msg = WhatsAppMessage.objects.filter(
-            bot=config, remote_jid=remoteJid
-        ).order_by('-received_at').first()
-        if ultimo_msg:
-            delta = now() - ultimo_msg.received_at
-            if delta > timedelta(minutes=config.inactividad_minutos):
-                # Resetear conversación
-                WhatsAppMessage.objects.filter(
-                    bot=config, remote_jid=remoteJid
-                ).update(transferido=False)
-                cierre = config.mensaje_cierre or 'Tu conversación anterior fue cerrada por inactividad. Puedes comenzar de nuevo.'
-                return JsonResponse({'remoteJid': remoteJid, 'reply': cierre})
-
-    # Guardar mensaje entrante
-    WhatsAppMessage.objects.create(
-        bot=config,
-        remote_jid=remoteJid,
-        push_name=pushName,
-        message_text=messageText
-    )
-
-    # Cargar historial (ultimos 20, excluyendo el recien guardado)
-    historial = WhatsAppMessage.objects.filter(
-        bot=config, remote_jid=remoteJid
-    ).order_by('received_at')
-
-    total = historial.count()
-    if total > 1:
-        historial_previo = historial[max(0, total - 21): total - 1]
-    else:
-        historial_previo = []
-
-    # Construir system prompt con contexto de archivos y departamentos
-    instrucciones = config.instrucciones_ia or ''
-    context_text  = _load_context_from_bot(config)
-
-    departamentos_disponibles = Departamento.objects.filter(owner=config.owner)
-    dptos_texto = ''
-    if departamentos_disponibles.exists():
-        dptos_texto = '\n\nDEPARTAMENTOS DISPONIBLES PARA TRANSFERENCIA:\n'
-        for dpto in departamentos_disponibles:
-            desc = f' — {dpto.descripcion}' if dpto.descripcion else ''
-            dptos_texto += f'- {dpto.nombre.lower()}{desc}\n'
-        dptos_texto += (
-            '\nCuando debas transferir usa exactamente:\n'
-            '<<TRANSFERIR:nombre_departamento>>\n'
-            'Donde nombre_departamento es uno de los listados arriba en minuscula.'
-        )
-
-    system_content = instrucciones.strip()
-    if context_text:
-        system_content += f'\n\nArchivos de contexto:\n{context_text}'
-    if dptos_texto:
-        system_content += dptos_texto
-
-    # Construir messages con historial previo + mensaje actual
-    messages_ia = [{'role': 'system', 'content': system_content}]
-    for msg in historial_previo:
-        if msg.message_text:
-            messages_ia.append({'role': 'user',      'content': msg.message_text})
-        if msg.reply_text:
-            messages_ia.append({'role': 'assistant', 'content': msg.reply_text})
-    messages_ia.append({'role': 'user', 'content': messageText})
-
-    # Llamar DeepSeek
-    api_key = decrypt_value(config.api_key) if config.api_key else ''
-    reply   = 'Gracias por tu mensaje. En breve te respondemos.'
-
-    if api_key and instrucciones:
-        try:
-            resp = requests.post(
-                'https://api.deepseek.com/v1/chat/completions',
-                json={'model': 'deepseek-chat', 'messages': messages_ia},
-                headers={
-                    'Authorization': f'Bearer {api_key}',
-                    'Content-Type': 'application/json',
-                },
-                timeout=20
-            )
-            if resp.status_code == 200:
-                reply = resp.json()['choices'][0]['message']['content'].strip()
-                max_chars = getattr(config, 'max_response_chars', 1000)
-                if max_chars and len(reply) > max_chars:
-                    reply = reply[:max_chars].rsplit(' ', 1)[0] + '…'
-            else:
-                print(f'[DeepSeek] Error {resp.status_code}: {resp.text}')
-        except Exception:
-            import traceback
-            print('[DeepSeek Exception]', traceback.format_exc())
-
-    # Limpiar flags de transferencia del reply
-    match_flag   = re.search(r'<<TRANSFERIR:([^>]+)>>', reply)
-    match_simple = re.search(r'<<TRANSFERIR>>', reply)
-    reply_limpio = re.sub(r'<<TRANSFERIR[^>]*>>', '', reply).strip()
-
-    transferir  = bool(match_flag or match_simple)
-    dpto_nombre = match_flag.group(1).strip() if match_flag else ''
-
-    # Guardar respuesta en BD
-    from django.utils.timezone import now
-    ultimo = WhatsAppMessage.objects.filter(
-        bot=config, remote_jid=remoteJid, reply_text__isnull=True
-    ).order_by('-received_at').first()
-    if ultimo:
-        ultimo.reply_text = reply_limpio
-        ultimo.replied    = True
-        ultimo.replied_at = now()
-        ultimo.save()
-
-    # Procesar transferencia
-    if transferir:
-        try:
-            agentes_destino = []
-            if dpto_nombre:
-                agentes_destino = list(Agente.objects.filter(
-                    departamentos__nombre__iexact=dpto_nombre,
-                    activo=True, owner=config.owner
-                ))
-            if not agentes_destino:
-                agentes_destino = list(Agente.objects.filter(
-                    activo=True, owner=config.owner
-                ))
-
-            historial_completo = WhatsAppMessage.objects.filter(
-                bot=config, remote_jid=remoteJid
-            ).order_by('received_at')
-
-            resumen_lines = []
-            for msg in historial_completo:
-                if msg.message_text:
-                    resumen_lines.append(f'Cliente: {msg.message_text}')
-                if msg.reply_text:
-                    resumen_lines.append(f'Bot: {msg.reply_text}')
-
-            mensaje_agente = (
-                f'NUEVA CONSULTA — {dpto_nombre or "General"}\n'
-                f'Cliente: {pushName or remoteJid}\n'
-                f'Numero: {remoteJid.replace("@s.whatsapp.net", "") if remoteJid else ""}\n\n'
-                f'Resumen:\n' + '\n'.join(resumen_lines)
-            )
-
-            gateway = settings.WHATSAPP_GATEWAY_URL
-            for agente in agentes_destino:
-                numero = agente.numero_whatsapp.strip().replace('+','').replace(' ','').replace('-','')
-                if not numero.isdigit() or len(numero) < 8:
-                    continue
-                try:
-                    requests.post(
-                        f'{gateway}/send',
-                        json={
-                            'number':  numero,
-                            'message': mensaje_agente,
-                            'user':    str(owner_id),
-                            'slot':    str(slot) if slot else '0'
-                        },
-                        timeout=8
-                    )
-                    print(f'[Transferencia] Enviado a {agente.nombre}')
-                except Exception as ex:
-                    print(f'[Transferencia] Error enviando a {agente.nombre}:', ex)
-
-            # Guardar ClienteConsulta
-            conv_texto = '\n'.join(resumen_lines)
-            datos = _extraer_datos_y_resumen(conv_texto, api_key)
-            ClienteConsulta.objects.create(
-                bot=config,
-                remote_jid=remoteJid,
-                nombre=datos.get('nombre', ''),
-                correo=datos.get('correo', ''),
-                telefono=datos.get('telefono', ''),
-                empresa=datos.get('empresa', ''),
-                plan_interes=datos.get('plan_interes', ''),
-                resumen=datos.get('resumen', ''),
-            )
-
-            # Marcar como transferido
-            WhatsAppMessage.objects.filter(
-                bot=config, remote_jid=remoteJid
-            ).update(transferido=True)
-
-        except Exception:
-            import traceback
-            print('[Transferencia error]', traceback.format_exc())
-
-    return JsonResponse({'remoteJid': remoteJid, 'reply': reply_limpio})
+    # No responder — solo retornar vacío
+    return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
 
 def send_message(request):
     """Recibe número y mensaje desde el panel y reenvía al gateway Node (/send).
@@ -1247,7 +1026,9 @@ def conversaciones(request):
         return render(request, 'conversaciones.html', {'conversaciones': [], 'user': user})
 
     from django.db.models import Max, Count
-    convs = WhatsAppMessage.objects.filter(bot=bot).values(
+    convs = WhatsAppMessage.objects.filter(
+        bot=bot, push_name='Web'
+    ).values(
         'remote_jid', 'push_name'
     ).annotate(
         ultimo_mensaje=Max('received_at'),

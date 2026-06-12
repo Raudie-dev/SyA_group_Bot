@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Panel — {{ APP_NAME }}{% endblock %}</title>
-
+    <title>{% block title %}Panel Adminitración Bot{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     {% tailwind_css %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -177,18 +177,19 @@
             font-weight: 500;
             min-width: 280px;
             max-width: 360px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
             animation: toastIn 0.3s ease forwards;
             border: 1px solid transparent;
             color: var(--color-text);
+            backdrop-filter: blur(12px);
         }
-        .toast.success { background: rgba(134, 191, 48, 0.12); border-color: rgba(134, 191, 48, 0.3); }
+        .toast.success { background: rgba(134, 191, 48, 0.22); border-color: rgba(134, 191, 48, 0.5); }
         .toast.success .toast-icon { color: var(--color-brand-green); }
-        .toast.error { background: rgba(242, 65, 48, 0.12); border-color: rgba(242, 65, 48, 0.3); }
+        .toast.error { background: rgba(242, 65, 48, 0.22); border-color: rgba(242, 65, 48, 0.5); }
         .toast.error .toast-icon { color: var(--color-brand-red); }
-        .toast.warning { background: rgba(255, 140, 66, 0.12); border-color: rgba(255, 140, 66, 0.3); }
+        .toast.warning { background: rgba(255, 140, 66, 0.22); border-color: rgba(255, 140, 66, 0.5); }
         .toast.warning .toast-icon { color: var(--color-brand-orange); }
-        .toast.info { background: rgba(3, 103, 166, 0.12); border-color: rgba(3, 103, 166, 0.3); }
+        .toast.info { background: rgba(3, 103, 166, 0.25); border-color: rgba(3, 103, 166, 0.55); }
         .toast.info .toast-icon { color: var(--color-brand-blue-light); }
         .toast-icon { font-size: 1rem; flex-shrink: 0; }
         .toast-body { flex: 1; line-height: 1.4; }

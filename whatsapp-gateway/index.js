@@ -174,8 +174,8 @@ async function startSocketFor(sid = 'default_0') {
         statuses.set(sid, 'connected');
         backoffMap.delete(sid);
         console.log(`[WA] Conectado session=${sid}`);
-        // Drainear mensajes que quedaron pendientes durante la desconexión
-        drainQueue(sid);
+        // Esperar que Baileys termine init queries antes de drenar
+        setTimeout(() => drainQueue(sid), 8000);
       }
 
       if (connection === 'close') {
@@ -456,6 +456,14 @@ function startServer() {
 }
 
 // ─── Arranque ─────────────────────────────────────────────────────────────────
+
+process.on('uncaughtException', (err) => {
+  console.error('[Gateway] uncaughtException capturada (proceso sigue):', err.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Gateway] unhandledRejection capturada (proceso sigue):', reason);
+});
 
 (async () => {
   try {

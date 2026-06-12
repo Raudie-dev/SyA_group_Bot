@@ -1,6 +1,6 @@
 {% extends "base_control.html" %}
 
-{% block title %}Conversación — {{ APP_NAME }}{% endblock %}
+{% block title %}Conversación {% endblock %}
 
 {% block extra_css %}
 <style>
@@ -64,7 +64,7 @@
             <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-brand-blue-light); margin-bottom:5px;">
                 <i class="fas fa-robot" style="margin-right:4px;"></i> Bot
             </div>
-            <div class="chat-bubble bubble-bot">{{ msg.reply_text }}</div>
+            <div class="chat-bubble bubble-bot" id="bubble-bot-{{ forloop.counter }}">{{ msg.reply_text }}</div>
             <div class="bubble-time">{{ msg.replied_at|date:"d/m/Y H:i"|default:"—" }}</div>
         </div>
         {% endif %}
@@ -86,4 +86,19 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.querySelectorAll('[id^="bubble-bot-"]').forEach(el => {
+    let html = el.innerHTML;
+    // Bold: **texto**
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Listas: * item
+    html = html.replace(/^\* (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul style="margin:6px 0 6px 16px; padding:0;">$1</ul>');
+    // Saltos de línea
+    html = html.replace(/\n/g, '<br>');
+    el.innerHTML = html;
+});
+</script>
 {% endblock %}
