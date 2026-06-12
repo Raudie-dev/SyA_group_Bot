@@ -1,0 +1,79 @@
+{% extends "base_control.html" %}
+
+{% block title %}Conversaciones — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-eyebrow">Bandeja</div>
+    <h1 class="page-title">Conversaciones</h1>
+    <p class="page-subtitle">Historial de chats recibidos por WhatsApp</p>
+</div>
+
+<div class="panel">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+        <span class="panel-title" style="margin-bottom:0;">{{ conversaciones|length }} conversacion{{ conversaciones|length|pluralize:"es" }}</span>
+    </div>
+
+    {% if conversaciones %}
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+            <thead>
+                <tr style="border-bottom:1px solid var(--color-border);">
+                    <th style="text-align:left; padding:10px 12px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);">Contacto</th>
+                    <th style="text-align:left; padding:10px 12px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);">Número</th>
+                    <th style="text-align:center; padding:10px 12px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);">Mensajes</th>
+                    <th style="text-align:center; padding:10px 12px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);">Estado</th>
+                    <th style="text-align:left; padding:10px 12px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);">Último mensaje</th>
+                    <th style="padding:10px 12px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conv in conversaciones %}
+                <tr style="border-bottom:1px solid var(--color-border); transition:background 0.15s ease;"
+                    onmouseover="this.style.background='rgba(3,103,166,0.05)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding:12px 12px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:34px; height:34px; background:rgba(3,103,166,0.15); border-radius:50%; display:grid; place-items:center; flex-shrink:0;">
+                                <i class="fas fa-user" style="font-size:0.75rem; color:var(--color-brand-blue-light);"></i>
+                            </div>
+                            <span style="font-weight:500; color:var(--color-text);">
+                                {{ conv.push_name|default:"Sin nombre" }}
+                            </span>
+                        </div>
+                    </td>
+                    <td style="padding:12px 12px; color:var(--color-text-muted); font-size:0.8rem;">
+                        {{ conv.remote_jid|cut:"@s.whatsapp.net" }}
+                    </td>
+                    <td style="padding:12px 12px; text-align:center;">
+                        <span class="badge badge-blue">{{ conv.total_mensajes }}</span>
+                    </td>
+                    <td style="padding:12px 12px; text-align:center;">
+                        {% if conv.transferido %}
+                            <span class="badge badge-orange"><i class="fas fa-arrow-right-arrow-left" style="font-size:0.6rem;"></i> Transferido</span>
+                        {% else %}
+                            <span class="badge badge-green"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Activo</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding:12px 12px; color:var(--color-text-muted); font-size:0.8rem;">
+                        {{ conv.ultimo_mensaje|date:"d/m/Y H:i" }}
+                    </td>
+                    <td style="padding:12px 12px; text-align:right;">
+                        <a href="{% url 'conversacion_detalle' conv.remote_jid %}" class="btn btn-secondary" style="padding:6px 14px; font-size:0.8rem;">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:60px 20px; color:var(--color-text-muted);">
+        <i class="fas fa-comments" style="font-size:2.5rem; opacity:0.2; margin-bottom:16px; display:block;"></i>
+        <p style="font-size:0.9rem;">No hay conversaciones aún.</p>
+        <p style="font-size:0.8rem; margin-top:6px; opacity:0.6;">Los chats de WhatsApp aparecerán aquí cuando lleguen mensajes.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base_control.html" %}
+
+{% block title %}Mi Perfil — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-eyebrow">Cuenta</div>
+    <h1 class="page-title">Mi Perfil</h1>
+    <p class="page-subtitle">Actualiza tu nombre de usuario y contraseña</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:860px;">
+
+    <!-- Cambiar nombre -->
+    <div class="panel">
+        <div class="panel-title">Nombre de usuario</div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label class="field-label">Nombre actual</label>
+                <input type="text" class="field-input" value="{{ user.nombre }}" disabled
+                    style="opacity:0.5; cursor:not-allowed;">
+            </div>
+            <div class="field">
+                <label class="field-label">Nuevo nombre</label>
+                <input type="text" name="nombre" class="field-input"
+                    placeholder="Ingresa el nuevo nombre" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+                <i class="fas fa-check"></i> Actualizar nombre
+            </button>
+        </form>
+    </div>
+
+    <!-- Cambiar contraseña -->
+    <div class="panel">
+        <div class="panel-title">Contraseña</div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label class="field-label">Contraseña actual</label>
+                <input type="password" name="password_actual" class="field-input"
+                    placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div class="field">
+                <label class="field-label">Nueva contraseña</label>
+                <input type="password" name="nuevo_password" class="field-input"
+                    placeholder="••••••••" autocomplete="new-password">
+                <span class="field-hint">Mínimo 6 caracteres</span>
+            </div>
+            <div class="field">
+                <label class="field-label">Confirmar nueva contraseña</label>
+                <input type="password" name="confirmar_password" class="field-input"
+                    placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+                <i class="fas fa-lock"></i> Cambiar contraseña
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

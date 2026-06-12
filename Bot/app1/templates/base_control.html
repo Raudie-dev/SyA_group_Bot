@@ -404,6 +404,10 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div id="avatar-dropdown">
+                    <a href="{% url 'perfil' %}" style="color:var(--color-text);">
+                        <i class="fas fa-user-pen"></i>
+                        Mi perfil
+                    </a>
                     <a href="{% url 'logout' %}">
                         <i class="fas fa-arrow-right-from-bracket"></i>
                         Cerrar sesion
@@ -436,6 +440,12 @@
            href="{% url 'whatsapp_configuracion' %}">
             <i class="fab fa-whatsapp"></i>
             <span>WhatsApp</span>
+        </a>
+
+        <a class="sidebar-link {% if request.resolver_match.url_name == 'conversaciones' or request.resolver_match.url_name == 'conversacion_detalle' %}active{% endif %}"
+           href="{% url 'conversaciones' %}">
+            <i class="fas fa-comments"></i>
+            <span>Conversaciones</span>
         </a>
 
         <div class="sidebar-label">Equipo</div>

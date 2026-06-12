@@ -29,5 +29,8 @@ urlpatterns = [
     path('reset-chat/', views.reset_chat, name='reset_chat'),
     path('queue/drain/', views.queue_drain, name='queue_drain'),
     path('queue/status/', views.queue_status, name='queue_status'),
+    path('conversaciones/', views.conversaciones, name='conversaciones'),
+    path('conversaciones/<str:remote_jid>/', views.conversacion_detalle, name='conversacion_detalle'),
+    path('perfil/', views.perfil, name='perfil'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

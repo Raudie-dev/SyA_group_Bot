@@ -22,6 +22,7 @@ class ConfigBot(models.Model):
     ]
     api_provider = models.CharField(max_length=20, choices=API_PROVIDERS, default='deepseek', help_text='Proveedor de IA')
     api_key = models.CharField(max_length=100, blank=True, null=True, help_text='API Key del proveedor seleccionado')
+    max_response_chars = models.IntegerField(default=1000, help_text='Límite de caracteres en respuestas del bot')
 
     def __str__(self):
         return self.nombre

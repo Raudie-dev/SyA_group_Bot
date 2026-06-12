@@ -498,6 +498,9 @@ def public_chat(request):
         )
         resp.raise_for_status()
         raw_reply = resp.json()['choices'][0]['message']['content'].strip()
+        max_chars = getattr(bot, 'max_response_chars', 1000)
+        if max_chars and len(raw_reply) > max_chars:
+            raw_reply = raw_reply[:max_chars].rsplit(' ', 1)[0] + '…'
     except Exception as e:
         print('[DeepSeek error]', e)
         return JsonResponse({'ok': False, 'error': f'Error IA: {e}'}, status=500)
@@ -781,6 +784,9 @@ def whatsapp_webhook(request):
             )
             if resp.status_code == 200:
                 reply = resp.json()['choices'][0]['message']['content'].strip()
+                max_chars = getattr(config, 'max_response_chars', 1000)
+                if max_chars and len(reply) > max_chars:
+                    reply = reply[:max_chars].rsplit(' ', 1)[0] + '…'
             else:
                 print(f'[DeepSeek] Error {resp.status_code}: {resp.text}')
         except Exception:
@@ -1191,3 +1197,89 @@ def queue_status(request):
         })
     except Exception as e:
         return JsonResponse({'ok': False, 'pending': 0, 'error': str(e)})
+    
+def conversaciones(request):
+    user = _get_session_user(request)
+    if not user:
+        return redirect('login')
+
+    bot = ConfigBot.objects.filter(owner=user).first()
+    if not bot:
+        return render(request, 'conversaciones.html', {'conversaciones': [], 'user': user})
+
+    from django.db.models import Max, Count
+    convs = WhatsAppMessage.objects.filter(bot=bot).values(
+        'remote_jid', 'push_name'
+    ).annotate(
+        ultimo_mensaje=Max('received_at'),
+        total_mensajes=Count('id'),
+        transferido=Max('transferido')
+    ).order_by('-ultimo_mensaje')
+
+    return render(request, 'conversaciones.html', {
+        'conversaciones': convs,
+        'user': user,
+        'bot': bot
+    })
+
+
+def conversacion_detalle(request, remote_jid):
+    user = _get_session_user(request)
+    if not user:
+        return redirect('login')
+
+    bot = ConfigBot.objects.filter(owner=user).first()
+    if not bot:
+        return redirect('conversaciones')
+
+    import urllib.parse
+    remote_jid_decoded = urllib.parse.unquote(remote_jid)
+
+    mensajes = WhatsAppMessage.objects.filter(
+        bot=bot, remote_jid=remote_jid_decoded
+    ).order_by('received_at')
+
+    return render(request, 'conversacion_detalle.html', {
+        'mensajes': mensajes,
+        'remote_jid': remote_jid_decoded,
+        'user': user,
+        'bot': bot
+    })
+    
+def perfil(request):
+    user = _get_session_user(request)
+    if not user:
+        return redirect('login')
+
+    if request.method == 'POST':
+        nuevo_nombre = request.POST.get('nombre', '').strip()
+        password_actual = request.POST.get('password_actual', '')
+        nuevo_password = request.POST.get('nuevo_password', '').strip()
+        confirmar_password = request.POST.get('confirmar_password', '').strip()
+
+        if nuevo_nombre and nuevo_nombre != user.nombre:
+            if User_admin.objects.filter(nombre=nuevo_nombre).exclude(id=user.id).exists():
+                messages.error(request, 'Ese nombre de usuario ya está en uso.')
+                return redirect('perfil')
+            user.nombre = nuevo_nombre
+            user.save()
+            messages.success(request, 'Nombre actualizado correctamente.')
+
+        if nuevo_password:
+            from django.contrib.auth.hashers import check_password, make_password
+            if not (check_password(password_actual, user.password) or user.password == password_actual):
+                messages.error(request, 'Contraseña actual incorrecta.')
+                return redirect('perfil')
+            if nuevo_password != confirmar_password:
+                messages.error(request, 'Las contraseñas nuevas no coinciden.')
+                return redirect('perfil')
+            if len(nuevo_password) < 6:
+                messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
+                return redirect('perfil')
+            user.password = make_password(nuevo_password)
+            user.save()
+            messages.success(request, 'Contraseña actualizada correctamente.')
+
+        return redirect('perfil')
+
+    return render(request, 'perfil.html', {'user': user})
