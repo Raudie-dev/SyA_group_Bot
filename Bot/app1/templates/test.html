@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Topográfico Orgánico (Líneas Sólidas)</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #e5e5e5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* El canvas se queda fijo en el fondo */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Capa de texto sobre el fondo con un ligero desenfoque para que se lea perfecto */
+        .content-overlay {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+            color: #222222;
+            text-align: center;
+        }
+
+        .glass-box {
+            background: rgba(229, 229, 229, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 30px 40px;
+            border-radius: 12px;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #111;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #444;
+            margin: 0;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+
+    <div class="content-overlay">
+        <div class="glass-box">
+            <h1>Líneas Topográficas</h1>
+            <p>Efecto real de curvas de nivel concéntricas (anillos e islas cerradas) generado dinámicamente mediante ruido de Perlin bidimensional.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- PARÁMETROS PARA EDITAR EL EFECTO ---
+        // Reduje resolution a 4 para que los micro-segmentos se unan de forma ultra precisa y suave
+        const resolution = 4;       
+        const noiseScale = 0.0035;  // Escala del ruido (tamaño de los anillos)
+        const numLevels = 16;       // Cantidad de curvas/anillos totales
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            noLoop(); // Renderizado estático exacto
+        }
+
+        function draw() {
+            background('#e5e5e5'); // Fondo gris claro uniforme
+            stroke('#222222');     // Color oscuro limpio para las curvas
+            strokeWeight(1.2);     // Grosor de línea estilizado
+            noFill();
+
+            // Aseguramos que los bordes de cada línea se unan de forma redondeada y natural
+            strokeJoin(ROUND);
+            strokeCap(ROUND);
+
+            // Generamos las alturas de nivel
+            let levels = [];
+            for (let i = 1; i <= numLevels; i++) {
+                levels.push(i / (numLevels + 1));
+            }
+
+            // Algoritmo de Isolinas mediante escaneo de rejilla
+            for (let x = 0; x < width; x += resolution) {
+                for (let y = 0; y < height; y += resolution) {
+                    
+                    let n1 = noise(x * noiseScale, y * noiseScale);
+                    let n2 = noise((x + resolution) * noiseScale, y * noiseScale);
+                    let n3 = noise((x + resolution) * noiseScale, (y + resolution) * noiseScale);
+                    let n4 = noise(x * noiseScale, (y + resolution) * noiseScale);
+
+                    for (let lvl of levels) {
+                        let b1 = n1 >= lvl ? 1 : 0;
+                        let b2 = n2 >= lvl ? 1 : 0;
+                        let b3 = n3 >= lvl ? 1 : 0;
+                        let b4 = n4 >= lvl ? 1 : 0;
+
+                        let sum = b1 + b2 + b3 + b4;
+
+                        // Si el plano corta la celda, conectamos los puntos de manera sólida continua
+                        if (sum > 0 && sum < 4) {
+                            let xA = x + resolution / 2;
+                            let yA = y;
+                            let xB = x + resolution;
+                            let yB = y + resolution / 2;
+                            let xC = x + resolution / 2;
+                            let yC = y + resolution;
+                            let xD = x;
+                            let yD = y + resolution / 2;
+
+                            if (b1 !== b2) line(xA, yA, xD, yD);
+                            if (b2 !== b3) line(xA, yA, xB, yB);
+                            if (b3 !== b4) line(xB, yB, xC, yC);
+                            if (b4 !== b1) line(xC, yC, xD, yD);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Se adapta automáticamente si cambias el tamaño de la pantalla
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            redraw();
+        }
+    </script>
+</body>
+</html>

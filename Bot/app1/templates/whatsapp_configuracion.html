@@ -1,0 +1,300 @@
+{% extends 'base_control.html' %}
+{% block title %}WhatsApp — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+    <div>
+        <div class="page-eyebrow">Conexion</div>
+        <h1 class="page-title">WhatsApp</h1>
+        <p class="page-subtitle">Genera el QR y administra la conexion del bot.</p>
+    </div>
+    <a href="{% url 'configuracion' %}" class="btn btn-secondary" style="margin-top:6px;">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+    </a>
+</div>
+
+{% if bot %}
+
+<div class="panel" style="max-width:480px;">
+    <div class="panel-title">Estado de conexion</div>
+
+    <!-- Status badge -->
+    <div style="margin-bottom:20px;">
+        {% if bot_status == 'connected' %}
+        <div class="status-badge status-connected">
+            <span class="status-dot"></span>
+            <i class="fas fa-circle-check"></i>
+            Conectado
+        </div>
+        {% elif bot_status == 'initializing' %}
+        <div class="status-badge status-initializing">
+            <span class="status-dot"></span>
+            <i class="fas fa-spinner fa-spin"></i>
+            Inicializando
+        </div>
+        {% elif bot_status == 'unlinked' %}
+        <div class="status-badge status-unlinked">
+            <span class="status-dot"></span>
+            <i class="fas fa-link-slash"></i>
+            Desvinculado
+        </div>
+        {% else %}
+        <div class="status-badge status-unknown">
+            <span class="status-dot"></span>
+            <i class="fas fa-circle-question"></i>
+            Sin conexion
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px;">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="generate_qr" value="1">
+            <button class="btn btn-primary" type="submit" {% if bot_status == 'connected' %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                <i class="fas fa-qrcode"></i>
+                {% if bot_status == 'connected' %}Ya conectado{% else %}Generar QR{% endif %}
+            </button>
+        </form>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="unlink" value="1">
+            <button class="btn btn-danger" type="submit">
+                <i class="fas fa-link-slash"></i>
+                Desvincular
+            </button>
+        </form>
+    </div>
+
+    <!-- QR display -->
+    {% if qr %}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+        <div style="padding:12px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.25); display:inline-flex;">
+            <img
+                id="qr-img"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ qr|urlencode }}"
+                alt="QR WhatsApp"
+                style="display:block; border-radius:6px; width:240px; height:240px;"
+            >
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; font-size:0.82rem; color:var(--color-text-muted);">
+            <i class="fab fa-whatsapp" style="color:var(--color-brand-green);"></i>
+            Escanea con WhatsApp para conectar
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:0.75rem; color:var(--color-text-muted);">
+            <span style="width:6px; height:6px; background:var(--color-brand-orange); border-radius:50%; animation:pulse-dot 1.5s infinite; display:inline-block;"></span>
+            Actualizando automaticamente
+        </div>
+    </div>
+
+    {% else %}
+    <div id="qr-area" style="display:flex; flex-direction:column; align-items:center; gap:10px; padding:32px 0; text-align:center;">
+        <i class="fas fa-qrcode" style="font-size:2.4rem; color:var(--color-surface-light);"></i>
+        <p id="qr-status" style="font-size:0.86rem; color:var(--color-text-muted); max-width:300px; line-height:1.6;">
+            Presiona "Generar QR" para iniciar la conexion.
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Cola de mensajes pendientes -->
+<div class="panel" id="queue-panel" style="max-width:480px; margin-top:20px;">
+    <div class="panel-title">
+        <i class="fas fa-layer-group" style="color:var(--color-brand-orange);"></i>
+        Cola de mensajes pendientes
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div id="queue-info" style="font-size:0.88rem; color:var(--color-text-muted); line-height:1.6;">
+            <span id="queue-count">—</span> mensaje(s) en cola
+            <br>
+            <span style="font-size:0.78rem; opacity:0.7;">
+                Se envian automaticamente al reconectar WhatsApp (5 seg entre cada uno).
+            </span>
+        </div>
+        <button id="drain-btn" class="btn btn-secondary" onclick="drainQueue()" style="white-space:nowrap;">
+            <i class="fas fa-paper-plane"></i>
+            Enviar pendientes
+        </button>
+    </div>
+</div>
+
+<!-- Instructions -->
+<div class="panel" style="max-width:480px; margin-top:20px;">
+    <div class="panel-title">Como conectar</div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="width:24px; height:24px; background:var(--color-brand-blue); border-radius:50%; display:grid; place-items:center; flex-shrink:0; font-size:0.72rem; font-weight:700; color:#fff;">1</div>
+            <p style="font-size:0.86rem; color:var(--color-text-muted); line-height:1.5; margin:0;">Presiona <strong style="color:var(--color-text);">Generar QR</strong> y espera que aparezca el codigo.</p>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="width:24px; height:24px; background:var(--color-brand-blue); border-radius:50%; display:grid; place-items:center; flex-shrink:0; font-size:0.72rem; font-weight:700; color:#fff;">2</div>
+            <p style="font-size:0.86rem; color:var(--color-text-muted); line-height:1.5; margin:0;">Abre WhatsApp en tu telefono, ve a <strong style="color:var(--color-text);">Dispositivos vinculados</strong> y selecciona "Vincular dispositivo".</p>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="width:24px; height:24px; background:var(--color-brand-blue); border-radius:50%; display:grid; place-items:center; flex-shrink:0; font-size:0.72rem; font-weight:700; color:#fff;">3</div>
+            <p style="font-size:0.86rem; color:var(--color-text-muted); line-height:1.5; margin:0;">Escanea el QR. El estado cambiara a <strong style="color:var(--color-brand-green-light);">Conectado</strong> automaticamente.</p>
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+<div class="panel" style="max-width:420px; text-align:center; padding:48px 32px;">
+    <i class="fas fa-mobile-screen" style="font-size:2.4rem; color:var(--color-surface-light); display:block; margin-bottom:16px;"></i>
+    <div style="font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:var(--color-text); margin-bottom:8px;">
+        Configura el bot primero
+    </div>
+    <p style="font-size:0.86rem; color:var(--color-text-muted); line-height:1.6; margin-bottom:24px;">
+        Guarda la configuracion general del bot antes de conectar WhatsApp.
+    </p>
+    <a href="{% url 'configuracion' %}" class="btn btn-primary">
+        <i class="fas fa-sliders"></i>
+        Ir a configuracion
+    </a>
+</div>
+
+{% endif %}
+
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 9px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+    .status-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .status-connected {
+        background: rgba(134,191,48,0.1);
+        border-color: rgba(134,191,48,0.25);
+        color: var(--color-brand-green-light);
+    }
+    .status-connected .status-dot {
+        background: var(--color-brand-green);
+        box-shadow: 0 0 6px var(--color-brand-green);
+        animation: pulse-dot 2s infinite;
+    }
+    .status-initializing {
+        background: rgba(3,103,166,0.1);
+        border-color: rgba(3,103,166,0.25);
+        color: var(--color-brand-blue-light);
+    }
+    .status-initializing .status-dot {
+        background: var(--color-brand-blue-light);
+        animation: pulse-dot 1s infinite;
+    }
+    .status-unlinked {
+        background: rgba(255,140,66,0.1);
+        border-color: rgba(255,140,66,0.25);
+        color: var(--color-brand-orange);
+    }
+    .status-unlinked .status-dot { background: var(--color-brand-orange); }
+    .status-unknown {
+        background: rgba(122,148,176,0.1);
+        border-color: rgba(122,148,176,0.2);
+        color: var(--color-text-muted);
+    }
+    .status-unknown .status-dot { background: var(--color-text-muted); }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.5; transform: scale(1.6); }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+{% if bot %}
+<script>
+    async function pollQr() {
+        try {
+            const resp = await fetch('{% url "qr_json" %}?bot_id={{ bot.id }}');
+            if (!resp.ok) return;
+            const data = await resp.json();
+            const qr     = data.qr;
+            const status = data.status;
+
+            // Actualizar contador de cola desde /queue/status/
+            updateQueueCount();
+
+            if (status === 'connected') {
+                clearInterval(pollInterval);
+                setTimeout(() => window.location.reload(), 1500);
+                return;
+            }
+
+            let img    = document.getElementById('qr-img');
+            const area = document.getElementById('qr-area');
+
+            if (qr) {
+                const src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(qr);
+                if (img) {
+                    img.src = src;
+                } else if (area) {
+                    area.innerHTML = `
+                        <div style="padding:12px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.25); display:inline-flex;">
+                            <img id="qr-img" src="${src}" alt="QR WhatsApp" style="display:block; border-radius:6px; width:240px; height:240px;">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:7px; font-size:0.82rem; color:var(--color-text-muted);">
+                            <i class="fab fa-whatsapp" style="color:var(--color-brand-green);"></i>
+                            Escanea con WhatsApp para conectar
+                        </div>
+                    `;
+                }
+            }
+        } catch (e) {
+            console.error('Error al obtener QR:', e);
+        }
+    }
+
+    async function updateQueueCount() {
+        try {
+            const r = await fetch('{% url "queue_status" %}');
+            if (!r.ok) return;
+            const d = await r.json();
+            const countEl = document.getElementById('queue-count');
+            const drainBtn = document.getElementById('drain-btn');
+            const pending = d.pending || 0;
+            if (countEl) countEl.textContent = pending;
+            if (drainBtn) {
+                drainBtn.disabled = pending === 0 || d.status !== 'connected';
+            }
+        } catch (e) {}
+    }
+
+    async function drainQueue() {
+        const btn = document.getElementById('drain-btn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; }
+        try {
+            const r = await fetch('{% url "queue_drain" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' }
+            });
+            const d = await r.json();
+            alert(d.message || (d.ok ? 'Drenado iniciado.' : 'Error: ' + d.error));
+        } catch (e) {
+            alert('Error al iniciar el drenado: ' + e.message);
+        } finally {
+            if (btn) { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar pendientes'; }
+            updateQueueCount();
+        }
+    }
+
+    const pollInterval = setInterval(pollQr, 3000);
+    updateQueueCount(); // carga inicial
+</script>
+{% endif %}
+{% endblock %}

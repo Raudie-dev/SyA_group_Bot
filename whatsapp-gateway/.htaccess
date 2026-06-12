@@ -1,0 +1,12 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/sbxp03tfgozj/repos/SyA_group_Bot-master/whatsapp-gateway"
+PassengerBaseURI "/"
+PassengerNodejs "/home/sbxp03tfgozj/nodevenv/repos/SyA_group_Bot-master/whatsapp-gateway/24/bin/node"
+PassengerAppType node
+PassengerStartupFile index.js
+PassengerAppLogFile "/home/sbxp03tfgozj/repos/SyA_group_Bot-master/whatsapp-gateway/whatsapp.log"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

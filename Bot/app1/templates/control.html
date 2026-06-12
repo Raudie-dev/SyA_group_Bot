@@ -1,0 +1,133 @@
+{% extends "base_control.html" %}
+{% block title %}Estado — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="page-eyebrow">Panel de control</div>
+    <h1 class="page-title">Estado del Bot</h1>
+    <p class="page-subtitle">Monitorea y gestiona la conexion de WhatsApp en tiempo real.</p>
+</div>
+
+{% if bot_statuses %}
+    {% for status in bot_statuses %}
+    <div class="panel" style="max-width: 560px;">
+        <div class="panel-title">{{ status.bot.nombre }}</div>
+
+        <div style="margin-bottom: 24px;">
+            {% if status.status == 'connected' %}
+            <div class="status-badge status-connected">
+                <span class="status-dot"></span>
+                <i class="fas fa-circle-check"></i>
+                Conectado — Sesion activa
+            </div>
+
+            {% elif status.status == 'initializing' %}
+            <div class="status-badge status-initializing">
+                <span class="status-dot"></span>
+                <i class="fas fa-spinner fa-spin"></i>
+                Inicializando — Generando QR
+            </div>
+
+            {% elif status.status == 'unlinked' %}
+            <div class="status-badge status-unlinked">
+                <span class="status-dot"></span>
+                <i class="fas fa-link-slash"></i>
+                Telefono desvinculado
+            </div>
+
+            {% else %}
+            <div class="status-badge status-unknown">
+                <span class="status-dot"></span>
+                <i class="fas fa-circle-question"></i>
+                Sin conexion
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="{% url 'configuracion' %}" class="btn btn-secondary">
+                <i class="fas fa-sliders"></i>
+                Configuracion
+            </a>
+            <a href="{% url 'whatsapp_configuracion' %}" class="btn btn-primary">
+                <i class="fab fa-whatsapp"></i>
+                Gestionar WhatsApp
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <div class="panel" style="max-width: 480px; text-align:center; padding: 48px 32px;">
+        <div style="font-size:2.5rem; color:var(--color-surface-light); margin-bottom:16px;">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div style="font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--color-text); margin-bottom:8px;">
+            Sin bot configurado
+        </div>
+        <p style="font-size:0.875rem; color:var(--color-text-muted); line-height:1.6; margin-bottom:24px;">
+            Aun no tienes un bot configurado. Crea uno para empezar a atender clientes en WhatsApp.
+        </p>
+        <a href="{% url 'configuracion' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Configurar bot
+        </a>
+    </div>
+{% endif %}
+
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 18px;
+        border-radius: 9px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+    .status-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .status-connected {
+        background: rgba(134,191,48,0.1);
+        border-color: rgba(134,191,48,0.25);
+        color: var(--color-brand-green-light);
+    }
+    .status-connected .status-dot {
+        background: var(--color-brand-green);
+        box-shadow: 0 0 6px var(--color-brand-green);
+        animation: pulse-dot 2s infinite;
+    }
+    .status-initializing {
+        background: rgba(3,103,166,0.1);
+        border-color: rgba(3,103,166,0.25);
+        color: var(--color-brand-blue-light);
+    }
+    .status-initializing .status-dot {
+        background: var(--color-brand-blue-light);
+        animation: pulse-dot 1s infinite;
+    }
+    .status-unlinked {
+        background: rgba(255,140,66,0.1);
+        border-color: rgba(255,140,66,0.25);
+        color: var(--color-brand-orange);
+    }
+    .status-unlinked .status-dot { background: var(--color-brand-orange); }
+    .status-unknown {
+        background: rgba(122,148,176,0.1);
+        border-color: rgba(122,148,176,0.2);
+        color: var(--color-text-muted);
+    }
+    .status-unknown .status-dot { background: var(--color-text-muted); }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.5; transform: scale(1.6); }
+    }
+</style>
+
+{% endblock %}
