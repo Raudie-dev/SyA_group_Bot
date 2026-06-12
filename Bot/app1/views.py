@@ -653,12 +653,6 @@ def public_chat(request):
 
 @csrf_exempt
 def whatsapp_webhook(request):
-    """Webhook que recibe mensajes desde el servicio Node.js.
-
-    Espera un POST JSON con: remoteJid, pushName, messageText
-    Retorna JSON con la respuesta que Node.js deberá reenviar al usuario.
-    """
-
     secret = request.headers.get('X-Webhook-Secret', '')
     if secret != getattr(settings, 'WEBHOOK_SECRET', ''):
         return JsonResponse({'error': 'No autorizado'}, status=401)
@@ -666,53 +660,32 @@ def whatsapp_webhook(request):
     if request.method != 'POST':
         return HttpResponseBadRequest('Only POST allowed')
 
-    try:
-        payload = request.body
-        data = request.json if False else None
-    except Exception:
-        data = None
-
-    # prefer json parsing via request.POST or request.body
-    try:
-        data = request.headers.get('Content-Type', '').startswith('application/json') and request.json if hasattr(request, 'json') else None
-    except Exception:
-        data = None
-
-    # fallback: use Django's json parsing
-    import json
+    import json, re
     try:
         data = json.loads(request.body.decode('utf-8'))
     except Exception:
         return HttpResponseBadRequest('Invalid JSON')
 
-    remoteJid = data.get('remoteJid')
-    pushName = data.get('pushName')
-    messageText = data.get('messageText', '')
+    remoteJid   = data.get('remoteJid', '')
+    pushName    = data.get('pushName', '')
+    messageText = data.get('messageText', '').strip()
 
+    # Parsear owner_id y slot desde session "userId_slotId"
     owner_id = None
-    slot = None
+    slot     = None
     try:
         owner_id = data.get('owner') or None
-        session = data.get('session')
+        session  = data.get('session', '')
         if session:
-            parts = str(session).split('_', 1)
+            parts    = str(session).split('_', 1)
             owner_id = parts[0]
-            if len(parts) > 1:
-                slot = parts[1]
-        if owner_id is not None:
-            try:
-                owner_id = int(owner_id)
-            except Exception:
-                owner_id = None
-        if slot is not None:
-            try:
-                slot = int(slot)
-            except Exception:
-                slot = None
+            slot     = parts[1] if len(parts) > 1 else None
+        owner_id = int(owner_id) if owner_id else None
+        slot     = int(slot)     if slot     else None
     except Exception:
-        owner_id = None
-        slot = None
+        owner_id = slot = None
 
+    # Resolver ConfigBot
     config = None
     if owner_id and slot:
         config = ConfigBot.objects.filter(owner__id=owner_id, id=slot).first()
@@ -721,152 +694,180 @@ def whatsapp_webhook(request):
     if not config:
         config = ConfigBot.objects.filter(owner__isnull=True).first()
 
-    # Guardar mensaje entrante en la base de datos para revisión desde el panel
-    try:
-        if config:
-            WhatsAppMessage.objects.create(bot=config, remote_jid=remoteJid or '', push_name=pushName or '', message_text=messageText or '')
-    except Exception:
-        # no bloquear el webhook por fallos de persistencia
-        pass
-
-    instrucciones = config.instrucciones_ia if config else ''
-    bienvenida = config.mensaje_bienvenida if config else 'Hola'
-    api_key = config.api_key if config else ''
-
-    # Historial de conversacion
-    historial = WhatsAppMessage.objects.filter(
-        bot=config,
-        remote_jid=remoteJid
-    ).order_by('received_at')
-
-    # Verificar si ya fue transferido
-    if historial.filter(transferido=True).exists():
+    if not config:
         return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
 
-    # Construir mensajes con historial
-    messages_ia = [{"role": "system", "content": instrucciones}]
-    for msg in historial:
-        if msg.message_text:
-            messages_ia.append({"role": "user", "content": msg.message_text})
-        if msg.reply_text:
-            messages_ia.append({"role": "assistant", "content": msg.reply_text})
-    messages_ia.append({"role": "user", "content": messageText})
+    # Verificar si ya fue transferido ANTES de guardar
+    ya_transferido = WhatsAppMessage.objects.filter(
+        bot=config, remote_jid=remoteJid, transferido=True
+    ).exists()
+    if ya_transferido:
+        return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
 
-    # Siempre responder usando DeepSeek API
-    reply = 'Gracias por tu mensaje. En breve te respondemos.'
+    # Sanitizar input
+    PATRON_CONTROL = re.compile(
+        r'(<<[A-Z_]+[^>]*>>|TRANSFER_JSON\s*:\s*\{[^}]*\})',
+        re.IGNORECASE
+    )
+    messageText = PATRON_CONTROL.sub('', messageText).strip()
+    if not messageText:
+        return JsonResponse({'remoteJid': remoteJid, 'reply': ''})
+
+    # Guardar mensaje entrante
+    WhatsAppMessage.objects.create(
+        bot=config,
+        remote_jid=remoteJid,
+        push_name=pushName,
+        message_text=messageText
+    )
+
+    # Cargar historial (ultimos 20, excluyendo el recien guardado)
+    historial = WhatsAppMessage.objects.filter(
+        bot=config, remote_jid=remoteJid
+    ).order_by('received_at')
+
+    total = historial.count()
+    if total > 1:
+        historial_previo = historial[max(0, total - 21): total - 1]
+    else:
+        historial_previo = []
+
+    # Construir system prompt con contexto de archivos y departamentos
+    instrucciones = config.instrucciones_ia or ''
+    context_text  = _load_context_from_bot(config)
+
+    departamentos_disponibles = Departamento.objects.filter(owner=config.owner)
+    dptos_texto = ''
+    if departamentos_disponibles.exists():
+        dptos_texto = '\n\nDEPARTAMENTOS DISPONIBLES PARA TRANSFERENCIA:\n'
+        for dpto in departamentos_disponibles:
+            desc = f' — {dpto.descripcion}' if dpto.descripcion else ''
+            dptos_texto += f'- {dpto.nombre.lower()}{desc}\n'
+        dptos_texto += (
+            '\nCuando debas transferir usa exactamente:\n'
+            '<<TRANSFERIR:nombre_departamento>>\n'
+            'Donde nombre_departamento es uno de los listados arriba en minuscula.'
+        )
+
+    system_content = instrucciones.strip()
+    if context_text:
+        system_content += f'\n\nArchivos de contexto:\n{context_text}'
+    if dptos_texto:
+        system_content += dptos_texto
+
+    # Construir messages con historial previo + mensaje actual
+    messages_ia = [{'role': 'system', 'content': system_content}]
+    for msg in historial_previo:
+        if msg.message_text:
+            messages_ia.append({'role': 'user',      'content': msg.message_text})
+        if msg.reply_text:
+            messages_ia.append({'role': 'assistant', 'content': msg.reply_text})
+    messages_ia.append({'role': 'user', 'content': messageText})
+
+    # Llamar DeepSeek
+    api_key = config.api_key or ''
+    reply   = 'Gracias por tu mensaje. En breve te respondemos.'
+
     if api_key and instrucciones:
         try:
-            deepseek_url = 'https://api.deepseek.com/v1/chat/completions'
-            headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json',
-            }
-            payload = {
-                "model": "deepseek-chat",
-                "messages": messages_ia
-            }
-            resp = requests.post(deepseek_url, json=payload, headers=headers, timeout=15)
-            # Log para depuración
-            print("[DeepSeek] status:", resp.status_code)
-            print("[DeepSeek] response:", resp.text)
+            resp = requests.post(
+                'https://api.deepseek.com/v1/chat/completions',
+                json={'model': 'deepseek-chat', 'messages': messages_ia},
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                },
+                timeout=20
+            )
             if resp.status_code == 200:
-                data = resp.json()
-                if 'choices' in data and data['choices'] and 'message' in data['choices'][0]:
-                    reply = data['choices'][0]['message']['content'].strip()
-                else:
-                    reply = '[DeepSeek error] Respuesta inesperada: ' + str(data)
+                reply = resp.json()['choices'][0]['message']['content'].strip()
             else:
-                reply = f"[DeepSeek error {resp.status_code}] {resp.text}"
-        except Exception as e:
+                print(f'[DeepSeek] Error {resp.status_code}: {resp.text}')
+        except Exception:
             import traceback
             print('[DeepSeek Exception]', traceback.format_exc())
-            reply = f"[Error DeepSeek] {e}"
 
-    # Detectar si la IA decidio transferir
-    TRANSFER_FLAG = '<<TRANSFERIR>>'
-    transferir = TRANSFER_FLAG in reply
-    reply_limpio = reply.replace(TRANSFER_FLAG, '').strip()
+    # Limpiar flags de transferencia del reply
+    match_flag   = re.search(r'<<TRANSFERIR:([^>]+)>>', reply)
+    match_simple = re.search(r'<<TRANSFERIR>>', reply)
+    reply_limpio = re.sub(r'<<TRANSFERIR[^>]*>>', '', reply).strip()
 
-    if transferir and config:
+    transferir  = bool(match_flag or match_simple)
+    dpto_nombre = match_flag.group(1).strip() if match_flag else ''
+
+    # Guardar respuesta en BD
+    from django.utils.timezone import now
+    ultimo = WhatsAppMessage.objects.filter(
+        bot=config, remote_jid=remoteJid, reply_text__isnull=True
+    ).order_by('-received_at').first()
+    if ultimo:
+        ultimo.reply_text = reply_limpio
+        ultimo.replied    = True
+        ultimo.replied_at = now()
+        ultimo.save()
+
+    # Procesar transferencia
+    if transferir:
         try:
-            # Buscar departamento y agente
-            from .models import Agente
-            import json as json_module
-
-            # Extraer nombre de departamento del reply si la IA lo indica
-            # Formato esperado: <<TRANSFERIR:nombre_departamento>>
-            dpto_nombre = None
-            import re
-            match = re.search(r'<<TRANSFERIR:([^>]+)>>', reply)
-            if match:
-                dpto_nombre = match.group(1).strip()
-                reply_limpio = re.sub(r'<<TRANSFERIR:[^>]+>>', '', reply).strip()
-
             agentes_destino = []
             if dpto_nombre:
                 agentes_destino = list(Agente.objects.filter(
                     departamentos__nombre__iexact=dpto_nombre,
-                    activo=True,
-                    owner=config.owner
+                    activo=True, owner=config.owner
                 ))
             if not agentes_destino:
                 agentes_destino = list(Agente.objects.filter(
-                    activo=True,
-                    owner=config.owner
+                    activo=True, owner=config.owner
                 ))
 
-            # Construir resumen para el agente
+            historial_completo = WhatsAppMessage.objects.filter(
+                bot=config, remote_jid=remoteJid
+            ).order_by('received_at')
+
             resumen_lines = []
-            for msg in historial:
+            for msg in historial_completo:
                 if msg.message_text:
-                    resumen_lines.append(f"Cliente: {msg.message_text}")
+                    resumen_lines.append(f'Cliente: {msg.message_text}')
                 if msg.reply_text:
-                    resumen_lines.append(f"Bot: {msg.reply_text}")
-            resumen_lines.append(f"Cliente: {messageText}")
+                    resumen_lines.append(f'Bot: {msg.reply_text}')
 
             mensaje_agente = (
-                f"NUEVA CONSULTA — {dpto_nombre or 'General'}\n"
-                f"Cliente: {pushName or remoteJid}\n"
-                f"Numero: {remoteJid.replace('@s.whatsapp.net', '') if remoteJid else ''}\n\n"
-                f"Resumen:\n" + "\n".join(resumen_lines)
+                f'NUEVA CONSULTA — {dpto_nombre or "General"}\n'
+                f'Cliente: {pushName or remoteJid}\n'
+                f'Numero: {remoteJid.replace("@s.whatsapp.net", "") if remoteJid else ""}\n\n'
+                f'Resumen:\n' + '\n'.join(resumen_lines)
             )
 
             gateway = settings.WHATSAPP_GATEWAY_URL
-
             for agente in agentes_destino:
                 numero = agente.numero_whatsapp.strip().replace('+','').replace(' ','').replace('-','')
                 if not numero.isdigit() or len(numero) < 8:
                     continue
                 try:
                     requests.post(
-                        f"{gateway}/send",
+                        f'{gateway}/send',
                         json={
-                            'number': numero,
+                            'number':  numero,
                             'message': mensaje_agente,
-                            'user': str(owner_id),
-                            'slot': str(slot) if slot else '0'
+                            'user':    str(owner_id),
+                            'slot':    str(slot) if slot else '0'
                         },
                         timeout=8
                     )
-                    print(f'[DEBUG] Enviado a {agente.nombre} — {numero}')
+                    print(f'[Transferencia] Enviado a {agente.nombre}')
                 except Exception as ex:
                     print(f'[Transferencia] Error enviando a {agente.nombre}:', ex)
 
-            # Marcar conversacion como transferida
+            # Marcar como transferido
             WhatsAppMessage.objects.filter(
-                bot=config,
-                remote_jid=remoteJid
+                bot=config, remote_jid=remoteJid
             ).update(transferido=True)
 
-        except Exception as e:
-            print('[Transferencia error]', e)
+        except Exception:
+            import traceback
+            print('[Transferencia error]', traceback.format_exc())
 
-    response = {
-        'remoteJid': remoteJid,
-        'reply': reply_limpio,
-    }
-
-    return JsonResponse(response)
+    return JsonResponse({'remoteJid': remoteJid, 'reply': reply_limpio})
 
 def send_message(request):
     """Recibe número y mensaje desde el panel y reenvía al gateway Node (/send).

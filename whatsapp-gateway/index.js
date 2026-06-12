@@ -4,6 +4,7 @@
 // - Cola de mensajes persistente: si WhatsApp está caído, encola y drena al reconectar
 // - Endpoints /health y /queue para monitoreo y control
 
+import 'dotenv/config';
 import express from 'express';
 import axios from 'axios';
 import qrcode from 'qrcode-terminal';

@@ -12,19 +12,22 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4y8s5^1l@i@bz90rjcqxuda!6oknb4m&_d+w2b()k&5ec68j&6'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True' or os.environ.get('DJANGO_ENV', '') == 'local'
 
 ALLOWED_HOSTS = [
     'syagroup-chile.com',
@@ -150,7 +153,7 @@ TAILWIND_APP_NAME = 'theme'
 
 APP_NAME = 'SyA Group Bot'
 
-WEBHOOK_SECRET = '82NYYei3GcCBvd1hZL5p8jFLzJV9NYQ8AK9qvGc0YxM'
+WEBHOOK_SECRET = os.environ.get('WEBHOOK_SECRET', '')
 
 # Configuración de correo electrónico con Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -158,7 +161,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'syagroupweb@gmail.com'
-EMAIL_HOST_PASSWORD = 'snxmwbzvakszowsq'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = 'syagroupweb@gmail.com'
 
 STORAGES = {
@@ -169,4 +172,4 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-WHATSAPP_GATEWAY_URL = 'http://bot.syagroup-chile.com'
+WHATSAPP_GATEWAY_URL = os.environ.get('WHATSAPP_GATEWAY_URL', 'http://bot.syagroup-chile.com')
