@@ -69,14 +69,6 @@ body {
   line-height: 1.6;
 }
 
-/* ─── SCROLL PROGRESS ───────────────────────────────── */
-#scroll-progress {
-  position:fixed; top:0; left:0; height:3px; z-index:9000;
-  background:linear-gradient(90deg,var(--brand-blue),var(--brand-warm),var(--brand-warm-lt));
-  width:0%; transition:width .05s linear;
-  box-shadow:0 0 12px rgba(230,126,34,.5);
-}
-
 /* ─── UTILITIES ─────────────────────────────────────── */
 .section-inner { max-width:1280px; margin:0 auto; padding:0 48px; }
 @media(max-width:768px){ .section-inner { padding:0 24px; } }
