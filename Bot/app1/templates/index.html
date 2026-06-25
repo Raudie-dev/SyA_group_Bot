@@ -665,46 +665,53 @@ document.getElementById('reclamo-form').onsubmit = async function(e) {
       <p class="cert-full-lead">Acreditados por la Superintendencia del Medio Ambiente (SMA) como Entidad Técnica de Fiscalización Ambiental (ETFA) — Resolución Exenta N° 741/2023 — con certificaciones nacionales e internacionales que avalan la rigurosidad técnica y la validez legal de cada uno de nuestros entregables.</p>
     </div>
     <div class="cert-docs-grid">
-      <div class="cert-doc-card reveal reveal-delay-1" onclick="openCertModal('{% static 'pdf/Certificado-OI-216-17020.pdf' %}', 'Certificación OI 216 · ISO 17020')">
+      <!-- Tarjeta 1: OI 216 -->
+      <div class="cert-doc-card reveal reveal-delay-1" onclick="openCertModal('{% static 'pdf/OI216 - RENOV 2023.pdf' %}', 'Certificación OI 216 · ISO 17020 (Aguas)')">
         <div class="cert-doc-preview">
-          <iframe class="cert-pdf-thumb" src="{% static 'pdf/Certificado-OI-216-17020.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/OI216 - RENOV 2023.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
           <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
           <div class="cert-doc-stamp cert-doc-stamp--inn"><span>INN</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--blue">Acreditación</span>
           <p class="cert-doc-title">Certificación OI 216 · ISO 17020</p>
-          <p class="cert-doc-body">Instituto Nacional de Normalización · NCh-ISO/IEC 17020:2012</p>
-          <a href="{% static 'pdf/Certificado-OI-216-17020.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
+          <p class="cert-doc-body">Instituto Nacional de Normalización · Muestreo para Aguas (Vigencia 2028)</p>
+          <a href="{% static 'pdf/OI216 - RENOV 2023.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
-      <div class="cert-doc-card reveal reveal-delay-2" onclick="openCertModal('{% static 'pdf/RESOL-383-SMA-2017.pdf' %}', 'Resolución 383 SMA 2017')">
+
+      <!-- Tarjeta 2: OI 219 -->
+      <div class="cert-doc-card reveal reveal-delay-2" onclick="openCertModal('{% static 'pdf/OI219 - RENOV 2023.pdf' %}', 'Certificación OI 219 · ISO 17020 (Sedimentos)')">
         <div class="cert-doc-preview">
-          <iframe class="cert-pdf-thumb" src="{% static 'pdf/RESOL-383-SMA-2017.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/OI219 - RENOV 2023.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
           <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
+          <div class="cert-doc-stamp cert-doc-stamp--inn"><span>INN</span></div>
+        </div>
+        <div class="cert-doc-info">
+          <span class="cert-doc-tag cert-doc-tag--blue">Acreditación</span>
+          <p class="cert-doc-title">Certificación OI 219 · ISO 17020</p>
+          <p class="cert-doc-body">Instituto Nacional de Normalización · Muestreo para Sedimentos (Vigencia 2028)</p>
+          <a href="{% static 'pdf/OI219 - RENOV 2023.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Resolución SMA 741 -->
+      <div class="cert-doc-card reveal reveal-delay-3" onclick="openCertModal('{% static 'pdf/RESOL 741 SMA 2023_RENUEVA AUTORIZACIÓN ETFA.pdf' %}', 'Resolución Exenta 741 SMA 2023')">
+        <div class="cert-doc-preview">
+          <iframe class="cert-pdf-thumb" src="{% static 'pdf/RESOL 741 SMA 2023_RENUEVA AUTORIZACIÓN ETFA.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver resolución</span></div>
           <div class="cert-doc-stamp cert-doc-stamp--sma"><span>SMA</span></div>
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--green">Resolución</span>
-          <p class="cert-doc-title">Resolución 383 SMA 2017</p>
-          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Acreditación ETFA inicial</p>
-          <a href="{% static 'pdf/RESOL-383-SMA-2017.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
+          <p class="cert-doc-title">Resolución Exenta 741 SMA</p>
+          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Renueva Autorización ETFA</p>
+          <a href="{% static 'pdf/RESOL 741 SMA 2023_RENUEVA AUTORIZACIÓN ETFA.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
-      <div class="cert-doc-card reveal reveal-delay-3" onclick="openCertModal('{% static 'pdf/RESOL-813-SMA-2018.pdf' %}', 'Resolución 813 SMA 2018')">
-        <div class="cert-doc-preview">
-          <iframe class="cert-pdf-thumb" src="{% static 'pdf/RESOL-813-SMA-2018.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
-          <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
-          <div class="cert-doc-stamp cert-doc-stamp--sma"><span>SMA</span></div>
-        </div>
-        <div class="cert-doc-info">
-          <span class="cert-doc-tag cert-doc-tag--green">Resolución</span>
-          <p class="cert-doc-title">Resolución 813 SMA 2018</p>
-          <p class="cert-doc-body">Superintendencia del Medio Ambiente · Actualización y ampliación ETFA</p>
-          <a href="{% static 'pdf/RESOL-813-SMA-2018.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
-        </div>
-      </div>
-      <div class="cert-doc-card reveal reveal-delay-4" onclick="openCertModal('{% static 'pdf/AA-824_2026.pdf' %}', 'Certificación IAS AA-824 · 2025–2026')">
+
+      <!-- Tarjeta 4: Certificación IAS AA-824 -->
+      <div class="cert-doc-card reveal reveal-delay-4" onclick="openCertModal('{% static 'pdf/AA-824_2026.pdf' %}', 'Certificación IAS AA-824 · 2026–2027')">
         <div class="cert-doc-preview">
           <iframe class="cert-pdf-thumb" src="{% static 'pdf/AA-824_2026.pdf' %}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=80" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
           <div class="cert-doc-overlay"><i class="fas fa-expand-alt"></i><span>Ver certificado</span></div>
@@ -712,9 +719,10 @@ document.getElementById('reclamo-form').onsubmit = async function(e) {
         </div>
         <div class="cert-doc-info">
           <span class="cert-doc-tag cert-doc-tag--orange">Internacional</span>
-          <p class="cert-doc-title">Certificación IAS AA-824 · 2025–2026</p>
-          <p class="cert-doc-body">International Accreditation Service · Inspection Agency AA-824 (Type A)</p>
-          <a href="{% static 'pdf/AA-824-Cert-_2.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
+          <p class="cert-doc-title">Certificación IAS AA-824</p>
+          <p class="cert-doc-body">International Accreditation Service · Inspection Agency (Vigencia 2027)</p>
+          <!-- Corregida la ruta de descarga para que apunte exactamente al mismo archivo unificado -->
+          <a href="{% static 'pdf/AA-824_2026.pdf' %}" target="_blank" class="cert-doc-btn" onclick="event.stopPropagation()"><i class="fas fa-download"></i> Descargar PDF</a>
         </div>
       </div>
     </div>
